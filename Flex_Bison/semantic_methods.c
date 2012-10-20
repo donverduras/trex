@@ -2,7 +2,7 @@
 #include <string>
 #include <stdlib.h>
 #include <glib.h>
-#include "semanthic_method_v2.h"
+#include "semantic_methods.h"
 
 using namespace std;
 
@@ -13,7 +13,7 @@ static GHashTable* main_table;		//Tabla de procedimientos principal
  ***************************************************/
 void initialize_var_proc_table(){
 	main_table = g_hash_table_new(g_str_hash, g_str_equal);								//Inicializa la tabla de procedimientos general
-	cout << "TABLA INICIALIZADA \n";
+	cout << "Tabla inicializada \n";
 }
 
 /***************************************************
@@ -26,6 +26,7 @@ void initialize_var_proc_table(){
  * de dicho procedimiento.						   *
  ***************************************************/
 void add_to_proc_table(char  *function_name) {
+	cout << "Se recibe el nombre de la funcion: " << function_name << "\n";
 	if(g_hash_table_lookup(main_table,function_name) == NULL){							//Busca si el nombre del procedimiento existe
 		GHashTable* var_table = g_hash_table_new(g_str_hash, g_str_equal);				//Crea una nueva tabla de tipos de dato
 		
@@ -39,6 +40,7 @@ void add_to_proc_table(char  *function_name) {
 
 
 void add_to_var_table(char *function_name, char *var_type, char* memory_loc, char *var_name){
+	cout << "Se pretende agregar a: " << function_name << " la variable: " << var_name << " de tipo: " << var_type << "\n";
 	gpointer var_type_table_aux;
 	gpointer dir_name_table_aux;
 	GHashTable* var_type_table;

@@ -1,8 +1,9 @@
 program test{
-
-	int x = 2;
-	int x = 2;
-	int y = 2;
+	int x;
+	
+	function prueba(int parametro, int parametro2){
+		int x;
+	}
 
 	x=3;
 }

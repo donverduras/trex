@@ -3,7 +3,7 @@
 #include <stdio.h>
 using namespace std;
 #define YY_DECL extern "C" int yylex()
-#include "trex.tab.h" //incluye los tipos de token que fueron definidos en el archivo de bison
+#include "trex.tab.h" 																	//Incluye los tipos de token que fueron definidos en el archivo de bison
 %}
 
 %option yylineno

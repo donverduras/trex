@@ -2,7 +2,7 @@
 %{
 #include <cstdio>
 #include <iostream>
-#include "semanthic_method_v2.h"
+#include "semantic_methods.h"
 
 using namespace std;
 
@@ -82,14 +82,14 @@ void yyerror(const char *s);
 %%
 
 programa:
-	programa_a  vars programa_b funcion programa_c programa_d {cout << "EXITO " << endl;}
-	| programa_a funcion programa_c programa_d {cout << "EXITO " << endl;}
-	| programa_a vars programa_b programa_d {cout << "EXITO " << endl;}
-	| programa_a programa_d {cout << "EXITO " << endl;}
+	programa_a  vars programa_b funcion programa_c programa_d {cout << "EXITO" << endl;}
+	| programa_a funcion programa_c programa_d {cout << "EXITO" << endl;}
+	| programa_a vars programa_b programa_d {cout << "EXITO" << endl;}
+	| programa_a programa_d {cout << "EXITO" << endl;}
 	;
 
 programa_a:
-	PROGRAM CTE_ID { initialize_var_proc_table(); } LLAVEIZQ { function_name = $2; add_to_proc_table(function_name); };
+	PROGRAM CTE_ID { initialize_var_proc_table(); function_name = yylval.sval; add_to_proc_table(function_name); } LLAVEIZQ
 	;
 
 programa_b:
@@ -127,18 +127,18 @@ c:
 	;
 
 vars:
-	tipo CTE_ID IGUAL var_cte PUNTOYCOMA { name = $2; add_to_var_table(function_name,var_type,NULL,name); }
-	|tipo CTE_ID PUNTOYCOMA
+	tipo CTE_ID IGUAL var_cte PUNTOYCOMA { name = $2; add_to_var_table(function_name,var_type,"1001",name); }
+	|tipo CTE_ID PUNTOYCOMA { name = $2; add_to_var_table(function_name,var_type,"1001",name); }
 	|tipo CTE_ID CORIZQ CTE_INT CORDER IGUAL var_cte PUNTOYCOMA
 	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA
 	;
 
 tipo:
 	INT { var_type = yylval.sval;}
-	|FLOAT
-	|STRING
-	|BOOLEAN
-	|CHAR
+	|FLOAT { var_type = yylval.sval;}
+	|STRING { var_type = yylval.sval;}
+	|BOOLEAN { var_type = yylval.sval;}
+	|CHAR { var_type = yylval.sval;}
 	;
 
 var_cte:
@@ -269,8 +269,8 @@ lectura:
 	;
 	
 funcion:
-	FUNCTION CTE_ID PARENTESISIZQ param funcion_a
-	| FUNCTION CTE_ID PARENTESISIZQ funcion_a
+	FUNCTION CTE_ID { function_name = yylval.sval; add_to_proc_table(function_name); } PARENTESISIZQ param funcion_a
+	| FUNCTION CTE_ID { function_name = yylval.sval; add_to_proc_table(function_name); } PARENTESISIZQ funcion_a
 	;
 
 funcion_a:
@@ -289,11 +289,11 @@ llamada:
 	;
 
 param:
-	tipo CTE_ID g
+	tipo CTE_ID { name = yylval.sval; add_to_var_table(function_name,var_type,"1001",name); } g
 	;
 
 g:
-	COMA tipo CTE_ID g
+	COMA tipo CTE_ID { name = yylval.sval; add_to_var_table(function_name,var_type,"1001",name); } g
 	|
 	;
 
