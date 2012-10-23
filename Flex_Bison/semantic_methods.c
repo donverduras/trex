@@ -8,12 +8,106 @@ using namespace std;
 
 static GHashTable* main_table;		//Tabla de procedimientos principal
 
+static GQueue* pilaTipos;
+static GQueue* pilaSaltos;
+static GQueue* pilaOperadores;
+static GQueue* pilaOperandos;
+static GQuere* pilaPasos;
+
+static char* current_function;
+static char* main_function;
+
+static int cubo[9][5][5] =
+{
+		{//"+"
+			{1, 2, 3, -1, -1},
+			{2, 2, 3, -1, -1},
+			{3, 3, 3, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, 3, -1, -1}
+		},
+		{//"-"
+			{1, 2, -1, -1, -1},
+			{2, 2, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1}
+		},
+		{//"/"
+			{2, 2, -1, -1, -1},
+			{2, 2, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1}
+		},
+		{//"*"
+			{1, 2, -1, -1, -1},
+			{2, 2, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1}
+		},
+		{//"<"
+			{4, 4, -1, -1, -1},
+			{4, 4, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1}
+		},
+		{//">"
+			{4, 4, -1, -1, -1},
+			{4, 4, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1}
+		},
+		{//"="
+			{1, -1, -1, -1, -1},
+			{-1, 2, -1, -1, -1},
+			{-1, -1, 3, -1, -1},
+			{-1, -1, -1, 4, -1},
+			{-1, -1, -1, -1, 5}
+		},
+		{//"<>"
+			{4, 4, -1, -1, -1},
+			{4, 4, -1, -1, -1},
+			{-1, -1, 4, -1, -1},
+			{-1, -1, -1, 4, -1},
+			{-1, -1, -1, -1, 4}
+		},
+		{//"=="
+			{4, 4, -1, -1, -1},
+			{4, 4, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1}
+		}
+};
+
+typedef struct {
+	char* operador;
+	char* operando1;
+	char* operando2;
+	char* resultado;
+}quadruple;
+
 /***************************************************
  * Inicializa la tabla de procedimientos principal *
  ***************************************************/
 void initialize_var_proc_table(){
 	main_table = g_hash_table_new(g_str_hash, g_str_equal);								//Inicializa la tabla de procedimientos general
 	cout << "Tabla inicializada \n";
+}
+
+void initialize_stacks(){
+	pilaTipos = g_queue_new();
+	pilaSaltos = g_queue_new();
+	pilaOperadores = g_queue_new();
+	pilaOperandos = g_queue_new();
+}
+
+void main_function_name(char *function_name){
+	main_function = function_name;
 }
 
 /***************************************************
@@ -31,13 +125,13 @@ void add_to_proc_table(char  *function_name) {
 		GHashTable* var_table = g_hash_table_new(g_str_hash, g_str_equal);				//Crea una nueva tabla de tipos de dato
 		
 		g_hash_table_insert(main_table, function_name, var_table);						//Agrega el nombre de la funcion y como valor su tabla
+		current_function = function_name;
 		cout << "La funcion " << function_name << " se ha agregado exitosamente \n";
 	}else{
 		cout << "Error, la funcion ha agregar ya existe \n";
 		exit (EXIT_FAILURE);
 	}
 }
-
 
 void add_to_var_table(char *function_name, char *var_type, char* memory_loc, char *var_name){
 	cout << "Se pretende agregar a: " << function_name << " la variable: " << var_name << " de tipo: " << var_type << "\n";
@@ -75,3 +169,39 @@ void add_to_var_table(char *function_name, char *var_type, char* memory_loc, cha
 	}
 	
 }
+
+void push_to_pilaOperandos(char *var_cte){
+	g_queue_push_tail(pilaOperandos,var_cte);
+}
+
+void push_to_pilaOperadores(char *var_cte){
+	g_queue_push_tail(pilaOperadores,var_cte);
+}
+
+char *get_var_type(char *cte_id){
+	
+}
+
+void quadruple_mult_div(){
+	char *operador = g_queue_peek_tail(pilaOperadores);
+	
+	if(operador == "*" || operador == "/"){
+		generateQuadruple();
+	}else{
+		exit (EXIT_FAILURE);
+	}
+}
+
+void generateQuadruple(){
+	char *op;
+	char *operando1;
+	char *operando2;
+	char *res;
+	
+	quadruple *new = g_slice_new(quadruple);
+	op = g_queue_pop_tail(pilaOperadores);
+	operando2 = g_queue_pop_tail(pilaOperandos);
+	operando1 = g_queue_pop_tail(pilaOperandos);
+	
+}
+

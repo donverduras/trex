@@ -5,5 +5,5 @@ program test{
 		int x;
 	}
 
-	x=3;
+	x=x+3;
 }

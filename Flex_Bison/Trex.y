@@ -89,7 +89,7 @@ programa:
 	;
 
 programa_a:
-	PROGRAM CTE_ID { initialize_var_proc_table(); function_name = yylval.sval; add_to_proc_table(function_name); } LLAVEIZQ
+	PROGRAM { initialize_var_proc_table(); initialize_stacks(); } CTE_ID { function_name = yylval.sval; add_to_proc_table(function_name); main_function_name(function_name); } LLAVEIZQ
 	;
 
 programa_b:
@@ -212,12 +212,12 @@ e:
 	;
 
 sumaresta:
-	SUMA
-	|RESTA
+	SUMA { push_to_pilaOperadores(yylval.sval); }
+	|RESTA { push_to_pilaOperadores(yylval.sval); }
 	;
 
 termino:
-	factor f
+	factor { quadruples(); } f
 	;
 
 f:
@@ -226,14 +226,14 @@ f:
 	;
 
 multdiv:
-	MULTIPLICACION
-	|DIVISION
+	MULTIPLICACION { push_to_pilaOperadores(yylval.sval); }
+	|DIVISION { push_to_pilaOperadores(yylval.sval); }
 	;
 
 factor:
 	factor_a
-	| sumaresta var_cte
-	| var_cte
+	| sumaresta var_cte { push_to_pilaOperandos(yylval.sval); }
+	| var_cte { push_to_pilaOperandos(yylval.sval); }
 	| arr
 	;
 
