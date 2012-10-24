@@ -9,13 +9,8 @@
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
-<script type="text/javascript">
-
-$( init );
-
-function init() {
-  $('.Draggable').draggable();
-}
+<script type="text/javascript" src="trex.js"></script>
+<script type="text/javascript"> 
 
 function agregar_estatuto() {
     $('.flowchart').append('<div class="estatuto Draggable"> <textarea></textarea></div>');
@@ -46,24 +41,24 @@ function agregar_operacion() {
 	<div class="elementos">
 		<h2> Simbolos </h2>
 		
-		<div class="estatuto" onclick="agregar_estatuto()"> 
+		<div class="estatuto" onclick="click_estatuto()"> 
 			<span>estatuto</span>
 		</div>
 		
-		<div class="variable" onclick="agregar_variable()"> 
+		<div class="variable" onclick="click_var()"> 
 			<span>variable</span>
 		</div>
 		
-		<div class="if" onclick="agregar_if()">
+		<div class="if" onclick="click_if()">
 			<span class="textoIf">if</span>
 		</div>
 		
-		<div class="operacion" onclick="agregar_operacion()">
+		<div class="operacion" onclick="click_op()">
 			<span>operacion</span>
 		</div>
 	</div>
   
-	<div class="flowchart">
+	<div class="flowchart" onclick="agregar_elem()">
 		
 		<h2> Flowchart </h2>
 
