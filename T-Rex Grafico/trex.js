@@ -33,19 +33,43 @@ function click_op(){
 }
 
 function agregar_estatuto() {
-    $('.flowchart').append('<div class="estatuto Draggable"> <textarea></textarea></div>');
+    var x;
+	var est_text=prompt("Agrega estatuto","Ejem: Fin");
+	
+	if (est_text!=null){
+	  x='<div class="estatuto"> <span>' + est_text + '</span></div>';
+	  $('.flowchart').append(x);
+	}
 }
 
 function agregar_variable() {
-    $('.flowchart').append('<div class="variable Draggable"> <textarea></textarea></div>');
+	var x;
+	var var_text=prompt("Agrega tipo, nombre y valor de la variable","Ejem: int x = 3");
+	
+	if (var_text!=null){
+	  x='<div class="variable"> <span>' + var_text + '</span></div>';
+	  $('.flowchart').append(x);
+	}
 }
 
 function agregar_if() {
-    $('.flowchart').append('<div class="if Draggable"> <textarea class="textoIf"> </textarea></div>');
+	var x;
+	var if_text=prompt("Agrega condicion","Ejem: x > y");
+	
+	if (if_text!=null){
+	  x='<div class="if"> <span class="textoIf">' + if_text + '</span></div>';
+	  $('.flowchart').append(x);
+	}
 }
 
 function agregar_operacion() {
-    $('.flowchart').append('<div class="operacion Draggable"> <textarea></textarea></div>');
+    var x;
+	var op_text=prompt("Agrega operacion","Ejem: x = x + 1");
+	
+	if (op_text!=null){
+	  x='<div class="operacion"> <span>' + op_text + '</span></div>';
+	  $('.flowchart').append(x);
+	}
 }
 
 function agregar_elem(){
