@@ -32,66 +32,78 @@ function click_op(){
   console.log("operacion");
 }
 
-function agregar_estatuto() {
+function agregar_estatuto(elemento) {
     var x;
 	var est_text=prompt("Agrega estatuto","Ejem: Fin");
 	
-	if (est_text!=null){
-	  x='<div class="estatuto"> <span>' + est_text + '</span></div>';
-	  $('.flowchart').append(x);
+	if (est_text!=""){
+	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="estatuto"> <span>' + est_text + '</span></div><div class="conector"></div></div>';
+	  $(elemento).after(x);  
+	}
+	else{
+		alert("No declaraste un estatuto");
 	}
 }
 
-function agregar_variable() {
+function agregar_variable(elemento) {
 	var x;
 	var var_text=prompt("Agrega tipo, nombre y valor de la variable","Ejem: int x = 3");
 	
-	if (var_text!=null){
-	  x='<div class="variable"> <span>' + var_text + '</span></div>';
-	  $('.flowchart').append(x);
+	if (var_text!=""){
+	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="variable"> <span>' + var_text + '</span></div><div class="conector"></div></div>';
+	  $(elemento).after(x);  
+	}
+	else{
+		alert("No declaraste un elemento");
 	}
 }
 
-function agregar_if() {
+function agregar_if(elemento) {
 	var x;
 	var if_text=prompt("Agrega condicion","Ejem: x > y");
 	
-	if (if_text!=null){
-	  x='<div class="if"> <span class="textoIf">' + if_text + '</span></div>';
-	  $('.flowchart').append(x);
+	if (if_text!=""){
+	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="if"> <span class="textoIf">' + if_text + '</span></div><div class="conector"></div></div>';
+	  $(elemento).after(x);  
+	}
+	else{
+		alert("No declaraste un if");
 	}
 }
 
-function agregar_operacion() {
+function agregar_operacion(elemento) {
     var x;
 	var op_text=prompt("Agrega operacion","Ejem: x = x + 1");
 	
-	if (op_text!=null){
-	  x='<div class="operacion"> <span>' + op_text + '</span></div>';
-	  $('.flowchart').append(x);
+	if (op_text!=""){
+	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="operacion"> <span>' + op_text + '</span></div><div class="conector"></div></div>';
+	  $(elemento).after(x);    
+	}
+	else{
+		alert("No declaraste una operacion");
 	}
 }
 
-function agregar_elem(){
+function agregar_elem(elemento){
 	switch (elem_selec){
 	case 0:
-	  console.log("ninguno esta seleccionado");
+	  alert("Selecciona un simbolo antes de agregar");
 	  break;
 	case 1:
-	  agregar_estatuto();
+	  agregar_estatuto(elemento);
 	  elem_selec = 0;
 	  break;
 	case 2:
-	  agregar_variable()
+	  agregar_variable(elemento)
 	  elem_selec = 0;
 	  break;
 	case 3:
-	  agregar_if();
+	  agregar_if(elemento);
 	  elem_selec = 0;
 	  break;
 	case 4:
-	  agregar_operacion();
+	  agregar_operacion(elemento);
 	  elem_selec = 0;
 	  break;
 	}
-}    
+}
