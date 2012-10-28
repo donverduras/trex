@@ -6,202 +6,223 @@
 
 using namespace std;
 
-static GHashTable* main_table;		//Tabla de procedimientos principal
+/******************************Declaración de variables**********************************/
 
-static GQueue* pilaTipos;
-static GQueue* pilaSaltos;
-static GQueue* pilaOperadores;
-static GQueue* pilaOperandos;
-static GQuere* pilaPasos;
+//Bloque de variables utilizadas para la generación de tablas de procedimientos y variables
+static int procedure_index[26];			//Tabla de Hash para los procedimientos
+static int table_size = 26;				//Tamaño de las "tablas"
+static int variable_index[26];			//Tabla de Hash para las variables
 
-static char* current_function;
+static GQueue* tableProc_stack;			//Lista donde están almacenados los nodos con la información de cada procedimiento
+static GQueue* tableVar_stack;			//Lista donde están almacenados los nodos con la información de cada variable
+
 static char* main_function;
 
-static int cubo[9][5][5] =
-{
-		{//"+"
-			{1, 2, 3, -1, -1},
-			{2, 2, 3, -1, -1},
-			{3, 3, 3, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, 3, -1, -1}
-		},
-		{//"-"
-			{1, 2, -1, -1, -1},
-			{2, 2, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1}
-		},
-		{//"/"
-			{2, 2, -1, -1, -1},
-			{2, 2, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1}
-		},
-		{//"*"
-			{1, 2, -1, -1, -1},
-			{2, 2, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1}
-		},
-		{//"<"
-			{4, 4, -1, -1, -1},
-			{4, 4, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1}
-		},
-		{//">"
-			{4, 4, -1, -1, -1},
-			{4, 4, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1}
-		},
-		{//"="
-			{1, -1, -1, -1, -1},
-			{-1, 2, -1, -1, -1},
-			{-1, -1, 3, -1, -1},
-			{-1, -1, -1, 4, -1},
-			{-1, -1, -1, -1, 5}
-		},
-		{//"<>"
-			{4, 4, -1, -1, -1},
-			{4, 4, -1, -1, -1},
-			{-1, -1, 4, -1, -1},
-			{-1, -1, -1, 4, -1},
-			{-1, -1, -1, -1, 4}
-		},
-		{//"=="
-			{4, 4, -1, -1, -1},
-			{4, 4, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1}
-		}
+/*********************************Estructuras de datos***********************************/
+
+//Nodo que contiene información importante de cada procedimiento
+struct Procedure{
+	string name;
+	string dirInitial;
+	string size;
 };
 
-typedef struct {
-	char* operador;
-	char* operando1;
-	char* operando2;
-	char* resultado;
-}quadruple;
+//Nodo que contiene información importante de cada variable
+struct Variable{
+	string name;
+	string type;
+	string dirVirtual;
+};
 
-/***************************************************
- * Inicializa la tabla de procedimientos principal *
- ***************************************************/
-void initialize_var_proc_table(){
-	main_table = g_hash_table_new(g_str_hash, g_str_equal);								//Inicializa la tabla de procedimientos general
-	cout << "Tabla inicializada \n";
+/****************************************Métodos*****************************************/
+
+/*******************************************
+ * Función que checa si existe una lista de*
+ * variables o procedimientos dentro de la *
+ * lista principal						   *
+ *******************************************/
+bool check_if_stack_exists(int key, int arrType){
+	if(arrType == 0){						//Procedimientos
+		if(procedure_index[key] != -1)		//Si tiene un valor de -1 significa que no hay listas creadas para esa letra
+			return true;
+		else
+			return false;
+	}else if(arrType == 1){					//Variables
+		if(variable_index[key] != -1)
+			return true;
+		else
+			return false;
+	}
 }
 
+/*******************************************
+ * Función que calcula la llave para la 	*
+ * tabla de hash, tomando en cuenta la 		*
+ * primera letra de la variable o 			*
+ * procedimiento, convirtiendolo en un 		*
+ * entero 									*
+ *******************************************/
+int get_hash_key(string key){
+	char firstLetter;
+	//cout << "La llave a cambiar es: " << key << "\n";
+	firstLetter = key[0];
+	//cout << "La primera letra del string es: " << firstLetter << "\n";
+	//cout << "Cambiado a ASCII: " << int(firstLetter)-97 << "\n";
+	
+	return int(firstLetter)-97;
+}
+
+void initialize(){
+	initialize_arrs();
+	initialize_stacks();
+	
+	cout << "PROCESO DE INICIALIZACION: CHECK \n";
+}
+
+//Método que inicializa ambos arreglos (Tablas de Hash) con -1
+void initialize_arrs(){
+	int i;
+	
+	for(i=0; i<table_size; i++){
+		procedure_index[i] = -1;
+		variable_index[i] = -1;
+	}
+}
+
+//Método que inicializa pilas
 void initialize_stacks(){
-	pilaTipos = g_queue_new();
-	pilaSaltos = g_queue_new();
-	pilaOperadores = g_queue_new();
-	pilaOperandos = g_queue_new();
+	tableProc_stack = g_queue_new();
+	tableVar_stack = g_queue_new();
+}
+
+/*******************************************
+ * Función para agregar un nuevo id con su *
+ * tipo de dato y direccion virtual a la   *
+ * tabla de procedimientos 				   *
+ *******************************************/
+void insert_to_procs_table(string id, string dirInitial, string size){
+	int hash_key;						//Valor que le corresponde dependiendo la primera letra del id
+	int value_inside_array;				//Valor que se encuentre dentro de la casilla del arreglo, que corresponde a la posicion dentro de la lista principal			
+	bool stack_exists;					//Checa si hay alguna lista dentro de alguna casilla de la lista principal
+	const char * string_aux;			//String auxiliar
+	GList* procedure_in_stack;			//Lista utilizada para encontrar alguna variable repetida
+		
+	GQueue* stack_aux = g_queue_new();		//Pila auxiliar
+	Procedure *node = new Procedure;		//Nodo
+	
+	node->name = id;					//Se asigna el id al nodo
+	node->dirInitial = dirInitial;		//Se asigna el tipo de dato al nodo
+	node->size = size;					//Se asigna la direccion virtual al nodo
+	//cout << "Nodo creado \n";
+	
+	hash_key = get_hash_key(id);							//Busca la hash key que le corresponde al identificador
+	stack_exists = check_if_stack_exists(hash_key, 0);		//Checa si en esa posicion existe alguna lista almacenando alguna otra variable
+	
+	if(!stack_exists){															//Si no existe
+		stack_aux = g_queue_new();												//Creo una nueva lista
+		g_queue_push_tail(stack_aux,node);										//Meto el nodo
+		g_queue_push_tail(tableProc_stack,stack_aux);							//Meto esa lista a la lista principal
+		procedure_index[hash_key] = g_queue_get_length(tableProc_stack);		//Guardo la posicion donde fue puesta la lista en la lista principal en el arreglo
+		
+		//cout << "El arreglo en la posicion " << hash_key << " tiene el valor: " << g_queue_get_length(tableProc_stack) << "\n";
+	}else{																					//Si ya existía una lista
+		value_inside_array = procedure_index[hash_key] - 1;									//Checo el valor que le corresponde dentro del arreglo
+		//cout << "Valor en la posicion del arreglo " << value_inside_array << "\n";
+		stack_aux = (GQueue *)g_queue_peek_nth(tableProc_stack, value_inside_array);		//Obtengo la lista con las variables dentro de la lista principal
+		
+		string_aux = id.c_str();															//Convierto el nombre del id en char *
+		procedure_in_stack = g_queue_find_custom(stack_aux, string_aux, search_for_id);		//Checo si existe el nombre del id dentro de la lista
+		
+		if(!procedure_in_stack){														//Si no existe el nombre de la variable en la lista
+			g_queue_push_tail(stack_aux, node);										//Agrego el nuevo id (nodo) a la lista
+			g_queue_push_nth(tableProc_stack, stack_aux, value_inside_array);		//Meto la lista actualizada en la posicion original de la lista
+			g_queue_pop_nth(tableProc_stack, value_inside_array+1);					//Elimino la lista "desactualizada" que se encuentra una posicion adelante de la recien agregada
+			//cout << "La pila tiene :" << g_queue_get_length(tableProc_stack) << "\n";
+		}else{																	//Si ya existia la variable, truena el programa
+			cout << "LA VARIABLE YA HA SIDO DECLARADA ANTERIORMENTE \n";
+			exit (EXIT_FAILURE);
+		}
+	}
+	cout << "La funcion " << id << " ha sido agregada exitosamente\n";
+}
+
+/*******************************************
+ * Función para agregar un nuevo id con su *
+ * tipo de dato y direccion virtual a la   *
+ * tabla de variables	   				   *
+ *******************************************/
+void insert_to_vars_table(string id, string type, string dirVirtual){
+	int hash_key;						//Valor que le corresponde dependiendo la primera letra del id
+	int value_inside_array;				//Valor que se encuentre dentro de la casilla del arreglo, que corresponde a la posicion dentro de la lista principal			
+	bool stack_exists;					//Checa si hay alguna lista dentro de alguna casilla de la lista principal
+	const char * string_aux;			//String auxiliar
+	GList* variable_in_stack;			//Lista utilizada para encontrar alguna variable repetida
+		
+	GQueue* stack_aux = g_queue_new();	//Pila auxiliar
+	Variable *node = new Variable;		//Nodo
+	Variable *node_aux = new Variable;	//Nodo auxiliar
+	
+	node->name = id;					//Se asigna el id al nodo
+	node->type = type;					//Se asigna el tipo de dato al nodo
+	node->dirVirtual = dirVirtual;		//Se asigna la direccion virtual al nodo
+	//cout << "Nodo creado \n";
+	
+	hash_key = get_hash_key(id);							//Busca la hash key que le corresponde al identificador
+	stack_exists = check_if_stack_exists(hash_key, 1);		//Checa si en esa posicion existe alguna lista almacenando alguna otra variable
+	
+	if(!stack_exists){														//Si no existe
+		stack_aux = g_queue_new();											//Creo una nueva lista
+		g_queue_push_tail(stack_aux,node);									//Meto el nodo
+		g_queue_push_tail(tableVar_stack,stack_aux);						//Meto esa lista a la lista principal
+		variable_index[hash_key] = g_queue_get_length(tableVar_stack);		//Guardo la posicion donde fue puesta la lista en la lista principal en el arreglo
+		
+		//cout << "El arreglo en la posicion " << hash_key << " tiene el valor: " << g_queue_get_length(tableVar_stack) << "\n";
+	}else{																					//Si ya existía una lista
+		value_inside_array = variable_index[hash_key] - 1;									//Checo el valor que le corresponde dentro del arreglo
+		//cout << "Valor en la posicion del arreglo " << value_inside_array << "\n";
+		stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, value_inside_array);			//Obtengo la lista con las variables dentro de la lista principal
+		
+		string_aux = id.c_str();															//Convierto el nombre del id en char *
+		variable_in_stack = g_queue_find_custom(stack_aux, string_aux, search_for_id);		//Checo si existe el nombre del id dentro de la lista
+		
+		if(!variable_in_stack){														//Si no existe el nombre de la variable en la lista
+			g_queue_push_tail(stack_aux, node);										//Agrego el nuevo id (nodo) a la lista
+			g_queue_push_nth(tableVar_stack, stack_aux, value_inside_array);		//Meto la lista actualizada en la posicion original de la lista
+			g_queue_pop_nth(tableVar_stack, value_inside_array+1);					//Elimino la lista "desactualizada" que se encuentra una posicion adelante de la recien agregada
+			//cout << "La pila tiene :" << g_queue_get_length(tableVar_stack) << "\n";
+			//node_aux = (Variable *)g_queue_peek_head(stack_aux);
+			//cout << node_aux->name << "\n";
+		}else{																	//Si ya existia la variable, truena el programa
+			cout << "LA VARIABLE YA HA SIDO DECLARADA ANTERIORMENTE \n";
+			exit (EXIT_FAILURE);
+		}
+	}
+	cout << "La variable " << id << " ha sido agregada exitosamente\n";
 }
 
 void main_function_name(char *function_name){
 	main_function = function_name;
 }
 
-/***************************************************
- * Hace una busqueda para ver si el nombre del	   *
- * procedimiento existe en dicha tabla. Si ya 	   *
- * existe, entonces marca un error. Si no, entonces*
- * agrega el nombre del procedimiento a la tabla   *
- * y crea una tabla secundaria en donde se 		   *
- * almacenaran los tipos de datos de las variables *
- * de dicho procedimiento.						   *
- ***************************************************/
-void add_to_proc_table(char  *function_name) {
-	cout << "Se recibe el nombre de la funcion: " << function_name << "\n";
-	if(g_hash_table_lookup(main_table,function_name) == NULL){							//Busca si el nombre del procedimiento existe
-		GHashTable* var_table = g_hash_table_new(g_str_hash, g_str_equal);				//Crea una nueva tabla de tipos de dato
-		
-		g_hash_table_insert(main_table, function_name, var_table);						//Agrega el nombre de la funcion y como valor su tabla
-		current_function = function_name;
-		cout << "La funcion " << function_name << " se ha agregado exitosamente \n";
+/*******************************************
+ * Función que recibe un nodo y el nombre  *
+ * de identificador, y busca en cada nodo  *
+ * si existe tal nombre guardado en algun  *
+ * nodo. Si existe, regresa un 0.		   *
+ *******************************************/
+int search_for_id(gconstpointer a, gconstpointer b){
+	Variable *node = (Variable *) a;					//Convierte el parametro en "Variable"
+	const char *id = (char *) b;						//Convierte el parametro en char *
+	const char *id_node = node->name.c_str();			//Convierte el valor de nombre dentro del nodo en char *
+	
+	//cout << "Primer string : " << id << "\n";
+	//cout << "Segundo string: " << id_node << "\n";
+	
+	if(strcmp(id,id_node) == 0){						//Si los strings son equivalente...
+		cout << "Variables del mismo nombre \n";
+		return 0;
 	}else{
-		cout << "Error, la funcion ha agregar ya existe \n";
-		exit (EXIT_FAILURE);
+		return -1;
 	}
-}
-
-void add_to_var_table(char *function_name, char *var_type, char* memory_loc, char *var_name){
-	cout << "Se pretende agregar a: " << function_name << " la variable: " << var_name << " de tipo: " << var_type << "\n";
-	gpointer var_type_table_aux;
-	gpointer dir_name_table_aux;
-	GHashTable* var_type_table;
-	GHashTable* dir_name_table;
-	
-	var_type_table_aux = g_hash_table_lookup(main_table,function_name);					//Apuntador al valor resultante de la llave de la tabla de procedimientos
-	var_type_table = (GHashTable*)var_type_table_aux;									//Convertir el apuntador a valor a una tabla de Hash
-	
-	if(var_type_table_aux == NULL){														//El nombre del procedimiento no está en la tabla
-		cout << "El nombre del procedimiento no existe \n";
-		exit (EXIT_FAILURE);
-	}else{
-		dir_name_table_aux = g_hash_table_lookup(var_type_table,var_type);				//Apuntador al valor resultante de la tabla de tipos de datos
-		
-		if(dir_name_table_aux == NULL){													//Si el tipo de dato no se encuentra en la tabla...
-			dir_name_table = g_hash_table_new(g_str_hash, g_str_equal);					//Creo una nueva tabla para agregar variables de ese tipo de dato
-			
-			g_hash_table_insert(dir_name_table, var_name, memory_loc);					//Agrego a la tabla la direccion de memoria y el nombre de la variable
-			g_hash_table_insert(var_type_table, var_type, dir_name_table);				//Inserto la nueva tabla como valor a la tabla con el tipo de dato
-			cout << "La variable " << var_name << " con el tipo de dato " << var_type << " ha sido agregada exitosamente \n";
-		}else{
-			dir_name_table = (GHashTable*)dir_name_table_aux;							//Tabla de direcciones virtuales y nombre de la variable
-			
-			if(g_hash_table_lookup(dir_name_table, var_name) == NULL){					//Si no existe el nombre de la variable...
-				g_hash_table_insert(dir_name_table, var_name, memory_loc);
-				cout << "La variable " << var_name << " con el tipo de dato " << var_type << " ha sido agregada exitosamente \n";
-			}else{
-				cout << "La variable a declarar ya existe! \n";
-				exit (EXIT_FAILURE);
-			}
-		}
-	}
-	
-}
-
-void push_to_pilaOperandos(char *var_cte){
-	g_queue_push_tail(pilaOperandos,var_cte);
-}
-
-void push_to_pilaOperadores(char *var_cte){
-	g_queue_push_tail(pilaOperadores,var_cte);
-}
-
-char *get_var_type(char *cte_id){
-	
-}
-
-void quadruple_mult_div(){
-	char *operador = g_queue_peek_tail(pilaOperadores);
-	
-	if(operador == "*" || operador == "/"){
-		generateQuadruple();
-	}else{
-		exit (EXIT_FAILURE);
-	}
-}
-
-void generateQuadruple(){
-	char *op;
-	char *operando1;
-	char *operando2;
-	char *res;
-	
-	quadruple *new = g_slice_new(quadruple);
-	op = g_queue_pop_tail(pilaOperadores);
-	operando2 = g_queue_pop_tail(pilaOperandos);
-	operando1 = g_queue_pop_tail(pilaOperandos);
-	
 }
 

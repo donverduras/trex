@@ -1652,22 +1652,22 @@ yyreduce:
 
   case 6:
 #line 92 "Trex.y"
-    { initialize_var_proc_table(); initialize_stacks(); ;}
+    { initialize(); ;}
     break;
 
   case 7:
 #line 92 "Trex.y"
-    { function_name = yylval.sval; add_to_proc_table(function_name); ;}
+    { function_name = yylval.sval; insert_to_procs_table(function_name,"0","300"); main_function_name(function_name); ;}
     break;
 
   case 22:
 #line 130 "Trex.y"
-    { name = (yyvsp[(2) - (5)].sval); add_to_var_table(function_name,var_type,"1001",name); ;}
+    { name = (yyvsp[(2) - (5)].sval); insert_to_vars_table(name,var_type,"1001"); ;}
     break;
 
   case 23:
 #line 131 "Trex.y"
-    { name = (yyvsp[(2) - (3)].sval); add_to_var_table(function_name,var_type,"1001",name); ;}
+    { name = (yyvsp[(2) - (3)].sval); insert_to_vars_table(name,var_type,"1001"); ;}
     break;
 
   case 26:
@@ -1695,39 +1695,29 @@ yyreduce:
     { var_type = yylval.sval;;}
     break;
 
-  case 73:
-#line 235 "Trex.y"
-    { push_to_pilaOperandos(yylval.sval); ;}
-    break;
-
-  case 74:
-#line 236 "Trex.y"
-    { push_to_pilaOperandos(yylval.sval); ;}
-    break;
-
   case 86:
 #line 272 "Trex.y"
-    { function_name = yylval.sval; add_to_proc_table(function_name); ;}
+    { function_name = yylval.sval; insert_to_procs_table(function_name,"10","20"); ;}
     break;
 
   case 88:
 #line 273 "Trex.y"
-    { function_name = yylval.sval; add_to_proc_table(function_name); ;}
+    { function_name = yylval.sval; insert_to_procs_table(function_name,"10","20"); ;}
     break;
 
   case 96:
 #line 292 "Trex.y"
-    { name = yylval.sval; add_to_var_table(function_name,var_type,"1001",name); ;}
+    { name = yylval.sval; insert_to_vars_table(name,var_type,"1001"); ;}
     break;
 
   case 98:
 #line 296 "Trex.y"
-    { name = yylval.sval; add_to_var_table(function_name,var_type,"1001",name); ;}
+    { name = yylval.sval; insert_to_vars_table(name,var_type,"1001"); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1731 "Trex.tab.c"
+#line 1721 "Trex.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

@@ -1,8 +1,9 @@
 program test{
 	int x;
+	float w;
 	
 	function prueba(int parametro, int parametro2){
-		int x;
+		int y;
 	}
 
 	x=x+3;

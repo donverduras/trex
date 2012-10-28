@@ -89,7 +89,7 @@ programa:
 	;
 
 programa_a:
-	PROGRAM { initialize_var_proc_table(); initialize_stacks(); } CTE_ID { function_name = yylval.sval; add_to_proc_table(function_name); main_function_name(function_name); } LLAVEIZQ
+	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"0","300"); main_function_name(function_name); } LLAVEIZQ
 	;
 
 programa_b:
@@ -127,8 +127,8 @@ c:
 	;
 
 vars:
-	tipo CTE_ID IGUAL var_cte PUNTOYCOMA { name = $2; add_to_var_table(function_name,var_type,"1001",name); }
-	|tipo CTE_ID PUNTOYCOMA { name = $2; add_to_var_table(function_name,var_type,"1001",name); }
+	tipo CTE_ID IGUAL var_cte PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,"1001"); }
+	|tipo CTE_ID PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,"1001"); }
 	|tipo CTE_ID CORIZQ CTE_INT CORDER IGUAL var_cte PUNTOYCOMA
 	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA
 	;
@@ -142,9 +142,9 @@ tipo:
 	;
 
 var_cte:
-	CTE_INT
-	|CTE_FLOAT
-	|CTE_STRING
+	CTE_INT 
+	|CTE_FLOAT 
+	|CTE_STRING 
 	|CTE_BOOLEAN
 	|CTE_CHAR
 	|CTE_ID
@@ -212,12 +212,12 @@ e:
 	;
 
 sumaresta:
-	SUMA { push_to_pilaOperadores(yylval.sval); }
-	|RESTA { push_to_pilaOperadores(yylval.sval); }
+	SUMA
+	|RESTA
 	;
 
 termino:
-	factor { quadruples(); } f
+	factor f
 	;
 
 f:
@@ -226,14 +226,14 @@ f:
 	;
 
 multdiv:
-	MULTIPLICACION { push_to_pilaOperadores(yylval.sval); }
-	|DIVISION { push_to_pilaOperadores(yylval.sval); }
+	MULTIPLICACION
+	|DIVISION
 	;
 
 factor:
 	factor_a
-	| sumaresta var_cte { push_to_pilaOperandos(yylval.sval); }
-	| var_cte { push_to_pilaOperandos(yylval.sval); }
+	| sumaresta var_cte
+	| var_cte
 	| arr
 	;
 
@@ -269,8 +269,8 @@ lectura:
 	;
 	
 funcion:
-	FUNCTION CTE_ID { function_name = yylval.sval; add_to_proc_table(function_name); } PARENTESISIZQ param funcion_a
-	| FUNCTION CTE_ID { function_name = yylval.sval; add_to_proc_table(function_name); } PARENTESISIZQ funcion_a
+	FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"10","20"); } PARENTESISIZQ param funcion_a
+	| FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"10","20"); } PARENTESISIZQ funcion_a
 	;
 
 funcion_a:
@@ -289,11 +289,11 @@ llamada:
 	;
 
 param:
-	tipo CTE_ID { name = yylval.sval; add_to_var_table(function_name,var_type,"1001",name); } g
+	tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type,"1001"); } g
 	;
 
 g:
-	COMA tipo CTE_ID { name = yylval.sval; add_to_var_table(function_name,var_type,"1001",name); } g
+	COMA tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type,"1001"); } g
 	|
 	;
 
