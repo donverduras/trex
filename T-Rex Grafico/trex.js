@@ -4,6 +4,8 @@ estatuto = 1
 variable = 2
 if = 3
 operacion = 4
+for = 5
+while = 6
 */
 
 var elem_selec=0;
@@ -30,6 +32,18 @@ function click_op(){
   elem_selec=4;
   console.log(elem_selec);
   console.log("operacion");
+}
+
+function click_for(){  
+  elem_selec=5;
+  console.log(elem_selec);
+  console.log("for");
+}
+
+function click_while(){  
+  elem_selec=6;
+  console.log(elem_selec);
+  console.log("while");
 }
 
 function agregar_estatuto(elemento) {
@@ -84,6 +98,32 @@ function agregar_operacion(elemento) {
 	}
 }
 
+function agregar_for(elemento) {
+    var x;
+	var for_text=prompt("Agrega for","Ejem: i = 0; i < 10; i++");
+	
+	if (for_text!=""){
+	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="for"> <span>' + for_text + '</span></div><div class="conector"></div></div>';
+	  $(elemento).after(x);    
+	}
+	else{
+		alert("No declaraste un for");
+	}
+}
+
+function agregar_while(elemento) {
+    var x;
+	var while_text=prompt("Agrega while","Ejem: x < 10");
+	
+	if (while_text!=""){
+	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="while"> <span>' + while_text + '</span></div><div class="conector"></div></div>';
+	  $(elemento).after(x);    
+	}
+	else{
+		alert("No declaraste un while");
+	}
+}
+
 function agregar_elem(elemento){
 	switch (elem_selec){
 	case 0:
@@ -105,5 +145,13 @@ function agregar_elem(elemento){
 	  agregar_operacion(elemento);
 	  elem_selec = 0;
 	  break;
+	case 5:
+	  agregar_for(elemento);
+	  elem_selec = 0;
+	  break;
+	case 6:
+	  agregar_while(elemento);
+	  elem_selec = 0;
+	  break;	  
 	}
 }
