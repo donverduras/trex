@@ -48,6 +48,15 @@ body{
 	border-radius: 5px;
 }
 
+.endfor { 
+	width: 100px; 
+	border: 4px solid #d7db0d; 
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+
 .while { 
 	width: 100px; 
 	border: 4px solid #e07100; 
@@ -108,9 +117,20 @@ textarea{
 	width:108px;
 }
 
-.conector {
+.conector{
     width:3px;
     height:50px;
     background-color:black;
     margin: 0 auto;
+}
+
+.conector2{
+    width:10px;
+    height:100px;
+    margin-top: -110px;
+    margin-left: 110px;
+    border-top-style:solid;
+    border-right-style:solid;
+    border-bottom-style:solid;
+    border-left-style:none;
 }
