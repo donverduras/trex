@@ -50,13 +50,12 @@ function agregar_estatuto(elemento, tipo) {
     var x;
 	var est_text=prompt("Agrega estatuto","Ejem: Fin");
 	
-	if (est_text!="" && tipo!="end" && tipo!=mid){
+	if (est_text!="" && tipo!="end" && tipo!="mid"){
 	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="estatuto"> <span>' + est_text + '</span></div><div class="conector"></div></div>';
 	  $(elemento).after(x);  
 	}
 	else if(tipo=="mid"){
-		x='<div class="elemento" onclick="agregar_elem(this, "mid")"><div class="estatuto"> <span>' + est_text + '</span></div><div class="conector"></div></div>';
-		$(elemento).after(x);  
+		alert("No puedes agregar un estatuto aqui");
 	}
 	else if(tipo=="end"){
 		x='<div class="elemento" onclick="agregar_elem(this)"><div class="estatuto"> <span>' + est_text + '</span></div><div class="conector"></div></div>';
@@ -71,13 +70,17 @@ function agregar_variable(elemento, tipo) {
 	var x;
 	var var_text=prompt("Agrega tipo, nombre y valor de la variable","Ejem: int x = 3");
 	
-	if (var_text!="" && tipo!="end" && tipo!=mid){
+	if (var_text!="" && tipo!="end" && tipo!="mid"){
 	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="variable"> <span>' + var_text + '</span></div><div class="conector"></div></div>';
 	  $(elemento).after(x);  
 	}
 	else if(tipo=="mid"){
-		x='<div class="elemento" onclick="agregar_elem(this, "mid")"><div class="variable"> <span>' + var_text + '</span></div><div class="conector"></div></div>';
-		$(elemento).after(x);  
+		x='<div class="elemento" onclick="agregar_elem(this, \'mid\')"><div class="variable"> <span>' + var_text + '</span></div><div class="conector"></div></div>';
+		$(elemento).after(x);
+		$(elemento).siblings(".conector2").height($(elemento).siblings(".conector2").height() + 70);
+		$(elemento).siblings(".conector2").css('margin-top', function (index, curValue) {
+			return parseInt(curValue, 10) - 70 + 'px';
+		});
 	}
 	else if(tipo=="end"){
 		x='<div class="elemento" onclick="agregar_elem(this)"><div class="variable"> <span>' + var_text + '</span></div><div class="conector"></div></div>';
@@ -92,13 +95,16 @@ function agregar_if(elemento, tipo) {
 	var x;
 	var if_text=prompt("Agrega condicion","Ejem: x > y");
 	
-	if (if_text!="" && tipo!="end"){
-	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="if"> <span class="textoIf">' + if_text + '</span></div><div class="conector"></div></div>';
-	  $(elemento).after(x);  
+	if (if_text!="" && tipo!="end" && tipo!="mid"){
+	  x='<div class="elemento"><div class="elemento" onclick="agregar_elem(this, \'mid\')"> <div class="if"><span>' + if_text + '</span></div><div class="conector"></div></div><div class="endif" onclick="agregar_elem(this, \'end\')">End if</div><div class="conector2"></div><div class="conector"></div></div>';
+	  $(elemento).after(x);
+	}
+	else if(tipo=="mid"){
+		alert("No se pueden anidar ciclos");
 	}
 	else if(tipo=="end"){
-		x='<div class="elemento" onclick="agregar_elem(this)"><div class="if"> <span class="textoIf">' + if_text + '</span></div><div class="conector"></div></div>';
-		$(elemento).parent().after(x);  
+	  	x='<div class="elemento"><div class="elemento" onclick="agregar_elem(this, \'mid\')"> <div class="if"><span>' + if_text + '</span></div><div class="conector"></div></div><div class="endif" onclick="agregar_elem(this, \'end\')">End if</div><div class="conector2"></div><div class="conector"></div></div>';
+	  $(elemento).parent().after(x);
 	}
 	else{
 		alert("No declaraste un if");
@@ -109,9 +115,17 @@ function agregar_operacion(elemento, tipo) {
     var x;
 	var op_text=prompt("Agrega operacion","Ejem: x = x + 1");
 	
-	if (op_text!="" && tipo!="end"){
+	if (op_text!="" && tipo!="end" && tipo!="mid"){
 	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="operacion"> <span>' + op_text + '</span></div><div class="conector"></div></div>';
 	  $(elemento).after(x);    
+	}
+	else if(tipo=="mid"){
+		x='<div class="elemento" onclick="agregar_elem(this, \'mid\')"><div class="operacion"> <span>' + op_text + '</span></div><div class="conector"></div></div>';
+		$(elemento).after(x);
+		$(elemento).siblings(".conector2").height($(elemento).siblings(".conector2").height() + 70);
+		$(elemento).siblings(".conector2").css('margin-top', function (index, curValue) {
+			return parseInt(curValue, 10) - 70 + 'px';
+		});  
 	}
 	else if(tipo=="end"){
 		x='<div class="elemento" onclick="agregar_elem(this)"><div class="operacion"> <span>' + op_text + '</span></div><div class="conector"></div></div>';
@@ -127,15 +141,15 @@ function agregar_for(elemento, tipo) {
 	var for_text=prompt("Agrega for","Ejem: i = 0; i < 10; i++");
 	
 	if (for_text!="" && tipo!="end" && tipo!="mid"){
-	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="for"> <span>' + for_text + '</span></div><div class="conector"></div><div class="endfor">End For</div><p class="conector2"></p><div class="conector"></div></div>';
-	  $(elemento).after(x);    
+	  x='<div class="elemento"><div class="elemento" onclick="agregar_elem(this, \'mid\')"> <div class="for"><span>' + for_text + '</span></div><div class="conector"></div></div><div class="endfor" onclick="agregar_elem(this, \'end\')">End For</div><div class="conector2"></div><div class="conector"></div></div>';
+	  $(elemento).after(x);
 	}
 	else if(tipo=="mid"){
 		alert("No se pueden anidar ciclos");
 	}
 	else if(tipo=="end"){
-	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="for"> <span>' + for_text + '</span></div><div class="conector"></div><div class="endfor">End For</div><p class="conector2"></p><div class="conector"></div></div>';
-		$(elemento).parent().after(x);  
+	  x='<div class="elemento"><div class="elemento" onclick="agregar_elem(this, \'mid\')"> <div class="for"><span>' + for_text + '</span></div><div class="conector"></div></div><div class="endfor" onclick="agregar_elem(this, \'end\')">End For</div><div class="conector2"></div><div class="conector"></div></div>';
+	  $(elemento).parent().after(x);
 	}
 	else{
 		alert("No declaraste un for");
@@ -147,15 +161,15 @@ function agregar_while(elemento, tipo) {
 	var while_text=prompt("Agrega while","Ejem: x < 10");
 	
 	if (while_text!="" && tipo!="end" && tipo!="mid"){
-	  x='<div class="elemento" onclick="agregar_elem(this)"><div class="while"> <span>' + while_text + '</span></div><div class="conector"></div></div>';
-	  $(elemento).after(x);    
-	}
-	else if(tipo=="end"){
-	  	x='<div class="elemento" onclick="agregar_elem(this)"><div class="while"> <span>' + while_text + '</span></div><div class="conector"></div></div>';
-		$(elemento).parent().after(x);  
+	  x='<div class="elemento"><div class="elemento" onclick="agregar_elem(this, \'mid\')"> <div class="while"><span>' + while_text + '</span></div><div class="conector"></div></div><div class="endwhile" onclick="agregar_elem(this, \'end\')">End While</div><div class="conector2"></div><div class="conector"></div></div>';
+	  $(elemento).after(x);
 	}
 	else if(tipo=="mid"){
 		alert("No se pueden anidar ciclos");
+	}
+	else if(tipo=="end"){
+	  	x='<div class="elemento"><div class="elemento" onclick="agregar_elem(this, \'mid\')"> <div class="while"><span>' + while_text + '</span></div><div class="conector"></div></div><div class="endwhile" onclick="agregar_elem(this, \'end\')">End While</div><div class="conector2"></div><div class="conector"></div></div>';
+	  $(elemento).parent().after(x);
 	}
 	else{
 		alert("No declaraste un while");
@@ -165,7 +179,14 @@ function agregar_while(elemento, tipo) {
 function agregar_elem(elemento, tipo){
 	switch (elem_selec){
 	case 0:
-	  alert("Selecciona un simbolo antes de agregar");
+	  //alert("Selecciona un simbolo antes de agregar");
+	  var r=confirm("Quieres borrar este elemento?");
+	  	if (r==true){
+		  $(elemento).remove();
+		}
+		else{
+		  alert("No se borro el elemento");
+		}
 	  break;
 	case 1:
 	  agregar_estatuto(elemento, tipo);
