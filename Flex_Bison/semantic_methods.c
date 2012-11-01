@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <glib.h>
 #include "semantic_methods.h"
+#define GPOINTER_TO_INT(p) ((gint)  (glong) (p))
+#define GINT_TO_POINTER(i) ((gpointer) (glong) (i))
 
 using namespace std;
 
@@ -119,10 +121,10 @@ struct Procedure{
 
 //Nodo que contiene información referente a la generación de cuádruplos
 struct Quadruple{
-	char* operador;
-	char* operando1;
-	char* operando2;
-	char* resultado;
+	int operador;
+	int operando1;
+	int operando2;
+	int resultado;
 };
 
 //Nodo que contiene información importante de cada variable
@@ -154,7 +156,7 @@ bool check_if_stack_exists(int key, int arrType){
 }
 
 char *convert_to_char(int number){
-	stringstream s;
+	/*stringstream s;
 	string aux = "";
 	char *resultado;
 	
@@ -166,70 +168,71 @@ char *convert_to_char(int number){
 	//String to char*
 	resultado = &aux[0];
 	
-	return resultado;
+	return resultado;*/
 }
 
 void generateQuadruple(){
-	char *op;
-	char *operando1;
-	char *operando2;
-	char *temp;
-	char *aux;
-	char *resultadoParcial_aux;
-	int operador, op1, op2, resultadoParcial, resAux;
-
+	int op, operando1, operando2, temp;
+	char *aux, *temp_aux;
+	int resultadoCubo, operador, op1, op2, dirVir;
 	
-	aux = (char *)g_queue_peek_tail(pilaOperadores);
-	operador = atoi(aux);		
-	aux = (char *)g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2));
-	op2 = atoi(aux);
-	aux = (char *)g_queue_peek_tail(pilaTipos);
-	op1 = atoi(aux);
-	resultadoParcial = cubo[operador][op1][op2];
+	operador = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperadores));
+	//operador = atoi(aux);		
+	op2 = GPOINTER_TO_INT(g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2)));
+	//op2 = atoi(aux);
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	//op1 = atoi(aux);
+	resultadoCubo = cubo[operador][op1][op2] - 1;						//Para que int empiece de 0
 		
-	if(resultadoParcial != -1){
+	if(resultadoCubo != -1){
 		g_queue_pop_tail(pilaTipos);
 		g_queue_pop_tail(pilaTipos);
 		
 		Quadruple *new_quadruple = new Quadruple;
-		op = (char *)g_queue_pop_tail(pilaOperadores);
-		operando2 = (char *)g_queue_pop_tail(pilaOperandos);
-		operando1 = (char *)g_queue_pop_tail(pilaOperandos);
+		op = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperadores));
+		operando2 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
 			
-		if(resultadoParcial == 1){
-			resAux = TEMP_INT + temp_int_cont;
+		if(resultadoCubo == 0){
+			dirVir = TEMP_INT + temp_int_cont;
 			temp_int_cont++;
-		}else if(resultadoParcial == 2){
-			resAux = TEMP_FLOAT + temp_float_cont;
+		}else if(resultadoCubo == 1){
+			dirVir = TEMP_FLOAT + temp_float_cont;
 			temp_float_cont++;
-		}else if(resultadoParcial == 3){
-			resAux = TEMP_STRING + temp_string_cont;
+		}else if(resultadoCubo == 2){
+			dirVir = TEMP_STRING + temp_string_cont;
 			temp_string_cont++;
-		}else if(resultadoParcial == 4){
-			resAux = TEMP_BOOLEAN + temp_boolean_cont;
+		}else if(resultadoCubo == 3){
+			dirVir = TEMP_BOOLEAN + temp_boolean_cont;
 			temp_boolean_cont++;
-		}else if(resultadoParcial == 5){
-			resAux = TEMP_CHAR + temp_char_cont;
+		}else if(resultadoCubo == 4){
+			dirVir = TEMP_CHAR + temp_char_cont;
 			temp_char_cont++;
 		}
 		
-		temp = convert_to_char(resAux);
-		g_queue_push_tail(pilaOperandos, temp);
-		cout << "Push to pila operandos: temp o " << temp << "\n";
-		cout << "Pila Operandos: ";
-		g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
-		cout << "\n";
+		//temp = convert_to_char(dirVir);
+		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
 		
 		new_quadruple->operador = op;
 		new_quadruple->operando2 = operando2;
 		new_quadruple->operando1 = operando1;
-		new_quadruple->resultado = temp;
+		new_quadruple->resultado = dirVir;
 		
 		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		
-		//resultadoParcial = resultadoParcial - 1;
-		//resultadoParcial_aux = convert_to_char(resultadoParcial);
-		g_queue_push_tail(pilaTipos, (char *)"0");
+		//temp_aux = convert_to_char(resultadoCubo);
+		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
+		
+		//cout << "Push to pila operandos: temp o " << temp << "\n";
+		cout << "Pila Operandos: ";
+		g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
+		cout << "\n";
+		cout << "Pila Tipos: ";
+		g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
+		cout << "\n";
+		cout << "Pila Operadores: ";
+		g_queue_foreach(pilaOperadores, (GFunc)print_pilas, NULL);
+		cout << "\n\n";
 		
 	}else{
 		cout << "Error de semántica: tipos incompatibles. \n";
@@ -238,56 +241,35 @@ void generateQuadruple(){
 }
 
 void generateQuadruple_asignacion(){
-	char *op;
-	char *operando1;
-	char *res;
+	int op, operando1, temp;
 	char *aux;
-	int operador, op1, op2, resultado, resAux;
+	int operador, op1, op2, resultadoCubo, res;
 	char *result;
 	
-	/*
-	cout << "******************************************************\n";
-	cout << "Pila Tipos: ";
-	g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
-	cout << "\n";
-	cout << "Pila Operandos: ";
-	g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
-	cout << "\n";
-	cout << "Pila Operadores: ";
-	g_queue_foreach(pilaOperadores, (GFunc)print_pilas, NULL);
-	cout << "\n";
-	*/
 	cout << "ENTRE ASIGNACION \n";
 	
-	aux = (char *)g_queue_peek_tail(pilaOperadores);
-	operador = atoi(aux);		
-	aux = (char *)g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2));
-	op2 = atoi(aux);
-	aux = (char *)g_queue_peek_tail(pilaTipos);
-	op1 = atoi(aux);
-	resultado = cubo[operador][op1][op2];
+	operador = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperadores));	
+	op2 = GPOINTER_TO_INT(g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2)));
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	resultadoCubo = cubo[operador][op1][op2] - 1;						//Para que int empiece de 0
 	
-	if(resultado != -1){
+	if(resultadoCubo != -1){
 		g_queue_pop_tail(pilaTipos);
 		g_queue_pop_tail(pilaTipos);
-			
+		
 		Quadruple *new_quadruple = new Quadruple;
-		op = (char *)g_queue_pop_tail(pilaOperadores);
-		cout << "Operador: " << op << "\n";
-		operando1 = (char *)g_queue_pop_tail(pilaOperandos);
-		cout << "Operando1: " << operando1 << "\n";
-		res = (char *)g_queue_pop_tail(pilaOperandos);
-		cout << "Resultado: " << res << "\n";
+		op = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperadores));
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+		res = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
 	
 		new_quadruple->operador = op;
-		new_quadruple->operando2 = (char *)"-1";
+		new_quadruple->operando2 = -1;
 		new_quadruple->operando1 = operando1;
 		new_quadruple->resultado = res;
 		
-		cout << "( " << op << ", " << operando1 << ", " << new_quadruple->operando2 << ", " << res << " ) \n";
+		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		cout << "Cuadruplo creado \n";
 		
-		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 		cout << "Pila Tipos: ";
 		g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
 		cout << "\n";
@@ -321,45 +303,45 @@ int get_hash_key(string key){
 	return int(firstLetter)-97;
 }
 
-char * get_operator_type(const char* op){
+int get_operator_type(const char* op){
 	//cout << "Push to pila operadores: " << op << "\n";
 	
 	if(strcmp(op,"+") == 0){
-		return ((char *)"0");
+		return 0;
 	}else if(strcmp(op,"-") == 0){
-		return ((char *)"1");
+		return 1;
 	}else if(strcmp(op,"/") == 0){
-		return ((char *)"2");
+		return 2;
 	}else if(strcmp(op,"*") == 0){
-		return ((char *)"3");
+		return 3;
 	}else if(strcmp(op,"<") == 0){
-		return ((char *)"4");
+		return 4;
 	}else if(strcmp(op,">") == 0){
-		return ((char *)"5");
+		return 5;
 	}else if(strcmp(op,"=") == 0){
-		return ((char *)"6");
+		return 6;
 	}else if(strcmp(op,"<>") == 0){
-		return ((char *)"7");
+		return 7;
 	}else if(strcmp(op,"==") == 0){
-		return ((char *)"8");
+		return 8;
 	}else if(strcmp(op,"#") == 0){
-		return ((char *)"-1");
+		return -1;
 	}
 }
 
-char *get_var_type(const char *var_cte){
+int get_var_type(const char *var_cte){
 	//cout << "Push to pila tipos: " << var_cte << "\n";
 	
 	if(strcmp(var_cte,"int") == 0){
-		return ((char *)"0");
+		return 0;
 	}else if(strcmp(var_cte,"float") == 0){
-		return ((char *)"1");
+		return 1;
 	}else if(strcmp(var_cte,"string") == 0){
-		return ((char *)"2");
+		return 2;
 	}else if(strcmp(var_cte,"boolean") == 0){
-		return ((char *)"3");
+		return 3;
 	}else if(strcmp(var_cte,"char") == 0){
-		return ((char *)"4");
+		return 4;
 	}
 }
 
@@ -502,22 +484,22 @@ void main_function_name(char *function_name){
 }
 
 void pop_of_pilaOperadores(){
+	cout << "POP PILA OPERADORES \n";
 	g_queue_pop_tail(pilaOperadores);
 }
 
 void print_pilas(gpointer data, gpointer user_data){
-	cout << (char *)data << " ";
+	cout << GPOINTER_TO_INT(data) << " ";
 }
 
 void push_to_pilaOperadores(char *op){
-	char *result;
+	int result;
 	const char *aux;
-	int op_type;
 	
 	aux = op;
 	
 	result = get_operator_type(aux);
-	g_queue_push_tail(pilaOperadores, result);
+	g_queue_push_tail(pilaOperadores, GINT_TO_POINTER(result));
 	
 	//cout << "Pila Operadores: ";
 	//g_queue_foreach(pilaOperadores, (GFunc)print_pilas, NULL);
@@ -525,12 +507,11 @@ void push_to_pilaOperadores(char *op){
 }
 
 void push_to_pilaOperandos(char *var_cte){
-	char *var_type, *var_type_aux, *dirVirtual_aux;
+	char *var_type;
 	int type, dirVirtual;
 	
 	var_type = search_for_variable_type(var_cte);
-	var_type_aux = get_var_type(var_type);
-	type = atoi(var_type_aux);
+	type = get_var_type(var_type);
 	
 	if(current_function == 0){
 		if(type == 0){
@@ -567,28 +548,26 @@ void push_to_pilaOperandos(char *var_cte){
 			local_char_cont++;
 		}
 	}
+
+	g_queue_push_tail(pilaOperandos,GINT_TO_POINTER(dirVirtual));
 	
-	
-	dirVirtual_aux = convert_to_char(dirVirtual);
-	
-	g_queue_push_tail(pilaOperandos,dirVirtual_aux);
-	
-	cout << "Push to pila operandos: " << var_cte << " o " << dirVirtual_aux << "\n";
+	//cout << "Push to pila operandos: " << var_cte << " o " << dirVirtual_aux << "\n";
 	cout << "Pila Operandos: ";
 	g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
 	cout << "\n";
 }
 
 void push_to_pilaTipos(char *var_cte){
-	char *var_type, *result;
+	char *var_type;
 	const char* aux;
+	int result;
 	
 	var_type = search_for_variable_type(var_cte);
 	aux = var_type;
 	
 	result = get_var_type(aux);
 	
-	g_queue_push_tail(pilaTipos, result);
+	g_queue_push_tail(pilaTipos, GINT_TO_POINTER(result));
 	
 	//cout << "Pila Tipos: ";
 	//g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
@@ -596,10 +575,10 @@ void push_to_pilaTipos(char *var_cte){
 }
 
 void quadruple_add_sub(){
-	char *operador = (char *)g_queue_peek_tail(pilaOperadores);
-	int op;
+	int op = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperadores));
+	//int op;
 	
-	op = atoi(operador);
+	//op = atoi(operador);
 	
 	//cout << "ADD-SUB \n";
 	//cout << "El operador es: " << operador << "\n";
@@ -610,10 +589,10 @@ void quadruple_add_sub(){
 }
 
 void quadruple_mult_div(){
-	char *operador = (char *)g_queue_peek_tail(pilaOperadores);
-	int op;
+	int op = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperadores));
+	//int op;
 	
-	op = atoi(operador);
+	//op = atoi(operador);
 	
 	//cout << "MULT-DIV \n";
 	//cout << "El operador es: " << operador << "\n";
@@ -624,10 +603,10 @@ void quadruple_mult_div(){
 }
 
 void quadruple_relational(){
-	char *operador = (char *)g_queue_peek_tail(pilaOperadores);
-	int op;
+	int op = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperadores));
+	//int op;
 	
-	op = atoi(operador);
+	//op = atoi(operador);
 	
 	//cout << "RELACIONAL \n";
 	//cout << "El operador es: " << operador << "\n";

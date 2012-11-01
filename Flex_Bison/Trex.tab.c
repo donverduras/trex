@@ -1820,7 +1820,7 @@ yyreduce:
 
   case 87:
 #line 265 "Trex.y"
-    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval)); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
+    { cout<<"1"; push_to_pilaOperandos((yyvsp[(1) - (1)].sval)); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 88:
