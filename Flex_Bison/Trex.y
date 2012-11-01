@@ -89,7 +89,7 @@ programa:
 	;
 
 programa_a:
-	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"0","300"); main_function_name(function_name); } LLAVEIZQ
+	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"0","300"); main_function_name(function_name); set_current_function("0");} LLAVEIZQ
 	;
 
 programa_b:
@@ -142,12 +142,12 @@ tipo:
 	;
 
 var_cte:
-	CTE_INT 
-	|CTE_FLOAT 
-	|CTE_STRING 
-	|CTE_BOOLEAN
-	|CTE_CHAR
-	|CTE_ID
+	CTE_INT { } 
+	|CTE_FLOAT {  }
+	|CTE_STRING {  }
+	|CTE_BOOLEAN {  }
+	|CTE_CHAR {  }
+	|CTE_ID { push_to_pilaOperandos($1);  push_to_pilaTipos($1); }
 	;
 
 estatuto:
@@ -189,45 +189,49 @@ condicion_b:
 	;
 
 expresion:
-	exp
-	|exp expresion_a exp
+	exp expresion_b
+	;
+	
+expresion_b:
+	expresion_a exp { quadruple_relational(); }
+	|
 	;
 
 expresion_a:
-	MAYORQUE
-	|MENORQUE
-	|DIFERENTE
-	|IGUALIGUAL
-	|AND
-	|OR
+	MAYORQUE { push_to_pilaOperadores(yylval.sval); }
+	|MENORQUE { push_to_pilaOperadores(yylval.sval); }
+	|DIFERENTE { push_to_pilaOperadores(yylval.sval); }
+	|IGUALIGUAL { push_to_pilaOperadores(yylval.sval); }
+	|AND { push_to_pilaOperadores(yylval.sval); }
+	|OR { push_to_pilaOperadores(yylval.sval); }
 	;
 
 exp:
-	termino e
+	termino { quadruple_add_sub(); } e
 	;
 
 e:
-	sumaresta termino e
+	sumaresta termino { quadruple_add_sub(); } e
 	|
 	;
 
 sumaresta:
-	SUMA
-	|RESTA
+	SUMA { push_to_pilaOperadores(yylval.sval); }
+	|RESTA { push_to_pilaOperadores(yylval.sval); }
 	;
 
 termino:
-	factor f
+	factor { quadruple_mult_div(); } f
 	;
 
 f:
-	multdiv factor f
+	multdiv factor { quadruple_mult_div(); } f
 	|
 	;
 
 multdiv:
-	MULTIPLICACION
-	|DIVISION
+	MULTIPLICACION { push_to_pilaOperadores(yylval.sval); }
+	|DIVISION { push_to_pilaOperadores(yylval.sval); }
 	;
 
 factor:
@@ -238,7 +242,7 @@ factor:
 	;
 
 factor_a:
-	PARENTESISIZQ expresion PARENTESISDER
+	PARENTESISIZQ { push_to_pilaOperadores("#"); } expresion PARENTESISDER { pop_of_pilaOperadores(); }
 	;
 
 loopfor:
@@ -258,10 +262,13 @@ loopwhile:
 	;
 
 asignacion:
-	CTE_ID IGUAL expresion PUNTOYCOMA
-	| CTE_ID IGUAL lectura PUNTOYCOMA	
-	| CTE_ID CORIZQ exp CORDER IGUAL expresion PUNTOYCOMA
-	| CTE_ID CORIZQ exp CORDER IGUAL lectura PUNTOYCOMA
+	CTE_ID { push_to_pilaOperandos($1); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } asignacion_b { quadruple_relational(); } PUNTOYCOMA
+	| CTE_ID CORIZQ exp CORDER IGUAL asignacion_b PUNTOYCOMA
+	;
+
+asignacion_b:
+	expresion
+	| lectura
 	;
 	
 lectura:
@@ -269,17 +276,21 @@ lectura:
 	;
 	
 funcion:
-	FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"10","20"); } PARENTESISIZQ param funcion_a
-	| FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"10","20"); } PARENTESISIZQ funcion_a
+	FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"10","20"); set_current_function("1");} PARENTESISIZQ funcion_c funcion_a
 	;
 
 funcion_a:
 	PARENTESISDER LLAVEIZQ vars funcion_b bloque LLAVEDER
-	|PARENTESISDER LLAVEIZQ bloque LLAVEDER
+	|PARENTESISDER LLAVEIZQ bloque LLAVEDER { set_current_function("0"); }
 	;
 
 funcion_b:
 	vars funcion_b
+	|
+	;
+
+funcion_c:
+	param
 	|
 	;
 

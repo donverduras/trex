@@ -8,11 +8,26 @@
 using namespace std;
 
 bool check_if_stack_exists(int key, int arrType);
+void generateQuadruple();
+void generateQuadruple_asignacion();
 int get_hash_key(string key);
+char * get_operator_type(const char* op);
+char *get_var_type(const char *var_cte);
 void initialize();
 void initialize_arrs();
 void initialize_stacks();
 void insert_to_procs_table(string id, string dirInitial, string size);
 void insert_to_vars_table(string id, string type, string dirVirtual);
 void main_function_name(char *function_name);
+void pop_of_pilaOperadores();
+void print_pilas(gpointer data, gpointer user_data);
+void push_to_pilaOperadores(char *var_cte);
+void push_to_pilaOperandos(char *var_cte);
+void push_to_pilaTipos(char *var_cte);
+void quadruple_add_sub();
+void quadruple_add_sub();
+void quadruple_mult_div();
+void quadruple_relational();
 int search_for_id(gconstpointer a, gconstpointer b);
+char *search_for_variable_type(char *var_cte);
+void set_current_function(char *function);
