@@ -4,6 +4,14 @@ program test{
 	int c;
 	int d;
 	int e;
+	
+	function funcion(){
+		float x;
+		
+		x = c / d;
+	}
 
 	e = a + b * c * d;
+	
+	a = b;
 }

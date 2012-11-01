@@ -1670,12 +1670,12 @@ yyreduce:
 
   case 22:
 #line 130 "Trex.y"
-    { name = (yyvsp[(2) - (5)].sval); insert_to_vars_table(name,var_type,"1001"); ;}
+    { name = (yyvsp[(2) - (5)].sval); insert_to_vars_table(name,var_type); ;}
     break;
 
   case 23:
 #line 131 "Trex.y"
-    { name = (yyvsp[(2) - (3)].sval); insert_to_vars_table(name,var_type,"1001"); ;}
+    { name = (yyvsp[(2) - (3)].sval); insert_to_vars_table(name,var_type); ;}
     break;
 
   case 26:
@@ -1820,7 +1820,7 @@ yyreduce:
 
   case 87:
 #line 265 "Trex.y"
-    { cout<<"1"; push_to_pilaOperandos((yyvsp[(1) - (1)].sval)); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
+    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval)); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 88:
@@ -1845,12 +1845,12 @@ yyreduce:
 
   case 105:
 #line 303 "Trex.y"
-    { name = yylval.sval; insert_to_vars_table(name,var_type,"1001"); ;}
+    { name = yylval.sval; insert_to_vars_table(name,var_type); ;}
     break;
 
   case 107:
 #line 307 "Trex.y"
-    { name = yylval.sval; insert_to_vars_table(name,var_type,"1001"); ;}
+    { name = yylval.sval; insert_to_vars_table(name,var_type); ;}
     break;
 
 

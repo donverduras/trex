@@ -7,6 +7,7 @@
 
 using namespace std;
 
+int asign_dirVirtual(char* var_type);
 bool check_if_stack_exists(int key, int arrType);
 void generateQuadruple();
 void generateQuadruple_asignacion();
@@ -17,7 +18,7 @@ void initialize();
 void initialize_arrs();
 void initialize_stacks();
 void insert_to_procs_table(string id, string dirInitial, string size);
-void insert_to_vars_table(string id, string type, string dirVirtual);
+void insert_to_vars_table(string id, string type);
 void main_function_name(char *function_name);
 void pop_of_pilaOperadores();
 void print_pilas(gpointer data, gpointer user_data);
@@ -29,5 +30,6 @@ void quadruple_add_sub();
 void quadruple_mult_div();
 void quadruple_relational();
 int search_for_id(gconstpointer a, gconstpointer b);
+int search_for_dirVirtual(char *var_cte);
 char *search_for_variable_type(char *var_cte);
 void set_current_function(char *function);

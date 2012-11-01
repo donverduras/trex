@@ -127,8 +127,8 @@ c:
 	;
 
 vars:
-	tipo CTE_ID IGUAL var_cte PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,"1001"); }
-	|tipo CTE_ID PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,"1001"); }
+	tipo CTE_ID IGUAL var_cte PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type); }
+	|tipo CTE_ID PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type); }
 	|tipo CTE_ID CORIZQ CTE_INT CORDER IGUAL var_cte PUNTOYCOMA
 	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA
 	;
@@ -300,11 +300,11 @@ llamada:
 	;
 
 param:
-	tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type,"1001"); } g
+	tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type); } g
 	;
 
 g:
-	COMA tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type,"1001"); } g
+	COMA tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type); } g
 	|
 	;
 
