@@ -12,6 +12,7 @@ bool check_if_stack_exists(int key, int arrType);
 void generate_fin_if();
 void generateQuadruple();
 void generateQuadruple_asignacion();
+void generateQuadruple_else();
 void generateQuadruple_if();
 int get_hash_key(string key);
 int get_operator_type(const char* op);

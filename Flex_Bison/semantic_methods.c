@@ -226,9 +226,7 @@ bool check_if_stack_exists(int key, int arrType){
 
 void generate_fin_if(){
 	int quad_number = GPOINTER_TO_INT(g_queue_pop_tail(pilaSaltos));
-	
 	Quadruple *aux = (Quadruple *)g_queue_pop_nth(pilaPasos,quad_number);
-	
 	aux->resultado = quadruple_index;
 	
 	cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
@@ -237,6 +235,7 @@ void generate_fin_if(){
 }
 
 void generateQuadruple(){
+	cout << "#" << quadruple_index << " ";
 	int op, operando1, operando2, temp;
 	char *aux, *temp_aux;
 	int resultadoCubo, operador, op1, op2, dirVir;
@@ -310,6 +309,7 @@ void generateQuadruple(){
 }
 
 void generateQuadruple_asignacion(){
+	cout << "#" << quadruple_index << " ";
 	int op, operando1, temp;
 	char *aux;
 	int operador, op1, op2, resultadoCubo, res;
@@ -357,7 +357,34 @@ void generateQuadruple_asignacion(){
 	}
 }
 
+void generateQuadruple_else(){
+	//Sacar la instruccion a rellenar del IF
+	int quad_number = GPOINTER_TO_INT(g_queue_pop_tail(pilaSaltos));
+	
+	cout << "#" << quadruple_index << " ";
+	//Generar GOTO
+	Quadruple *new_quadruple = new Quadruple;
+	new_quadruple->operador = GOTO;
+	new_quadruple->operando1 = -1;
+	new_quadruple->operando2 = -1;
+	new_quadruple->resultado = -1;
+	
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
+	quadruple_index++;
+	
+	//Rellenar GOTOF del IF
+	Quadruple *aux = (Quadruple *)g_queue_pop_nth(pilaPasos,quad_number);
+	aux->resultado = quadruple_index;
+	cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
+	cout << "Cuadruplo actualizado: ";
+	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+}
+
 void generateQuadruple_if(){
+	cout << "#" << quadruple_index << " ";
 	int aux, resultado;
 	
 	aux = GPOINTER_TO_INT(g_queue_pop_tail(pilaTipos));

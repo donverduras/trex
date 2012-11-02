@@ -1743,12 +1743,7 @@ yyreduce:
 
   case 54:
 #line 191 "Trex.y"
-    {;}
-    break;
-
-  case 55:
-#line 191 "Trex.y"
-    {;}
+    { generateQuadruple_else(); ;}
     break;
 
   case 58:
@@ -1873,7 +1868,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1877 "Trex.tab.c"
+#line 1872 "Trex.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

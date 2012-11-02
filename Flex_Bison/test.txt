@@ -5,7 +5,9 @@ program test{
 	int d;
 	
 	if( a + b > c * d ){
-		a = b * c;
+		a = b + c;
+	}else{
+		d = a * b;
 	}
-	b = a + c;
+	c = a + b;
 }

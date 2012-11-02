@@ -188,7 +188,7 @@ condicion_a:
 	;
 
 condicion_b:
-	ELSE {} bloque2 {}
+	ELSE { generateQuadruple_else(); } bloque2
 	|
 	;
 
