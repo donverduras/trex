@@ -166,7 +166,7 @@ estatuto:
 	;
 
 escritura:
-	PRINT PARENTESISIZQ escritura_a d PARENTESISDER PUNTOYCOMA
+	PRINT { push_to_pilaOperadores("print"); } PARENTESISIZQ escritura_a d PARENTESISDER { generateQuadruple_print(); } PUNTOYCOMA
 	;
 
 escritura_a:

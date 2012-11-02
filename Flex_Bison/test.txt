@@ -4,8 +4,5 @@ program test{
 	int c;
 	int d;
 	
-	while( a + b > c * d){
-		a = b + c;
-	}
-	b = c + d;
+	print( b + c );
 }

@@ -15,6 +15,7 @@ void generateQuadruple();
 void generateQuadruple_asignacion();
 void generateQuadruple_else();
 void generateQuadruple_if();
+void generateQuadruple_print();
 void generateQuadruple_while();
 int get_hash_key(string key);
 int get_operator_type(const char* op);

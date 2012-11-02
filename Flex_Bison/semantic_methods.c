@@ -18,7 +18,7 @@ enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, G
 					  CONST_INT=76000, CONST_FLOAT=81000, CONST_STRING=86000,  CONST_BOOLEAN=91000,  CONST_CHAR=96000 };
 
 //Simbolos
-enum symbols {	GOTO=200,	GOTOF=201,	GOTOV=202 };
+enum symbols {	GOTO=200,	GOTOF=201,	GOTOV=202, PRINT=300 };
 
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
@@ -431,6 +431,23 @@ void generateQuadruple_if(){
 	}
 }
 
+void generateQuadruple_print(){
+	int print = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperadores));
+	int resultado = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+	g_queue_pop_tail(pilaTipos);
+
+	Quadruple *new_quadruple = new Quadruple;
+	new_quadruple->operador = print;
+	new_quadruple->operando1 = -1;
+	new_quadruple->operando2 = -1;
+	new_quadruple->resultado = resultado;
+	
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	quadruple_index++;
+}
+
 void generateQuadruple_while(){
 	cout << "#" << quadruple_index << " ";
 	int aux, resultado;
@@ -496,6 +513,8 @@ int get_operator_type(const char* op){
 		return 8;
 	}else if(strcmp(op,"#") == 0){
 		return -1;
+	}else if(strcmp(op,"print") == 0){
+		return PRINT;
 	}
 }
 
