@@ -262,7 +262,7 @@ bloque_for_2:
 	;
 
 loopwhile:
-	WHILE PARENTESISIZQ expresion PARENTESISDER bloque2
+	WHILE { push_quadruple_index_to_pilaSaltos(); } PARENTESISIZQ expresion PARENTESISDER { generateQuadruple_while(); } bloque2 { generate_fin_while(); }
 	;
 
 asignacion:

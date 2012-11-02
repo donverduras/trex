@@ -4,10 +4,8 @@ program test{
 	int c;
 	int d;
 	
-	if( a + b > c * d ){
+	while( a + b > c * d){
 		a = b + c;
-	}else{
-		d = a * b;
 	}
-	c = a + b;
+	b = c + d;
 }

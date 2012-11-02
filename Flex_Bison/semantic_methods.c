@@ -234,6 +234,29 @@ void generate_fin_if(){
 	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
 }
 
+void generate_fin_while(){
+	int falso = GPOINTER_TO_INT(g_queue_pop_tail(pilaSaltos));
+	int retorno = GPOINTER_TO_INT(g_queue_pop_tail(pilaSaltos));
+	
+	Quadruple *new_quadruple = new Quadruple;
+	new_quadruple->operador = GOTO;
+	new_quadruple->operando2 = -1;
+	new_quadruple->operando1 = -1;
+	new_quadruple->resultado = retorno;
+	
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	quadruple_index++;
+	
+	Quadruple *aux = (Quadruple *)g_queue_pop_nth(pilaPasos,falso);
+	aux->resultado = quadruple_index;
+	
+	cout << "La siguiente instruccion es la numero: " << retorno << "\n";
+	cout << "Cuadruplo actualizado: ";
+	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+}
+
 void generateQuadruple(){
 	cout << "#" << quadruple_index << " ";
 	int op, operando1, operando2, temp;
@@ -384,6 +407,31 @@ void generateQuadruple_else(){
 }
 
 void generateQuadruple_if(){
+	cout << "#" << quadruple_index << " ";
+	int aux, resultado;
+	
+	aux = GPOINTER_TO_INT(g_queue_pop_tail(pilaTipos));
+	
+	if(aux == 3){
+		resultado = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+		
+		Quadruple *new_quadruple = new Quadruple;
+		new_quadruple->operador = GOTOF;
+		new_quadruple->operando1 = resultado;
+		new_quadruple->operando2 = -1;
+		new_quadruple->resultado = -1;
+		
+		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
+		quadruple_index++;
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
+void generateQuadruple_while(){
 	cout << "#" << quadruple_index << " ";
 	int aux, resultado;
 	
@@ -629,6 +677,10 @@ void pop_of_pilaOperadores(){
 
 void print_pilas(gpointer data, gpointer user_data){
 	cout << GPOINTER_TO_INT(data) << " ";
+}
+
+void push_quadruple_index_to_pilaSaltos(){
+	g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index));
 }
 
 void push_to_pilaOperadores(char *op){
