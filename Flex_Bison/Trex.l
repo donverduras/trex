@@ -13,7 +13,7 @@ cte_int			-?[0-9]+
 cte_float		-?[0-9]+"."[0-9]+
 cte_string		\"[^"\r\n]*\"
 cte_boolean		("true"|"false"|"TRUE"|"FALSE")
-cte_char		[a-zA-Z]
+cte_char		\'[a-zA-Z]\'
 espacio 		[ \t]+
 %%
 

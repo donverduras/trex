@@ -142,12 +142,12 @@ tipo:
 	;
 
 var_cte:
-	CTE_INT { } 
-	|CTE_FLOAT {  }
-	|CTE_STRING {  }
-	|CTE_BOOLEAN {  }
-	|CTE_CHAR {  }
-	|CTE_ID { push_to_pilaOperandos($1);  push_to_pilaTipos($1); }
+	CTE_INT { push_to_pilaOperandos($1, "0"); } 
+	|CTE_FLOAT { push_to_pilaOperandos($1, "1"); }
+	|CTE_STRING { push_to_pilaOperandos($1, "2"); }
+	|CTE_BOOLEAN { push_to_pilaOperandos($1, "3"); }
+	|CTE_CHAR { push_to_pilaOperandos($1, "4"); }
+	|CTE_ID { push_to_pilaOperandos($1, "5");  push_to_pilaTipos($1); }
 	;
 
 estatuto:
@@ -262,7 +262,7 @@ loopwhile:
 	;
 
 asignacion:
-	CTE_ID { push_to_pilaOperandos($1); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } asignacion_b { quadruple_relational(); } PUNTOYCOMA
+	CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } asignacion_b { quadruple_relational(); } PUNTOYCOMA
 	| CTE_ID CORIZQ exp CORDER IGUAL asignacion_b PUNTOYCOMA
 	;
 

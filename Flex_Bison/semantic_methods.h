@@ -23,7 +23,7 @@ void main_function_name(char *function_name);
 void pop_of_pilaOperadores();
 void print_pilas(gpointer data, gpointer user_data);
 void push_to_pilaOperadores(char *var_cte);
-void push_to_pilaOperandos(char *var_cte);
+void push_to_pilaOperandos(char *var_cte, char *id_type);
 void push_to_pilaTipos(char *var_cte);
 void quadruple_add_sub();
 void quadruple_add_sub();

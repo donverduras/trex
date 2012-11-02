@@ -35,13 +35,15 @@ static GQueue* tableVar_stack;			//Lista donde están almacenados los nodos con 
 static int current_function;
 static char* main_function;
 
-static GHashTable* main_table;		//Tabla de procedimientos principal
+static GHashTable* constants;		//Tabla de constantes
 
 static GQueue* pilaOperadores;
 static GQueue* pilaOperandos;
 static GQueue* pilaPasos;
 static GQueue* pilaSaltos;
 static GQueue* pilaTipos;
+
+
 
 static int cubo[9][5][5] =
 {
@@ -177,6 +179,23 @@ int asign_dirVirtual(char* var_type){
 			dirVirtual = LOCAL_CHAR + local_char_cont;
 			local_char_cont++;
 		}
+	}
+	
+	if(type == 10){
+		dirVirtual = CONST_INT + const_int_cont;
+		const_int_cont++;
+	}else if(type == 11){
+		dirVirtual = CONST_FLOAT + const_float_cont;
+		const_float_cont++;
+	}else if(type == 12){
+		dirVirtual = CONST_STRING + const_string_cont;
+		const_string_cont++;
+	}else if(type == 13){
+		dirVirtual = CONST_BOOLEAN + const_boolean_cont;
+		const_boolean_cont++;
+	}else if(type == 14){
+		dirVirtual = CONST_CHAR + const_char_cont;
+		const_char_cont++;
 	}
 	
 	return dirVirtual;
@@ -374,6 +393,16 @@ int get_var_type(const char *var_cte){
 		return 3;
 	}else if(strcmp(var_cte,"char") == 0){
 		return 4;
+	}else if(strcmp(var_cte,"const_int") == 0){
+		return 10;
+	}else if(strcmp(var_cte,"const_float") == 0){
+		return 11;
+	}else if(strcmp(var_cte,"const_string") == 0){
+		return 12;
+	}else if(strcmp(var_cte,"const_boolean") == 0){
+		return 13;
+	}else if(strcmp(var_cte,"const_char") == 0){
+		return 14;
 	}
 }
 
@@ -403,6 +432,8 @@ void initialize_stacks(){
 	
 	tableProc_stack = g_queue_new();
 	tableVar_stack = g_queue_new();
+	
+	constants = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
 /*******************************************
@@ -542,13 +573,40 @@ void push_to_pilaOperadores(char *op){
 	//cout << "\n";
 }
 
-void push_to_pilaOperandos(char *var_cte){
+void push_to_pilaOperandos(char *var_cte, char *id_type){
 	int dirVirtual;
+	int type = atoi(id_type);
 	
-	dirVirtual = search_for_dirVirtual(var_cte);										//Search for dirVirtual de var_cte
-	
-
-	g_queue_push_tail(pilaOperandos,GINT_TO_POINTER(dirVirtual));
+	if(type == 5){
+		dirVirtual = search_for_dirVirtual(var_cte);										//Search for dirVirtual de var_cte
+		g_queue_push_tail(pilaOperandos,GINT_TO_POINTER(dirVirtual));
+	}else{
+		if(type == 0){
+			id_type = "const_int";
+		}else if(type == 1){
+			id_type = "const_float";
+		}else if(type == 2){
+			id_type = "const_string";
+		}else if(type == 3){
+			id_type = "const_boolean";
+		}else if(type == 4){
+			id_type = "const_char";
+		}
+		
+		if(g_hash_table_lookup(constants,var_cte) == NULL){
+			dirVirtual = asign_dirVirtual(id_type);
+			g_hash_table_insert(constants,var_cte,GINT_TO_POINTER(dirVirtual));
+			g_queue_push_tail(pilaOperandos,GINT_TO_POINTER(dirVirtual));
+		}else{
+			dirVirtual = GPOINTER_TO_INT(g_hash_table_lookup(constants,var_cte));
+			g_queue_push_tail(pilaOperandos,GINT_TO_POINTER(dirVirtual));
+		}
+		
+		//dirVirtual = asign_dirVirtual(id_type);
+		
+		cout << "Constante: " << id_type << "\n";
+		cout << "Direccion Virtual de la Constante: " << dirVirtual << "\n";	
+	}
 	
 	/*cout << "Push to pila operandos: " << var_cte << " o " << dirVirtual << "\n";
 	cout << "Pila Operandos: ";

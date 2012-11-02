@@ -1705,32 +1705,32 @@ yyreduce:
 
   case 31:
 #line 145 "Trex.y"
-    { ;}
+    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "0"); ;}
     break;
 
   case 32:
 #line 146 "Trex.y"
-    {  ;}
+    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "1"); ;}
     break;
 
   case 33:
 #line 147 "Trex.y"
-    {  ;}
+    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "2"); ;}
     break;
 
   case 34:
 #line 148 "Trex.y"
-    {  ;}
+    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "3"); ;}
     break;
 
   case 35:
 #line 149 "Trex.y"
-    {  ;}
+    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "4"); ;}
     break;
 
   case 36:
 #line 150 "Trex.y"
-    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval));  push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
+    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "5");  push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 55:
@@ -1820,7 +1820,7 @@ yyreduce:
 
   case 87:
 #line 265 "Trex.y"
-    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval)); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
+    { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "5"); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 88:
