@@ -547,18 +547,14 @@ void push_to_pilaOperandos(char *var_cte){
 	
 	dirVirtual = search_for_dirVirtual(var_cte);										//Search for dirVirtual de var_cte
 	
-	if(dirVirtual != -1){
-		g_queue_push_tail(pilaOperandos,GINT_TO_POINTER(dirVirtual));
+
+	g_queue_push_tail(pilaOperandos,GINT_TO_POINTER(dirVirtual));
 	
-		/*cout << "Push to pila operandos: " << var_cte << " o " << dirVirtual << "\n";
-		cout << "Pila Operandos: ";
-		g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
-		cout << "\n";
-		*/
-	}else{
-		cout << "Error: Variable no declarada. \n";
-		exit (EXIT_FAILURE);
-	}
+	/*cout << "Push to pila operandos: " << var_cte << " o " << dirVirtual << "\n";
+	cout << "Pila Operandos: ";
+	g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
+	cout << "\n";
+	*/
 }
 
 void push_to_pilaTipos(char *var_cte){
@@ -655,23 +651,29 @@ int search_for_dirVirtual(char *var_cte){
 	ascii = get_hash_key(var_cte);
 	stack_position = variable_index[ascii]-1;
 	
-	stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, stack_position);
+	if(stack_position >= 0){
 	
-	if(g_queue_get_length(stack_aux) == 1){
-		node_aux = (Variable *)g_queue_peek_head(stack_aux);
+		stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, stack_position);
+	
+		if(g_queue_get_length(stack_aux) == 1){
+			node_aux = (Variable *)g_queue_peek_head(stack_aux);
 		
-		dirVirtual = node_aux->dirVirtual;
-		return dirVirtual;
-	}else{
-		for(int i=0; i<g_queue_get_length(stack_aux); i++){
-			node_aux = (Variable *)g_queue_peek_nth(stack_aux,i);
-			string_aux = node_aux->name.c_str();
+			dirVirtual = node_aux->dirVirtual;
+			return dirVirtual;
+		}else{
+			for(int i=0; i<g_queue_get_length(stack_aux); i++){
+				node_aux = (Variable *)g_queue_peek_nth(stack_aux,i);
+				string_aux = node_aux->name.c_str();
 			
-			if(strcmp(string_aux,var_cte) == 0){
-				dirVirtual = node_aux->dirVirtual;
-				return dirVirtual;
+				if(strcmp(string_aux,var_cte) == 0){
+					dirVirtual = node_aux->dirVirtual;
+					return dirVirtual;
+				}
 			}
 		}
+	}else{
+		cout << "Error: Variable no declarada. \n";
+		exit (EXIT_FAILURE);
 	}
 }
 
