@@ -226,12 +226,16 @@ bool check_if_stack_exists(int key, int arrType){
 
 void generate_fin_if(){
 	int quad_number = GPOINTER_TO_INT(g_queue_pop_tail(pilaSaltos));
-	Quadruple *aux = (Quadruple *)g_queue_pop_nth(pilaPasos,quad_number);
+	Quadruple *aux = (Quadruple *)g_queue_peek_nth(pilaPasos,quad_number);
 	aux->resultado = quadruple_index;
 	
-	cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
+	//cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
 	cout << "Cuadruplo actualizado: ";
-	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";//cout << "Push to pila operandos: temp o " << temp << "\n";
+	
+	g_queue_push_nth(pilaPasos, aux, quad_number);
+	g_queue_pop_nth(pilaPasos, quad_number+1);
+
 }
 
 void generate_fin_while(){
@@ -249,12 +253,15 @@ void generate_fin_while(){
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
 	
-	Quadruple *aux = (Quadruple *)g_queue_pop_nth(pilaPasos,falso);
+	Quadruple *aux = (Quadruple *)g_queue_peek_nth(pilaPasos,falso);
 	aux->resultado = quadruple_index;
 	
-	cout << "La siguiente instruccion es la numero: " << retorno << "\n";
+	//cout << "La siguiente instruccion es la numero: " << retorno << "\n";
 	cout << "Cuadruplo actualizado: ";
 	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+	
+	g_queue_push_nth(pilaPasos, aux, falso);
+	g_queue_pop_nth(pilaPasos, falso+1);
 }
 
 void generateQuadruple(){
@@ -398,12 +405,21 @@ void generateQuadruple_else(){
 	g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
 	quadruple_index++;
 	
+	//cout << "****************Pila Saltos: ";
+	//g_queue_foreach(pilaSaltos, (GFunc)print_pilas, NULL);
+	//cout << "\n";
+	
 	//Rellenar GOTOF del IF
-	Quadruple *aux = (Quadruple *)g_queue_pop_nth(pilaPasos,quad_number);
+	Quadruple *aux = (Quadruple *)g_queue_peek_nth(pilaPasos,quad_number);
 	aux->resultado = quadruple_index;
-	cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
+	
+	//cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
 	cout << "Cuadruplo actualizado: ";
 	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+	
+	g_queue_push_nth(pilaPasos, aux, quad_number);
+	g_queue_pop_nth(pilaPasos, quad_number+1);
+	
 }
 
 void generateQuadruple_if(){
@@ -424,11 +440,16 @@ void generateQuadruple_if(){
 		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		g_queue_push_tail(pilaPasos, new_quadruple);
 		g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
+		
 		quadruple_index++;
 	}else{
 		cout << "Error de semántica: tipos incompatibles. \n";
 		exit (EXIT_FAILURE);
 	}
+	
+	//cout << ".........................Pila Saltos: ";
+	//g_queue_foreach(pilaSaltos, (GFunc)print_pilas, NULL);
+	//cout << "\n";
 }
 
 void generateQuadruple_print(){
