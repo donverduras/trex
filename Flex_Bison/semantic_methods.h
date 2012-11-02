@@ -9,8 +9,10 @@ using namespace std;
 
 int asign_dirVirtual(char* var_type);
 bool check_if_stack_exists(int key, int arrType);
+void generate_fin_if();
 void generateQuadruple();
 void generateQuadruple_asignacion();
+void generateQuadruple_if();
 int get_hash_key(string key);
 int get_operator_type(const char* op);
 int get_var_type(const char *var_cte);

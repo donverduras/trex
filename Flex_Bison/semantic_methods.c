@@ -17,6 +17,9 @@ enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, G
 					  TEMP_INT=51000,  TEMP_FLOAT=56000,  TEMP_STRING=61000,   TEMP_BOOLEAN=66000,   TEMP_CHAR=71000,
 					  CONST_INT=76000, CONST_FLOAT=81000, CONST_STRING=86000,  CONST_BOOLEAN=91000,  CONST_CHAR=96000 };
 
+//Simbolos
+enum symbols {	GOTO=200,	GOTOF=201,	GOTOV=202 };
+
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
 	local_int_cont = 0,		local_float_cont = 0, 	local_string_cont = 0, 	local_boolean_cont = 0,		local_char_cont = 0,
@@ -32,6 +35,7 @@ static GQueue* tableProc_stack;			//Lista donde están almacenados los nodos con
 static GQueue* tableVar_stack;			//Lista donde están almacenados los nodos con la información de cada variable
 
 //Bloque de variables utilizadas para la generación de código intermedio
+static int quadruple_index = 1;
 static int current_function;
 static char* main_function;
 
@@ -220,6 +224,18 @@ bool check_if_stack_exists(int key, int arrType){
 	}
 }
 
+void generate_fin_if(){
+	int quad_number = GPOINTER_TO_INT(g_queue_pop_tail(pilaSaltos));
+	
+	Quadruple *aux = (Quadruple *)g_queue_pop_nth(pilaPasos,quad_number);
+	
+	aux->resultado = quadruple_index;
+	
+	cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
+	cout << "Cuadruplo actualizado: ";
+	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+}
+
 void generateQuadruple(){
 	int op, operando1, operando2, temp;
 	char *aux, *temp_aux;
@@ -268,6 +284,8 @@ void generateQuadruple(){
 		new_quadruple->resultado = dirVir;
 		
 		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
 		
 		//temp_aux = convert_to_char(resultadoCubo);
 		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
@@ -320,8 +338,10 @@ void generateQuadruple_asignacion(){
 		
 		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		//cout << "Cuadruplo creado \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
 		
-		cout << "Pila Tipos: ";
+		/*cout << "Pila Tipos: ";
 		g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
 		cout << "\n";
 		cout << "Pila Operandos: ";
@@ -329,8 +349,32 @@ void generateQuadruple_asignacion(){
 		cout << "\n";
 		cout << "Pila Operadores: ";
 		g_queue_foreach(pilaOperadores, (GFunc)print_pilas, NULL);
-		cout << "\n";
+		cout << "\n";*/
 		
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
+void generateQuadruple_if(){
+	int aux, resultado;
+	
+	aux = GPOINTER_TO_INT(g_queue_pop_tail(pilaTipos));
+	
+	if(aux == 3){
+		resultado = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+		
+		Quadruple *new_quadruple = new Quadruple;
+		new_quadruple->operador = GOTOF;
+		new_quadruple->operando1 = resultado;
+		new_quadruple->operando2 = -1;
+		new_quadruple->resultado = -1;
+		
+		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
+		quadruple_index++;
 	}else{
 		cout << "Error de semántica: tipos incompatibles. \n";
 		exit (EXIT_FAILURE);
@@ -425,6 +469,7 @@ void initialize_arrs(){
 
 //Método que inicializa pilas
 void initialize_stacks(){
+	pilaPasos = g_queue_new();
 	pilaTipos = g_queue_new();
 	pilaSaltos = g_queue_new();
 	pilaOperadores = g_queue_new();
@@ -601,11 +646,6 @@ void push_to_pilaOperandos(char *var_cte, char *id_type){
 			dirVirtual = GPOINTER_TO_INT(g_hash_table_lookup(constants,var_cte));
 			g_queue_push_tail(pilaOperandos,GINT_TO_POINTER(dirVirtual));
 		}
-		
-		//dirVirtual = asign_dirVirtual(id_type);
-		
-		cout << "Constante: " << id_type << "\n";
-		cout << "Direccion Virtual de la Constante: " << dirVirtual << "\n";	
 	}
 	
 	/*cout << "Push to pila operandos: " << var_cte << " o " << dirVirtual << "\n";
@@ -640,7 +680,7 @@ void quadruple_add_sub(){
 	//cout << "ADD-SUB \n";
 	//cout << "El operador es: " << operador << "\n";
 	
-	if(op == 0 || op == 1){
+	if((op == 0 || op == 1) && g_queue_get_length(pilaOperadores) > 0){
 		generateQuadruple();
 	}
 }
@@ -654,7 +694,7 @@ void quadruple_mult_div(){
 	//cout << "MULT-DIV \n";
 	//cout << "El operador es: " << operador << "\n";
 	
-	if(op == 2 || op == 3){
+	if((op == 2 || op == 3) && g_queue_get_length(pilaOperadores) > 0){
 		generateQuadruple();
 	}
 }

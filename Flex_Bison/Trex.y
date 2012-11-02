@@ -117,8 +117,12 @@ b:
 	;
 
 bloque2:
-	LLAVEIZQ estatuto c LLAVEDER
-	|LLAVEIZQ LLAVEDER
+	LLAVEIZQ bloque21 LLAVEDER
+	;
+
+bloque21:
+	estatuto c
+	|
 	;
 
 c:
@@ -176,8 +180,7 @@ d:
 	;
 
 condicion:
-	condicion_a bloque2
-	|condicion_a bloque2 condicion_b
+	condicion_a { generateQuadruple_if(); } bloque2 condicion_b { generate_fin_if(); }
 	;
 
 condicion_a:
@@ -185,7 +188,8 @@ condicion_a:
 	;
 
 condicion_b:
-	ELSE bloque2
+	ELSE {} bloque2 {}
+	|
 	;
 
 expresion:

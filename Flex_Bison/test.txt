@@ -3,15 +3,9 @@ program test{
 	int b;
 	int c;
 	int d;
-	int e;
 	
-	function funcion(){
-		float x;
-		
-		x = c / d;
+	if( a + b > c * d ){
+		a = b * c;
 	}
-
-	e = (a + b) * c * 2;
-	
-	a = 'c';
+	b = a + c;
 }
