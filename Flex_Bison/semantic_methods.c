@@ -18,7 +18,7 @@ enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, G
 					  CONST_INT=76000, CONST_FLOAT=81000, CONST_STRING=86000,  CONST_BOOLEAN=91000,  CONST_CHAR=96000 };
 
 //Simbolos
-enum symbols {	GOTO=200,	GOTOF=201,	GOTOV=202, PRINT=300 };
+enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=402 };
 
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
@@ -118,6 +118,13 @@ static int cubo[9][5][5] =
 
 /*********************************Estructuras de datos***********************************/
 
+//Nodo que contiene información de la dimensión del arreglo
+struct Dimension{
+	int linf;
+	int lsup;
+	int k;
+};
+
 //Nodo que contiene información importante de cada procedimiento
 struct Procedure{
 	string name;
@@ -138,6 +145,8 @@ struct Variable{
 	string name;
 	string type;
 	int dirVirtual;
+	Dimension dim;
+	
 };
 
 /****************************************Métodos*****************************************/
@@ -907,6 +916,10 @@ char *search_for_variable_type(char *var_cte){
 	
 	stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, stack_position);
 	
+	if(stack_position < 0){
+		cout << "Error: Variable no declarada. \n";
+		exit (EXIT_FAILURE);
+	}
 	if(g_queue_get_length(stack_aux) == 1){
 		node_aux = (Variable *)g_queue_peek_head(stack_aux);
 		
@@ -922,12 +935,23 @@ char *search_for_variable_type(char *var_cte){
 				return var_type;
 			}
 		}
-	}	
-	cout << "\n\n\n";
+	}
 }
 
 void set_current_function(char *function){
 	//cout << "CURRENT FUNCTION: " << function << "\n";
 	
 	current_function = atoi(function);
+}
+
+void verify_function_name(char *func_name){
+	int ascii, stack_position;
+	
+	ascii = get_hash_key(func_name);
+	stack_position = procedure_index[ascii]-1;
+	
+	if(stack_position < 0){
+		cout << "Error: Función no declarada. \n";
+		exit (EXIT_FAILURE);
+	}
 }

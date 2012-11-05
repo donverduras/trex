@@ -299,8 +299,12 @@ funcion_c:
 	;
 
 llamada:
-	CTE_ID PARENTESISIZQ param2 PARENTESISDER PUNTOYCOMA
-	| CTE_ID PARENTESISIZQ PARENTESISDER PUNTOYCOMA
+	CTE_ID { verify_function_name($1); } PARENTESISIZQ llamada_2 PARENTESISDER PUNTOYCOMA
+	;
+	
+llamada_2:
+	param2
+	|
 	;
 
 param:
