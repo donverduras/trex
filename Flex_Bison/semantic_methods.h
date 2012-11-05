@@ -9,11 +9,14 @@ using namespace std;
 
 int asign_dirVirtual(char* var_type);
 bool check_if_stack_exists(int key, int arrType);
+void generate_fin_for();
 void generate_fin_if();
 void generate_fin_while();
 void generateQuadruple();
 void generateQuadruple_asignacion();
 void generateQuadruple_else();
+void generateQuadruple_for2();
+void generateQuadruple_for3();
 void generateQuadruple_if();
 void generateQuadruple_print();
 void generateQuadruple_while();
