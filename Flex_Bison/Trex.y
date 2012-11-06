@@ -250,15 +250,15 @@ factor_a:
 	;
 
 loopfor:
-	FOR PARENTESISIZQ bloque_for PARENTESISDER bloque2
+	FOR PARENTESISIZQ bloque_for PARENTESISDER bloque2 { generate_fin_for(); }
 	;
 
 bloque_for:
-	CTE_ID IGUAL var_cte PUNTOYCOMA expresion PUNTOYCOMA bloque_for_2
+	CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } var_cte PUNTOYCOMA { generateQuadruple_asignacion(); } expresion PUNTOYCOMA { generateQuadruple_for2(); } bloque_for_2
 	;
 
 bloque_for_2:
-	CTE_ID IGUAL CTE_ID sumaresta CTE_INT
+	CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } sumaresta CTE_INT { push_to_pilaOperandos($1, "0");  generateQuadruple_for3(); } 
 	;
 
 loopwhile:
