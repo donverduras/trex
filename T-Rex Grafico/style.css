@@ -104,6 +104,46 @@ body{
 	border-radius: 5px;
 }
 
+.funcion { 
+	width: 100px;
+	height: 40px;
+	border: 4px double black;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.endfuncion { 
+	width: 100px;
+	height: 40px;
+	border: 4px double black;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.else { 
+	width: 100px; 
+	height: 30px;
+	border: 4px dotted #f200da;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.endelse { 
+	width: 100px; 
+	height: 30px;
+	border: 4px dotted #f200da;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.escondido{
+	display: none;
+}
+
 .elemento{
 	width:108px;
 }
@@ -113,15 +153,4 @@ body{
     height:50px;
     background-color:black;
     margin: 0 auto;
-}
-
-.conector2{
-    width:10px;
-    height:100px;
-    margin-top: -110px;
-    margin-left: 110px;
-    border-top-style:solid;
-    border-right-style:solid;
-    border-bottom-style:solid;
-    border-left-style:none;
 }
