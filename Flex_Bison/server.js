@@ -8,6 +8,14 @@ http.createServer(function (request, response) {
 
 					response.end('Hello HTTP!');
 				 });
+				 
+				  	if(request.method === "POST") {
+    					var data = "";
+
+   						request.on("data", function(chunk) {
+        									data += chunk;
+        									console.log(data);
+    								});
    
    					var fs = require('fs');
    					fs.writeFile('prueba.txt', string, function (err) {
