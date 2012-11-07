@@ -8,9 +8,11 @@ for = 5
 while = 6
 else = 7
 funcion = 8
+read = 9
 */
 
 var elem_selec=0;
+var codigo = "";
 
 function click_estatuto(){  
   elem_selec=1;
@@ -184,7 +186,6 @@ function agregar_funcion(elemento, tipo) {
 	}
 }
 
-
 function borrar_elemento(elemento){
 	var r=confirm("Quieres borrar este elemento?");
 	var padre = $(elemento).parent().attr('class');
@@ -244,41 +245,42 @@ function agregar_elem(elemento, tipo){
 
 function convertir(){
 	var elementos = document.getElementsByClassName('elemento');
+	codigo = "";
 	for(var i=0; i<elementos.length; i++){ 
 		if($(elementos[i]).children().attr('class') != 'elemento'){
 			if($(elementos[i]).children().attr('class') == 'for'){
 				console.log("for(" + $(elementos[i]).children().html() + "){");
+				codigo = codigo + "for(" + $(elementos[i]).children().html() + "){";
 			}
 			else if($(elementos[i]).children().attr('class') == 'while'){
 				console.log("while(" + $(elementos[i]).children().html() + "){");
+				codigo = codigo + "while(" + $(elementos[i]).children().html() + "){";
 			}
 			else if($(elementos[i]).children().attr('class') == 'if'){
 				console.log("if(" + $(elementos[i]).children().html() + "){");
+				codigo = codigo + "if(" + $(elementos[i]).children().html() + "){";
 			}
 			else if($(elementos[i]).children().attr('class') == 'else'){
 				console.log("else(" + $(elementos[i]).children().html() + "){");
+				codigo = codigo + "else(" + $(elementos[i]).children().html() + "){";
 			}
 			else if($(elementos[i]).children().attr('class') == 'funcion'){
 				console.log("function " + $(elementos[i]).children().html() + "){");
+				codigo = codigo + "function " + $(elementos[i]).children().html() + "){";
 			}
-			else if($(elementos[i]).children().attr('class') == 'variable'){
+			else if($(elementos[i]).children().attr('class') == 'variable' || $(elementos[i]).children().attr('class') == 'operacion'){
 				console.log(($(elementos[i]).children().html()) + ";");
-			}
-			else if($(elementos[i]).children().attr('class') == 'operacion'){
-				console.log(($(elementos[i]).children().html()) + ";");
+				codigo = codigo + ($(elementos[i]).children().html()) + ";";
 			}
 			else if($(elementos[i]).children().attr('class') == 'estatuto' && $(elementos[i]).children().html() == "inicio"){
 				console.log("program main(){");
+				codigo = codigo + "program main(){";
 			}
-			else if($(elementos[i]).children().attr('class') == 'estatuto' && $(elementos[i]).children().html() == "fin"){
+			else if($(elementos[i]).children().attr('class') == 'endfor' || $(elementos[i]).children().attr('class') == 'endwhile' || $(elementos[i]).children().attr('class') == 'endif' || $(elementos[i]).children().attr('class') == 'endfuncion' || $(elementos[i]).children().attr('class') == 'estatuto' && $(elementos[i]).children().html() == "fin"){
 				console.log("}");
+				codigo = codigo + "}";
 			}
-			else if($(elementos[i]).children().attr('class') == 'endfor' || $(elementos[i]).children().attr('class') == 'endwhile' || $(elementos[i]).children().attr('class') == 'endif' || $(elementos[i]).children().attr('class') == 'endfuncion'){
-				console.log("}");
-			}
-			
-			//$(elementos[i]).children().attr('class')
-			//$(elementos[i]).children().html()
 		}
 	}
+	console.log(codigo);
 }
