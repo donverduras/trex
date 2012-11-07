@@ -4,7 +4,7 @@
 <head>
 
 <title>T-Rex</title>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<!--<meta http-equiv="Content-Type" content="text/html;charset=utf-8">-->
 <link rel="stylesheet" type="text/css" href="style.css">
 
 <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
@@ -22,35 +22,42 @@
 		<h2> Simbolos </h2>
 		
 		<div class="estatuto" onclick="click_estatuto()"> 
-			<span>estatuto</span>
+			estatuto
 		</div>
+		<br />
 		
 		<div class="funcion" onclick="click_funcion()"> 
-			<span>funcion</span>
+			funcion
 		</div>
+		<br />
 		
 		<div class="variable" onclick="click_var()"> 
-			<span>variable</span>
+			variable
 		</div>
+		<br />
 		
 		<div class="operacion" onclick="click_op()">
-			<span>operacion</span>
+			operacion
 		</div>
+		<br />
 		
 		<div class="if" onclick="click_if()">
-			<span>if</span>
+			if
 		</div>
+		<br />
 		
 		<div class="else escondido" onclick="click_else()">
-			<span>else</span>
+			else
 		</div>
+		<br />
 		
 		<div class="for" onclick="click_for()">
-			<span>for</span>
+			for
 		</div>
+		<br />
 		
 		<div class="while" onclick="click_while()">
-			<span>while</span>
+			while
 		</div>
 	</div>
   
@@ -59,19 +66,17 @@
 		<h2> Flowchart </h2>
 
 		<div class="elemento" onclick="agregar_elem(this)">
-			<div class="estatuto"> 
-				<span>inicio</span>
-			</div>
+			<div class="estatuto">inicio</div>
 			<div class="conector"></div>
 		</div>
 		
 		<div class="elemento">
-			<div class="estatuto"> 
-				<span>fin</span>
-			</div>
+			<div class="estatuto">fin</div>
 		</div>
 		
 	</div>
+	
+	<button onclick="convertir()">Run!</button>
 </div>
 
 </body>
