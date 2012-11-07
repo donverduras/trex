@@ -1,11 +1,7 @@
 program test{
-	int a;
-	int b;
-	int c;
-	int d;
 	int i;
+	int j;
+	int b[5];
 	
-	for(i = 0; i < 5; i = i + 1 ){
-		a = b + c + 4;
-	}
+	b[2] = 3;
 }

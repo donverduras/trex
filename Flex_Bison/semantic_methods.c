@@ -15,16 +15,18 @@ using namespace std;
 enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, GLOBAL_BOOLEAN=16000, GLOBAL_CHAR=21000,
 					  LOCAL_INT=26000, LOCAL_FLOAT=31000, LOCAL_STRING=36000,  LOCAL_BOOLEAN=41000,  LOCAL_CHAR=46000,
 					  TEMP_INT=51000,  TEMP_FLOAT=56000,  TEMP_STRING=61000,   TEMP_BOOLEAN=66000,   TEMP_CHAR=71000,
-					  CONST_INT=76000, CONST_FLOAT=81000, CONST_STRING=86000,  CONST_BOOLEAN=91000,  CONST_CHAR=96000 };
+					  CONST_INT=76000, CONST_FLOAT=81000, CONST_STRING=86000,  CONST_BOOLEAN=91000,  CONST_CHAR=96000,
+					  POINTERS = 100000 };
 
 //Simbolos
-enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=402 };
+enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=402,	VER=403 };
 
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
 	local_int_cont = 0,		local_float_cont = 0, 	local_string_cont = 0, 	local_boolean_cont = 0,		local_char_cont = 0,
 	temp_int_cont = 0, 		temp_float_cont = 0, 	temp_string_cont = 0, 	temp_boolean_cont = 0, 		temp_char_cont = 0,
-	const_int_cont = 0, 	const_float_cont = 0, 	const_string_cont = 0, 	const_boolean_cont = 0, 	const_char_cont = 0;
+	const_int_cont = 0, 	const_float_cont = 0, 	const_string_cont = 0, 	const_boolean_cont = 0, 	const_char_cont = 0,
+	pointers_cont = 0;
 
 //Bloque de variables utilizadas para la generación de tablas de procedimientos y variables
 static int procedure_index[26];			//Tabla de Hash para los procedimientos
@@ -47,8 +49,6 @@ static GQueue* pilaPasos;
 static GQueue* pilaSaltos;
 static GQueue* pilaTipos;
 static GQueue* pilaAuxFor;
-
-
 
 static int cubo[9][5][5] =
 {
@@ -119,13 +119,6 @@ static int cubo[9][5][5] =
 
 /*********************************Estructuras de datos***********************************/
 
-//Nodo que contiene información de la dimensión del arreglo
-struct Dimension{
-	int linf;
-	int lsup;
-	int k;
-};
-
 //Nodo que contiene información importante de cada procedimiento
 struct Procedure{
 	string name;
@@ -146,11 +139,45 @@ struct Variable{
 	string name;
 	string type;
 	int dirVirtual;
-	Dimension dim;
+	int limite;
 	
 };
 
 /****************************************Métodos*****************************************/
+
+void alter_dirVirtual(char* var_type, int m0){
+	int type, dirVirtual;
+	const char* aux;
+
+	aux = var_type;
+	type = get_var_type(aux);
+	
+	if(current_function == 0){
+		if(type == 0){
+			global_int_cont = global_int_cont + m0;
+		}else if(type == 1){
+			global_float_cont = global_float_cont + m0;
+		}else if(type == 2){
+			global_string_cont = global_string_cont + m0;
+		}else if(type == 3){
+			global_boolean_cont = global_boolean_cont + m0;
+		}else if(type == 4){
+			global_char_cont = global_char_cont + m0;
+		}
+	}else if(current_function != 0){
+		if(type == 0){
+			local_int_cont = local_int_cont + m0;
+		}else if(type == 1){
+			local_float_cont = local_float_cont + m0;
+		}else if(type == 2){
+			local_string_cont = local_string_cont + m0;
+		}else if(type == 3){
+			local_boolean_cont = local_boolean_cont + m0;
+		}else if(type == 4){
+			local_char_cont = local_char_cont + m0;
+		}
+	}
+}
 
 int asign_dirVirtual(char* var_type){
 	int type, dirVirtual;
@@ -385,6 +412,28 @@ void generateQuadruple(){
 		cout << "Error de semántica: tipos incompatibles. \n";
 		exit (EXIT_FAILURE);
 	}
+}
+
+void generateQuadruple_array(){
+	int operando2, operando1, dirVir;
+	
+	Quadruple *new_quadruple = new Quadruple;
+	operando2 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));					//Resultado
+	operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));					//dirBase
+	dirVir = POINTERS + pointers_cont;
+	pointers_cont++;
+	
+	new_quadruple->operador = 0;													//Suma
+	new_quadruple->operando2 = operando2;
+	new_quadruple->operando1 = operando1;
+	new_quadruple->resultado = dirVir;
+	
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	quadruple_index++;
+	
+	g_queue_push_tail(pilaOperandos, GINT_TO_POINTER(dirVir));
 }
 
 void generateQuadruple_asignacion(){
@@ -758,6 +807,61 @@ void initialize_stacks(){
 	constants = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
+void insert_arr_to_vars_table(string id, string type, string size){
+	int hash_key, value_inside_array, dirVirtual;
+	bool stack_exists;
+	const char *string_aux;
+	char *var_type, *size_aux;
+	GList* variable_in_stack;
+	
+	int limsup, m0;
+	
+	size_aux = &size[0];
+	limsup = atoi(size_aux);
+	m0 = limsup-1;
+	
+	GQueue *stack_aux = g_queue_new();
+	Variable *node = new Variable;
+	
+	var_type = &type[0];
+	dirVirtual = asign_dirVirtual(var_type);
+	alter_dirVirtual(var_type,m0);
+	
+	node->name = id;					//Se asigna el id al nodo
+	node->type = type;					//Se asigna el tipo de dato al nodo
+	node->dirVirtual = dirVirtual;		//Se asigna la direccion virtual al nodo
+	node->limite = limsup;				//Se asigna la dimension
+	
+	
+	hash_key = get_hash_key(id);
+	stack_exists = check_if_stack_exists(hash_key, 1);
+	
+	if(!stack_exists){														//Si no existe
+		stack_aux = g_queue_new();											//Creo una nueva lista
+		g_queue_push_tail(stack_aux,node);									//Meto el nodo
+		g_queue_push_tail(tableVar_stack,stack_aux);						//Meto esa lista a la lista principal
+		variable_index[hash_key] = g_queue_get_length(tableVar_stack);		//Guardo la posicion donde fue puesta la lista en la lista principal en el arreglo
+		
+		//cout << "El arreglo en la posicion " << hash_key << " tiene el valor: " << g_queue_get_length(tableVar_stack) << "\n";
+	}else{																					//Si ya existía una lista
+		value_inside_array = variable_index[hash_key] - 1;									//Checo el valor que le corresponde dentro del arreglo
+		//cout << "Valor en la posicion del arreglo " << value_inside_array << "\n";
+		stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, value_inside_array);			//Obtengo la lista con las variables dentro de la lista principal
+		
+		string_aux = id.c_str();															//Convierto el nombre del id en char *
+		variable_in_stack = g_queue_find_custom(stack_aux, string_aux, search_for_id);		//Checo si existe el nombre del id dentro de la lista
+		
+		if(!variable_in_stack){														//Si no existe el nombre de la variable en la lista
+			g_queue_push_tail(stack_aux, node);										//Agrego el nuevo id (nodo) a la lista
+			g_queue_push_nth(tableVar_stack, stack_aux, value_inside_array);		//Meto la lista actualizada en la posicion original de la lista
+			g_queue_pop_nth(tableVar_stack, value_inside_array+1);					//Elimino la lista "desactualizada" que se encuentra una posicion adelante de la recien agregada
+		}else{																	//Si ya existia la variable, truena el programa
+			cout << "Error: La variable ya ha sido declarada anteriormente. \n";
+			exit (EXIT_FAILURE);
+		}
+	}
+}
+
 /*******************************************
  * Función para agregar un nuevo id con su *
  * tipo de dato y direccion virtual a la   *
@@ -996,6 +1100,43 @@ void quadruple_relational(){
 	}
 }
 
+int search_for_arrLimit(char *var_cte){
+	int ascii, stack_position;
+	const char *string_aux;				//String auxiliar
+	GQueue* stack_aux = g_queue_new();	//Pila auxiliar
+	GList* variable_in_stack;			//Lista utilizada para encontrar alguna variable
+	Variable *node_aux = new Variable;	//Nodo auxiliar
+	int limit;
+	
+	ascii = get_hash_key(var_cte);
+	stack_position = variable_index[ascii]-1;
+	
+	if(stack_position >= 0){
+	
+		stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, stack_position);
+	
+		if(g_queue_get_length(stack_aux) == 1){
+			node_aux = (Variable *)g_queue_peek_head(stack_aux);
+		
+			limit = node_aux->limite;
+			return limit;
+		}else{
+			for(int i=0; i<g_queue_get_length(stack_aux); i++){
+				node_aux = (Variable *)g_queue_peek_nth(stack_aux,i);
+				string_aux = node_aux->name.c_str();
+			
+				if(strcmp(string_aux,var_cte) == 0){
+					limit = node_aux->limite;
+					return limit;
+				}
+			}
+		}
+	}else{
+		cout << "Error: Variable no declarada. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
 /*******************************************
  * Función que recibe un nodo y el nombre  *
  * de identificador, y busca en cada nodo  *
@@ -1095,6 +1236,22 @@ void set_current_function(char *function){
 	//cout << "CURRENT FUNCTION: " << function << "\n";
 	
 	current_function = atoi(function);
+}
+
+void verify_arr_limit(char *var_cte){
+	int resultado = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperandos));
+	int limit = search_for_arrLimit(var_cte);
+	
+	Quadruple *new_quadruple = new Quadruple;
+	new_quadruple->operador = VER;
+	new_quadruple->operando2 = -1;
+	new_quadruple->operando1 = resultado;
+	new_quadruple->resultado = limit;
+	
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	quadruple_index++;
 }
 
 void verify_function_name(char *func_name){

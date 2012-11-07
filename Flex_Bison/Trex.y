@@ -14,6 +14,7 @@ extern char *yytext;
  
 char *var_type;
 char *name;
+char *size;
 char *function_name;
  
 void yyerror(const char *s);
@@ -131,10 +132,13 @@ c:
 	;
 
 vars:
-	tipo CTE_ID IGUAL var_cte PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type); }
-	|tipo CTE_ID PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type); }
-	|tipo CTE_ID CORIZQ CTE_INT CORDER IGUAL var_cte PUNTOYCOMA
-	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA
+	tipo CTE_ID vars2 PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type); }
+	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA { name = $2;  size = $4; insert_arr_to_vars_table(name,var_type, size); }
+	;
+
+vars2:
+	IGUAL var_cte
+	|
 	;
 
 tipo:
@@ -266,13 +270,21 @@ loopwhile:
 	;
 
 asignacion:
-	CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } asignacion_b { quadruple_relational(); } PUNTOYCOMA
-	| CTE_ID CORIZQ exp CORDER IGUAL asignacion_b PUNTOYCOMA
+	CTE_ID { name = $1; push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } asignacion_d asignacion_c
 	;
 
 asignacion_b:
 	expresion
 	| lectura
+	;
+	
+asignacion_c:
+	IGUAL { push_to_pilaOperadores(yylval.sval); } asignacion_b { quadruple_relational(); } PUNTOYCOMA
+	;
+
+asignacion_d:
+	CORIZQ exp CORDER { verify_arr_limit(name); generateQuadruple_array(); }
+	|
 	;
 	
 lectura:
