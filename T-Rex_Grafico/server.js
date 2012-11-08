@@ -1,33 +1,32 @@
 var http = require("http");
+var qs = require('querystring');
 var cont = 0;
 var string;
+var finalString;
+var data='';
 
 http.createServer(function (request, response) {
-					console.log("entre"); 
-					/*request.on("end", function () {
-										//response.writeHead(200, { 'Content-Type': 'text/plain' });
-										//response.end('Hello HTTP!');
-										console.log("entre");
-				 });
-				 
-				  	if(request.method === "POST") {
-    					var data = "";
-
-   						request.on("codigo", function(chunk) {
-        									data += chunk;
-        									console.log(data);
-    								});
-    				}
-   
-   					var fs = require('fs');
-   					fs.writeFile('prueba.txt', string, function (err) {
+						request.on("data", function(chunk) {
+											data+=chunk;
+											
+											var json = qs.parse(data);
+											string = json.data;
+											
+											finalString = string.toString('ascii',0,string.length);
+											console.log(finalString);
+											
+											var fs = require('fs');
+   												fs.writeFile('prueba.txt', finalString, 'utf8' ,function (err) {
   																if (err) throw err;
   																	console.log('It\'s saved!');
-																});
-   
+																}
+								);
+    								});
+    				/*
 					var exec = require('child_process').exec, child;
 					child = exec('g++ Trex.tab.c lex.yy.c `pkg-config --cflags --libs glib-2.0` semantic_methods.c semantic_methods.h -ll -o Trex',
   								 function (error, stdout, stderr) {
+  								 	console.log("Compilo");
     								var execute = require('child_process').exec, trex;
 									
 									trex = execute('./Trex test.txt', function (error, stdout, stderr) {
@@ -36,5 +35,6 @@ http.createServer(function (request, response) {
     																		cont++;
     																	}
 													});
-							});*/
+							});	
+						*/				
 }).listen(8080);

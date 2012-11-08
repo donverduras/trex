@@ -289,6 +289,6 @@ function convertir(){
 }
 
 function enviar(){
-	console.log($.post("./server.js",codigo));
-    $.post("./server.js:8080",codigo);
+	$.post(
+        "http://127.0.0.1:8080/", {data: codigo} );
 }
