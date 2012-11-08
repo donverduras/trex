@@ -1,0 +1,157 @@
+body{
+	font-family: helvetica;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+.content{
+	height: auto;
+	width: 1000px;
+	margin: 0 auto;
+}
+
+.elementos { 
+	width: 259px; 
+	height: 500px; 
+	border: 3px solid;
+	float: left;
+	padding-left: 35px;
+}
+
+.flowchart {
+	width: 594px;
+	min-height: 500px;
+	border: 3px solid;
+	float: left;
+	margin-left: 50px;
+	padding-left: 50px;
+}
+
+.variable { 
+	width: 100px; 
+	border: 4px solid red; 
+	text-align: center;
+}
+
+.operacion { 
+	width: 100px; 
+	border: 4px solid green; 
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.for { 
+	width: 100px; 
+	height: 30px;
+	border: 4px double #d7db0d; 
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.endfor { 
+	width: 100px; 
+	border: 4px double #d7db0d; 
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+
+.while{ 
+	width: 100px; 
+	height: 30px;
+	border: 4px solid #e07100; 
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.endwhile{ 
+	width: 100px; 
+	border: 4px solid #e07100; 
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+
+.estatuto {
+	width: 100px;
+	height: 40px;
+	border: 4px solid blue;
+	text-align: center;
+	-moz-border-radius: 100px / 50px;
+	-webkit-border-radius: 100px / 50px;
+	border-radius: 100px / 50px;
+}
+
+.if { 
+	width: 100px; 
+	height: 30px;
+	border: 4px dotted purple;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.endif { 
+	width: 100px; 
+	height: 30px;
+	border: 4px dotted purple;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.funcion { 
+	width: 100px;
+	height: 40px;
+	border: 4px double black;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.endfuncion { 
+	width: 100px;
+	height: 40px;
+	border: 4px double black;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.else { 
+	width: 100px; 
+	height: 30px;
+	border: 4px dotted #f200da;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.endelse { 
+	width: 100px; 
+	height: 30px;
+	border: 4px dotted #f200da;
+	text-align: center;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.escondido{
+	display: none;
+}
+
+.elemento{
+	width:108px;
+}
+
+.conector{
+    width:3px;
+    height:30px;
+    background-color:black;
+    margin: 0 auto;
+}
