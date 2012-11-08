@@ -340,16 +340,6 @@ void generate_fin_while(){
 }
 
 void generateQuadruple(){
-
-	cout << "Pila Operandos: ";
-		g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
-		cout << "\n";
-		cout << "Pila Tipos: ";
-		g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
-		cout << "\n";
-		cout << "Pila Operadores: ";
-		g_queue_foreach(pilaOperadores, (GFunc)print_pilas, NULL);
-		cout << "\n\n";
 	cout << "#" << quadruple_index << " ";
 	int op, operando1, operando2, temp;
 	char *aux, *temp_aux;

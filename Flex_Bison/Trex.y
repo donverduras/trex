@@ -170,16 +170,15 @@ estatuto:
 	;
 
 escritura:
-	PRINT { push_to_pilaOperadores("print"); } PARENTESISIZQ escritura_a d PARENTESISDER { generateQuadruple_print(); } PUNTOYCOMA
+	PRINT PARENTESISIZQ { push_to_pilaOperadores("print"); } escritura_a d PARENTESISDER PUNTOYCOMA
 	;
 
 escritura_a:
-	exp
-	|CTE_STRING
+	exp { generateQuadruple_print(); }
 	;
 
 d:
-	SUMA escritura_a d
+	COMA { push_to_pilaOperadores("print"); } escritura_a d
 	|
 	;
 
