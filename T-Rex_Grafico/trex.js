@@ -282,5 +282,13 @@ function convertir(){
 			}
 		}
 	}
+	codigo = codigo.replace('&lt;','<');
+	codigo = codigo.replace('&gt;','>');
+	codigo = codigo.replace('&lt;&gt;','<>');
 	console.log(codigo);
+}
+
+function enviar(){
+	console.log($.post("./server.js",codigo));
+    $.post("./server.js:8080",codigo);
 }
