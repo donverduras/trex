@@ -3,5 +3,5 @@ program test{
 	int j;
 	int b[5];
 	
-	b[2] = 3;
+	i = b[2] + b[j];
 }

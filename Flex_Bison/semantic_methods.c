@@ -19,7 +19,7 @@ enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, G
 					  POINTERS = 100000 };
 
 //Simbolos
-enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=402,	VER=403 };
+enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=402,	VER=403, 	POINTER=15 };
 
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
@@ -340,6 +340,16 @@ void generate_fin_while(){
 }
 
 void generateQuadruple(){
+
+	cout << "Pila Operandos: ";
+		g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
+		cout << "\n";
+		cout << "Pila Tipos: ";
+		g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
+		cout << "\n";
+		cout << "Pila Operadores: ";
+		g_queue_foreach(pilaOperadores, (GFunc)print_pilas, NULL);
+		cout << "\n\n";
 	cout << "#" << quadruple_index << " ";
 	int op, operando1, operando2, temp;
 	char *aux, *temp_aux;
@@ -394,6 +404,7 @@ void generateQuadruple(){
 		//temp_aux = convert_to_char(resultadoCubo);
 		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
 		
+		
 		/*
 		//cout << "Push to pila operandos: temp o " << temp << "\n";
 		cout << "Pila Operandos: ";
@@ -407,7 +418,6 @@ void generateQuadruple(){
 		cout << "\n\n";
 		*/
 		
-		
 	}else{
 		cout << "Error de semántica: tipos incompatibles. \n";
 		exit (EXIT_FAILURE);
@@ -415,7 +425,10 @@ void generateQuadruple(){
 }
 
 void generateQuadruple_array(){
+
 	int operando2, operando1, dirVir;
+	
+	g_queue_pop_tail(pilaTipos);
 	
 	Quadruple *new_quadruple = new Quadruple;
 	operando2 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));					//Resultado
@@ -434,6 +447,19 @@ void generateQuadruple_array(){
 	quadruple_index++;
 	
 	g_queue_push_tail(pilaOperandos, GINT_TO_POINTER(dirVir));
+	g_queue_push_tail(pilaTipos, GINT_TO_POINTER(POINTER));
+	
+	/*
+	cout << "Pila Operandos: ";
+	g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
+	cout << "\n";
+	cout << "Pila Tipos: ";
+	g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
+	cout << "\n";
+	cout << "Pila Operadores: ";
+	g_queue_foreach(pilaOperadores, (GFunc)print_pilas, NULL);
+	cout << "\n\n";
+	*/
 }
 
 void generateQuadruple_asignacion(){
@@ -772,6 +798,8 @@ int get_var_type(const char *var_cte){
 		return 13;
 	}else if(strcmp(var_cte,"const_char") == 0){
 		return 14;
+	}else if(strcmp(var_cte,"pointer") == 0){
+		return 15;
 	}
 }
 
@@ -1239,6 +1267,7 @@ void set_current_function(char *function){
 }
 
 void verify_arr_limit(char *var_cte){
+
 	int resultado = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperandos));
 	int limit = search_for_arrLimit(var_cte);
 	
@@ -1252,6 +1281,18 @@ void verify_arr_limit(char *var_cte){
 	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
+
+	/*	
+	cout << "Pila Operandos: ";
+	g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
+	cout << "\n";
+	cout << "Pila Tipos: ";
+	g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
+	cout << "\n";
+	cout << "Pila Operadores: ";
+	g_queue_foreach(pilaOperadores, (GFunc)print_pilas, NULL);
+	cout << "\n\n";
+	*/
 }
 
 void verify_function_name(char *func_name){

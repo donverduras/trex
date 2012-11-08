@@ -338,7 +338,7 @@ h:
 	;
 
 arr:
-	CTE_ID CORIZQ exp CORDER
+	CTE_ID { name = $1; push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } CORIZQ { push_to_pilaOperadores("#"); } exp { pop_of_pilaOperadores(); } CORDER { verify_arr_limit(name); generateQuadruple_array(); }
 	;
 
 %%
