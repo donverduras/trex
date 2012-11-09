@@ -19,7 +19,8 @@ enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, G
 					  POINTERS = 100000 };
 
 //Simbolos
-enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=402,	VER=403, 	POINTER=15 };
+enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=501,	VER=403, 	POINTER=15,
+				INIPROC=500	 };
 
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
@@ -27,6 +28,10 @@ int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_b
 	temp_int_cont = 0, 		temp_float_cont = 0, 	temp_string_cont = 0, 	temp_boolean_cont = 0, 		temp_char_cont = 0,
 	const_int_cont = 0, 	const_float_cont = 0, 	const_string_cont = 0, 	const_boolean_cont = 0, 	const_char_cont = 0,
 	pointers_cont = 0;
+
+//Locales y temporales x funcion
+int local_int_cont_func = 0,	local_float_cont_func = 0, 	local_string_cont_func = 0, local_boolean_cont_func = 0,	local_char_cont_func = 0,
+	temp_int_cont_func = 0, 	temp_float_cont_func = 0, 	temp_string_cont_func = 0, 	temp_boolean_cont_func = 0, 	temp_char_cont_func = 0;
 
 //Bloque de variables utilizadas para la generación de tablas de procedimientos y variables
 static int procedure_index[26];			//Tabla de Hash para los procedimientos
@@ -119,11 +124,21 @@ static int cubo[9][5][5] =
 
 /*********************************Estructuras de datos***********************************/
 
+//Nodo que contiene la cantidad de variables dentro de una funcion
+struct VarCont{
+	int integers;
+	int flotantes;
+	int estrings;
+	int booleans;
+	int chars;
+};
+
 //Nodo que contiene información importante de cada procedimiento
 struct Procedure{
 	string name;
-	string dirInitial;
-	string size;
+	int dirInitial;					//Cuadruplo inicial
+	VarCont locals;
+	VarCont temps;
 };
 
 //Nodo que contiene información referente a la generación de cuádruplos
@@ -207,18 +222,23 @@ int asign_dirVirtual(char* var_type){
 		if(type == 0){
 			dirVirtual = LOCAL_INT + local_int_cont;
 			local_int_cont++;
+			local_int_cont_func++;
 		}else if(type == 1){
 			dirVirtual = LOCAL_FLOAT + local_float_cont;
 			local_float_cont++;
+			local_float_cont_func++;
 		}else if(type == 2){
 			dirVirtual = LOCAL_STRING + local_string_cont;
 			local_string_cont++;
+			local_string_cont_func++;
 		}else if(type == 3){
 			dirVirtual = LOCAL_BOOLEAN + local_boolean_cont;
 			local_boolean_cont++;
+			local_boolean_cont_func++;
 		}else if(type == 4){
 			dirVirtual = LOCAL_CHAR + local_char_cont;
 			local_char_cont++;
+			local_char_cont_func++;
 		}
 	}
 	
@@ -365,18 +385,23 @@ void generateQuadruple(){
 		if(resultadoCubo == 0){
 			dirVir = TEMP_INT + temp_int_cont;
 			temp_int_cont++;
+			temp_int_cont_func++;
 		}else if(resultadoCubo == 1){
 			dirVir = TEMP_FLOAT + temp_float_cont;
 			temp_float_cont++;
+			temp_float_cont_func++;
 		}else if(resultadoCubo == 2){
 			dirVir = TEMP_STRING + temp_string_cont;
 			temp_string_cont++;
+			temp_string_cont_func++;
 		}else if(resultadoCubo == 3){
 			dirVir = TEMP_BOOLEAN + temp_boolean_cont;
 			temp_boolean_cont++;
+			temp_boolean_cont_func++;
 		}else if(resultadoCubo == 4){
 			dirVir = TEMP_CHAR + temp_char_cont;
 			temp_char_cont++;
+			temp_char_cont_func++;
 		}
 		
 		//temp = convert_to_char(dirVir);
@@ -584,18 +609,23 @@ void generateQuadruple_for3(){
 		if(resultadoCubo == 0){
 			dirVir = TEMP_INT + temp_int_cont;
 			temp_int_cont++;
+			temp_int_cont_func++;
 		}else if(resultadoCubo == 1){
 			dirVir = TEMP_FLOAT + temp_float_cont;
 			temp_float_cont++;
+			temp_float_cont_func++;
 		}else if(resultadoCubo == 2){
 			dirVir = TEMP_STRING + temp_string_cont;
 			temp_string_cont++;
+			temp_string_cont_func++;
 		}else if(resultadoCubo == 3){
 			dirVir = TEMP_BOOLEAN + temp_boolean_cont;
 			temp_boolean_cont++;
+			temp_boolean_cont_func++;
 		}else if(resultadoCubo == 4){
 			dirVir = TEMP_CHAR + temp_char_cont;
 			temp_char_cont++;
+			temp_char_cont_func++;
 		}
 		
 		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
@@ -765,6 +795,43 @@ int get_operator_type(const char* op){
 	}
 }
 
+Procedure *get_proc(char *var_cte){
+	int ascii, stack_position;
+	const char *string_aux;					//String auxiliar
+	GQueue* stack_aux = g_queue_new();		//Pila auxiliar
+	GList* variable_in_stack;				//Lista utilizada para encontrar alguna variable
+	Procedure *node_aux = new Procedure;	//Nodo auxiliar
+	int dirVirtual;
+	
+	ascii = get_hash_key(var_cte);
+	stack_position = procedure_index[ascii]-1;
+	
+	if(stack_position >= 0){
+	
+		stack_aux = (GQueue *)g_queue_peek_nth(tableProc_stack, stack_position);
+	
+		if(g_queue_get_length(stack_aux) == 1){
+			node_aux = (Procedure *)g_queue_peek_head(stack_aux);
+		
+			//dirVirtual = node_aux->dirVirtual;
+			return node_aux;
+		}else{
+			for(int i=0; i<g_queue_get_length(stack_aux); i++){
+				node_aux = (Procedure *)g_queue_peek_nth(stack_aux,i);
+				string_aux = node_aux->name.c_str();
+			
+				if(strcmp(string_aux,var_cte) == 0){
+					//dirVirtual = node_aux->dirVirtual;
+					return node_aux;
+				}
+			}
+		}
+	}else{
+		cout << "Error: Variable no declarada. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
 int get_var_type(const char *var_cte){
 	//cout << "Push to pila tipos: " << var_cte << "\n";
 	
@@ -885,7 +952,7 @@ void insert_arr_to_vars_table(string id, string type, string size){
  * tipo de dato y direccion virtual a la   *
  * tabla de procedimientos 				   *
  *******************************************/
-void insert_to_procs_table(string id, string dirInitial, string size){
+void insert_to_procs_table(string id){
 	int hash_key;						//Valor que le corresponde dependiendo la primera letra del id
 	int value_inside_array;				//Valor que se encuentre dentro de la casilla del arreglo, que corresponde a la posicion dentro de la lista principal			
 	bool stack_exists;					//Checa si hay alguna lista dentro de alguna casilla de la lista principal
@@ -896,8 +963,8 @@ void insert_to_procs_table(string id, string dirInitial, string size){
 	Procedure *node = new Procedure;		//Nodo
 	
 	node->name = id;					//Se asigna el id al nodo
-	node->dirInitial = dirInitial;		//Se asigna el tipo de dato al nodo
-	node->size = size;					//Se asigna la direccion virtual al nodo
+	//node->dirInitial = dirInitial;		//Se asigna el tipo de dato al nodo
+	//node->size = size;					//Se asigna la direccion virtual al nodo
 	//cout << "Nodo creado \n";
 	
 	hash_key = get_hash_key(id);							//Busca la hash key que le corresponde al identificador
@@ -1118,6 +1185,19 @@ void quadruple_relational(){
 	}
 }
 
+void reset_func_count(){	
+	local_int_cont_func = 0;
+	local_float_cont_func = 0;
+	local_string_cont_func = 0;
+	local_boolean_cont_func = 0;
+	local_char_cont_func = 0;
+	temp_int_cont_func = 0;
+	temp_float_cont_func = 0;
+	temp_string_cont_func = 0;
+	temp_boolean_cont_func = 0;
+	temp_char_cont_func = 0;
+}
+
 int search_for_arrLimit(char *var_cte){
 	int ascii, stack_position;
 	const char *string_aux;				//String auxiliar
@@ -1254,6 +1334,62 @@ void set_current_function(char *function){
 	//cout << "CURRENT FUNCTION: " << function << "\n";
 	
 	current_function = atoi(function);
+}
+
+void set_fin_function(char *func){
+	VarCont *locales = new VarCont;
+	VarCont *temporales = new VarCont;
+	Quadruple *new_quadruple = new Quadruple;
+	Procedure *proc = new Procedure;
+	
+	proc = get_proc(func);
+	
+	locales->integers = local_int_cont_func;
+	locales->flotantes = local_float_cont_func;
+	locales->estrings = local_string_cont_func;
+	locales->booleans = local_boolean_cont_func;
+	locales->chars = local_char_cont_func;
+	
+	proc->locals = *locales;
+		
+	temporales->integers = temp_int_cont_func;
+	temporales->flotantes = temp_float_cont_func;
+	temporales->estrings = temp_string_cont_func;
+	temporales->booleans = temp_boolean_cont_func;
+	temporales->chars = temp_char_cont_func;
+	
+	proc->temps = *temporales;
+		
+	new_quadruple->operador = RET;
+	new_quadruple->operando2 = -1;
+	new_quadruple->operando1 = -1;
+	new_quadruple->resultado = -1;
+	
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	quadruple_index++;
+	
+	reset_func_count();
+}
+
+void set_start_function(char *func){
+	Procedure *proc = new Procedure;
+	Quadruple *new_quadruple = new Quadruple;
+	
+	new_quadruple->operador = INIPROC;													//Suma
+	new_quadruple->operando2 = -1;
+	new_quadruple->operando1 = -1;
+	new_quadruple->resultado = -1;
+	
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	
+	proc = get_proc(func);
+	proc->dirInitial = quadruple_index;
+	
+	quadruple_index++;
 }
 
 void verify_arr_limit(char *var_cte){

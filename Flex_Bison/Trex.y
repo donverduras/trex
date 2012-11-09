@@ -90,7 +90,7 @@ programa:
 	;
 
 programa_a:
-	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"0","300"); main_function_name(function_name); set_current_function("0");} LLAVEIZQ
+	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0");} LLAVEIZQ
 	;
 
 programa_b:
@@ -291,12 +291,11 @@ lectura:
 	;
 	
 funcion:
-	FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name,"10","20"); set_current_function("1");} PARENTESISIZQ funcion_c funcion_a
+	FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name); set_current_function("1");} PARENTESISIZQ funcion_c funcion_a
 	;
 
 funcion_a:
-	PARENTESISDER LLAVEIZQ vars funcion_b bloque LLAVEDER
-	|PARENTESISDER LLAVEIZQ bloque LLAVEDER { set_current_function("0"); }
+	PARENTESISDER LLAVEIZQ { set_start_function(function_name); } funcion_d LLAVEDER { set_current_function("0"); set_fin_function(function_name); } 
 	;
 
 funcion_b:
@@ -307,6 +306,11 @@ funcion_b:
 funcion_c:
 	param
 	|
+	;
+
+funcion_d:
+	vars funcion_b bloque
+	| bloque
 	;
 
 llamada:

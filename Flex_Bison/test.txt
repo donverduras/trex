@@ -1,5 +1,11 @@
 program test{
-	int x;
 	
-	print("X= ", x, x+1);
+	function uno(int x){
+		x = 2 * 3;
+	}
+	
+	function dos(int a, float c){
+		char w;
+		string e;
+	}
 }

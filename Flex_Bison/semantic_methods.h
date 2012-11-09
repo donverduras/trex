@@ -7,6 +7,9 @@
 
 using namespace std;
 
+struct VarCont;
+struct Procedure;
+
 int asign_dirVirtual(char* var_type);
 bool check_if_stack_exists(int key, int arrType);
 void generate_fin_for();
@@ -23,12 +26,13 @@ void generateQuadruple_print();
 void generateQuadruple_while();
 int get_hash_key(string key);
 int get_operator_type(const char* op);
+Procedure *get_proc(char *func);
 int get_var_type(const char *var_cte);
 void initialize();
 void initialize_arrs();
 void initialize_stacks();
 void insert_arr_to_vars_table(string id, string type, string size);
-void insert_to_procs_table(string id, string dirInitial, string size);
+void insert_to_procs_table(string id);
 void insert_to_vars_table(string id, string type);
 void main_function_name(char *function_name);
 void pop_of_pilaOperadores();
@@ -40,11 +44,14 @@ void push_to_pilaTipos(char *var_cte);
 void quadruple_add_sub();
 void quadruple_add_sub();
 void quadruple_mult_div();
+void reset_func_count();
 void quadruple_relational();
 int search_for_arrLimit(char *var_cte);
 int search_for_id(gconstpointer a, gconstpointer b);
 int search_for_dirVirtual(char *var_cte);
 char *search_for_variable_type(char *var_cte);
 void set_current_function(char *function);
+void set_fin_function(char *func);
+void set_start_function(char *func);
 void verify_arr_limit(char *var_cte);
 void verify_function_name(char *func_name);
