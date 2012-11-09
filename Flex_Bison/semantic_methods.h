@@ -12,6 +12,7 @@ struct Procedure;
 
 int asign_dirVirtual(char* var_type);
 bool check_if_stack_exists(int key, int arrType);
+void count_params();
 void generate_fin_for();
 void generate_fin_if();
 void generate_fin_while();

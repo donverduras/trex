@@ -8,4 +8,6 @@ program test{
 		char w;
 		string e;
 	}
+	
+	uno(1);
 }

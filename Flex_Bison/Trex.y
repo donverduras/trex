@@ -323,11 +323,11 @@ llamada_2:
 	;
 
 param:
-	tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type); } g
+	tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type); count_params(); } g
 	;
 
 g:
-	COMA tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type); } g
+	COMA tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type); count_params(); } g
 	|
 	;
 

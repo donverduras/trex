@@ -1967,12 +1967,12 @@ yyreduce:
 
   case 124:
 #line 326 "Trex.y"
-    { name = yylval.sval; insert_to_vars_table(name,var_type); ;}
+    { name = yylval.sval; insert_to_vars_table(name,var_type); count_params(); ;}
     break;
 
   case 126:
 #line 330 "Trex.y"
-    { name = yylval.sval; insert_to_vars_table(name,var_type); ;}
+    { name = yylval.sval; insert_to_vars_table(name,var_type); count_params(); ;}
     break;
 
   case 132:

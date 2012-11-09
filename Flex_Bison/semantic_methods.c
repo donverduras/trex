@@ -43,6 +43,7 @@ static GQueue* tableVar_stack;			//Lista donde están almacenados los nodos con 
 
 //Bloque de variables utilizadas para la generación de código intermedio
 static int quadruple_index = 1;
+static int param_counter = 0;
 static int current_function;
 static char* main_function;
 
@@ -137,6 +138,7 @@ struct VarCont{
 struct Procedure{
 	string name;
 	int dirInitial;					//Cuadruplo inicial
+	int numParams;
 	VarCont locals;
 	VarCont temps;
 };
@@ -279,6 +281,10 @@ bool check_if_stack_exists(int key, int arrType){
 		else
 			return false;
 	}
+}
+
+void count_params(){
+	param_counter++;
 }
 
 void generate_fin_for(){
@@ -1196,6 +1202,7 @@ void reset_func_count(){
 	temp_string_cont_func = 0;
 	temp_boolean_cont_func = 0;
 	temp_char_cont_func = 0;
+	param_counter = 0;
 }
 
 int search_for_arrLimit(char *var_cte){
@@ -1388,6 +1395,10 @@ void set_start_function(char *func){
 	
 	proc = get_proc(func);
 	proc->dirInitial = quadruple_index;
+	proc->numParams = param_counter;
+	
+	cout << "Cuadruplos inicial: " << proc->dirInitial << "\n";
+	cout << "Num params: " << proc->numParams << "\n";
 	
 	quadruple_index++;
 }
