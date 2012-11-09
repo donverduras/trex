@@ -156,7 +156,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 24 "Trex.y"
+#line 25 "Trex.y"
 {
 	char *sval;
 }

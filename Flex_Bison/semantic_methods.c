@@ -20,7 +20,7 @@ enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, G
 
 //Simbolos
 enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=501,	VER=403, 	POINTER=15,
-				INIPROC=500	 };
+				INIPROC=500,PARAM=402	 };
 
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
@@ -55,6 +55,7 @@ static GQueue* pilaPasos;
 static GQueue* pilaSaltos;
 static GQueue* pilaTipos;
 static GQueue* pilaAuxFor;
+//static GQueue* pilaParametros;
 
 static int cubo[9][5][5] =
 {
@@ -125,6 +126,13 @@ static int cubo[9][5][5] =
 
 /*********************************Estructuras de datos***********************************/
 
+struct Function{
+	int operador;
+	int operando1;
+	int operando2;
+	char *resultado;
+};
+
 //Nodo que contiene la cantidad de variables dentro de una funcion
 struct VarCont{
 	int integers;
@@ -141,6 +149,7 @@ struct Procedure{
 	int numParams;
 	VarCont locals;
 	VarCont temps;
+	GQueue *pilaParams;
 };
 
 //Nodo que contiene información referente a la generación de cuádruplos
@@ -287,6 +296,18 @@ void count_params(){
 	param_counter++;
 }
 
+void generate_activation_record(char *func_name){
+	Function *new_quadruple = new Function;
+	new_quadruple->operador = ERA;
+	new_quadruple->operando2 = -1;
+	new_quadruple->operando1 = -1;
+	new_quadruple->resultado = func_name;
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	quadruple_index++;
+}
+
 void generate_fin_for(){
 	int falso = GPOINTER_TO_INT(g_queue_pop_tail(pilaSaltos));
 	Quadruple *aux1 = new Quadruple();
@@ -337,6 +358,20 @@ void generate_fin_if(){
 	g_queue_push_nth(pilaPasos, aux, quad_number);
 	g_queue_pop_nth(pilaPasos, quad_number+1);
 
+}
+
+void generate_fin_llamada(char *func_name){
+	Function *new_quadruple = new Function;
+	new_quadruple->operador = GOSUB;
+	new_quadruple->operando2 = -1;
+	new_quadruple->operando1 = -1;
+	new_quadruple->resultado = func_name ;
+	
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	
+	quadruple_index++;
 }
 
 void generate_fin_while(){
@@ -891,6 +926,7 @@ void initialize_stacks(){
 	pilaOperadores = g_queue_new();
 	pilaOperandos = g_queue_new();
 	pilaAuxFor = g_queue_new();
+	//pilaParametros = g_queue_new();
 	
 	tableProc_stack = g_queue_new();
 	tableVar_stack = g_queue_new();
@@ -953,6 +989,24 @@ void insert_arr_to_vars_table(string id, string type, string size){
 	}
 }
 
+void insert_param_type(char *func_name, char *var_type){
+	const char* aux = var_type;
+	int type = get_var_type(aux);
+	Procedure *proc = new Procedure;
+	
+	proc = get_proc(func_name);
+	
+	//g_queue_push_tail(pilaParametros, GINT_TO_POINTER(type));
+	//proc->pilaParams = pilaParametros;
+	g_queue_push_tail(proc->pilaParams, GINT_TO_POINTER(type));
+	
+	/*cout << "######Insert param type: " << func_name << ", " << var_type << "\n";
+	cout << "Proc Name: " << proc->name << "\n";
+	cout << "Pila Parametros: ";
+	g_queue_foreach(proc->pilaParams, (GFunc)print_pilas, NULL);
+	cout << "\n";*/
+}
+
 /*******************************************
  * Función para agregar un nuevo id con su *
  * tipo de dato y direccion virtual a la   *
@@ -972,6 +1026,7 @@ void insert_to_procs_table(string id){
 	//node->dirInitial = dirInitial;		//Se asigna el tipo de dato al nodo
 	//node->size = size;					//Se asigna la direccion virtual al nodo
 	//cout << "Nodo creado \n";
+	node->pilaParams = g_queue_new();
 	
 	hash_key = get_hash_key(id);							//Busca la hash key que le corresponde al identificador
 	stack_exists = check_if_stack_exists(hash_key, 0);		//Checa si en esa posicion existe alguna lista almacenando alguna otra variable
@@ -1147,6 +1202,11 @@ void push_to_pilaTipos(char *var_cte){
 	//cout << "\n";
 }
 
+void push_to_pilaTipos_directly(char *type){
+	int aux = atoi(type) - 10;
+	g_queue_push_tail(pilaTipos, GINT_TO_POINTER(aux));
+}
+
 void quadruple_add_sub(){
 	int op = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperadores));
 	//int op;
@@ -1203,6 +1263,11 @@ void reset_func_count(){
 	temp_boolean_cont_func = 0;
 	temp_char_cont_func = 0;
 	param_counter = 0;
+}
+
+void reset_param_counter(){
+	param_counter = 0;
+	//g_queue_clear(pilaParametros);
 }
 
 int search_for_arrLimit(char *var_cte){
@@ -1282,9 +1347,15 @@ int search_for_dirVirtual(char *var_cte){
 	
 		if(g_queue_get_length(stack_aux) == 1){
 			node_aux = (Variable *)g_queue_peek_head(stack_aux);
-		
-			dirVirtual = node_aux->dirVirtual;
-			return dirVirtual;
+			string_aux = node_aux->name.c_str();
+			
+			if(strcmp(string_aux,var_cte) == 0){
+				dirVirtual = node_aux->dirVirtual;
+				return dirVirtual;
+			}else{
+				cout << "Error: Variable no declarada. \n";
+				exit (EXIT_FAILURE);
+			}
 		}else{
 			for(int i=0; i<g_queue_get_length(stack_aux); i++){
 				node_aux = (Variable *)g_queue_peek_nth(stack_aux,i);
@@ -1293,6 +1364,9 @@ int search_for_dirVirtual(char *var_cte){
 				if(strcmp(string_aux,var_cte) == 0){
 					dirVirtual = node_aux->dirVirtual;
 					return dirVirtual;
+				}else{
+					cout << "Error: Variable no declarada. \n";
+					exit (EXIT_FAILURE);
 				}
 			}
 		}
@@ -1397,9 +1471,6 @@ void set_start_function(char *func){
 	proc->dirInitial = quadruple_index;
 	proc->numParams = param_counter;
 	
-	cout << "Cuadruplos inicial: " << proc->dirInitial << "\n";
-	cout << "Num params: " << proc->numParams << "\n";
-	
 	quadruple_index++;
 }
 
@@ -1434,12 +1505,76 @@ void verify_arr_limit(char *var_cte){
 
 void verify_function_name(char *func_name){
 	int ascii, stack_position;
+	const char *string_aux;
+	GQueue* stack_aux = g_queue_new();
+	Procedure *node_aux = new Procedure;
 	
 	ascii = get_hash_key(func_name);
 	stack_position = procedure_index[ascii]-1;
 	
-	if(stack_position < 0){
+	if(stack_position >= 0){
+		stack_aux = (GQueue *)g_queue_peek_nth(tableProc_stack, stack_position);
+		
+		if(g_queue_get_length(stack_aux) == 1){
+			node_aux = (Procedure *)g_queue_peek_nth(stack_aux,0);
+			string_aux = node_aux->name.c_str();
+			
+			if(strcmp(string_aux,func_name) != 0){
+				cout << "Error: Función no declarada. \n";
+				exit (EXIT_FAILURE);
+			}
+		}else{
+			for(int i=0; i<g_queue_get_length(stack_aux); i++){
+				node_aux = (Procedure *)g_queue_peek_nth(stack_aux,i);
+				string_aux = node_aux->name.c_str();
+			
+				if(strcmp(string_aux,func_name) != 0){
+					cout << "Error: Función no declarada. \n";
+					exit (EXIT_FAILURE);
+				}
+			}
+		}
+	}else{
 		cout << "Error: Función no declarada. \n";
 		exit (EXIT_FAILURE);
 	}
+}
+
+void verify_parameters(char *func_name){
+	int argumento, tipoArg, tipoOriginal;
+	Procedure *proc = new Procedure;
+	GQueue *pilaAux = g_queue_new();
+	
+	proc = get_proc(func_name);
+	pilaAux = proc->pilaParams;
+	
+	argumento = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+	tipoArg = GPOINTER_TO_INT(g_queue_pop_tail(pilaTipos));
+	tipoOriginal = GPOINTER_TO_INT(g_queue_peek_nth(pilaAux, param_counter));
+	
+	/*cout << "*********Name: " << proc->name << "\n";
+	cout << "Pila Parametros: ";
+	g_queue_foreach(proc->pilaParams, (GFunc)print_pilas, NULL);
+	cout << "\n";
+	cout << "Param counter: " << param_counter << "\n";
+	cout << "Tipo Argumento: " << tipoArg << "\n";
+	cout << "Argumento Original: " << tipoOriginal << "\n";*/
+	
+	if(tipoArg != tipoOriginal){
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}else{
+		Quadruple *new_quadruple = new Quadruple;
+		new_quadruple->operador = PARAM;
+		new_quadruple->operando2 = -1;
+		new_quadruple->operando1 = argumento;
+		new_quadruple->resultado = param_counter;
+		
+		cout << "#" << quadruple_index << " ";
+		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+	
+		quadruple_index++;
+	}
+	
 }
