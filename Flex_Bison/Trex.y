@@ -84,10 +84,10 @@ void yyerror(const char *s);
 %%
 
 programa:
-	programa_a  vars programa_b funcion programa_c programa_d {cout << "EXITO" << endl;}
-	| programa_a funcion programa_c programa_d {cout << "EXITO" << endl;}
-	| programa_a vars programa_b programa_d {cout << "EXITO" << endl;}
-	| programa_a programa_d {cout << "EXITO" << endl;}
+	programa_a  vars programa_b funcion programa_c programa_d { generate_obj(); cout << "EXITO" << endl;}
+	| programa_a funcion programa_c programa_d { generate_obj(); cout << "EXITO" << endl;}
+	| programa_a vars programa_b programa_d { generate_obj(); cout << "EXITO" << endl;}
+	| programa_a programa_d { generate_obj(); cout << "EXITO" << endl;}
 	;
 
 programa_a:

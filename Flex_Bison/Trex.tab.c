@@ -1671,22 +1671,22 @@ yyreduce:
     {
         case 2:
 #line 87 "Trex.y"
-    {cout << "EXITO" << endl;;}
+    { generate_obj(); cout << "EXITO" << endl;;}
     break;
 
   case 3:
 #line 88 "Trex.y"
-    {cout << "EXITO" << endl;;}
+    { generate_obj(); cout << "EXITO" << endl;;}
     break;
 
   case 4:
 #line 89 "Trex.y"
-    {cout << "EXITO" << endl;;}
+    { generate_obj(); cout << "EXITO" << endl;;}
     break;
 
   case 5:
 #line 90 "Trex.y"
-    {cout << "EXITO" << endl;;}
+    { generate_obj(); cout << "EXITO" << endl;;}
     break;
 
   case 6:

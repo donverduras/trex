@@ -3,6 +3,7 @@
 #include <sstream> 
 #include <stdlib.h>
 #include <glib.h>
+#include <fstream>
 #include "semantic_methods.h"
 #define GPOINTER_TO_INT(p) ((gint)  (glong) (p))
 #define GINT_TO_POINTER(i) ((gpointer) (glong) (i))
@@ -46,6 +47,8 @@ static int quadruple_index = 1;
 static int param_counter = 0;
 static int current_function;
 static char* main_function;
+
+static ofstream objeto;
 
 static GHashTable* constants;		//Tabla de constantes
 
@@ -302,8 +305,8 @@ void generate_activation_record(char *func_name){
 	new_quadruple->operando2 = -1;
 	new_quadruple->operando1 = -1;
 	new_quadruple->resultado = func_name;
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
 }
@@ -316,12 +319,12 @@ void generate_fin_for(){
 	aux2 = (Quadruple *)g_queue_pop_tail(pilaAuxFor);
 	aux1 = (Quadruple *)g_queue_pop_tail(pilaAuxFor);
 	
-	cout << "**\n";
-	cout << "( " << aux1->operador << ", " << aux1->operando1 << ", " << aux1->operando2 << ", " << aux1->resultado << " ) \n";
+	//cout << "**\n";
+	//cout << "( " << aux1->operador << ", " << aux1->operando1 << ", " << aux1->operando2 << ", " << aux1->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, aux1);
-	cout << "( " << aux2->operador << ", " << aux2->operando1 << ", " << aux2->operando2 << ", " << aux2->resultado << " ) \n";
+	//cout << "( " << aux2->operador << ", " << aux2->operando1 << ", " << aux2->operando2 << ", " << aux2->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, aux2);
-	cout << "**\n";
+	//cout << "**\n";
 	
 	Quadruple *new_quadruple = new Quadruple;
 	new_quadruple->operador = GOTO;
@@ -329,8 +332,8 @@ void generate_fin_for(){
 	new_quadruple->operando1 = -1;
 	new_quadruple->resultado = falso;
 	
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
 
@@ -339,8 +342,8 @@ void generate_fin_for(){
 	aux->resultado = quadruple_index;
 	
 	//cout << "La siguiente instruccion es la numero: " << retorno << "\n";
-	cout << "Cuadruplo actualizado: ";
-	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+	//cout << "Cuadruplo actualizado: ";
+	//cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
 	
 	g_queue_push_nth(pilaPasos, aux, falso);
 	g_queue_pop_nth(pilaPasos, falso+1);
@@ -352,8 +355,8 @@ void generate_fin_if(){
 	aux->resultado = quadruple_index;
 	
 	//cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
-	cout << "Cuadruplo actualizado: ";
-	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";//cout << "Push to pila operandos: temp o " << temp << "\n";
+	//cout << "Cuadruplo actualizado: ";
+	//cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";//cout << "Push to pila operandos: temp o " << temp << "\n";
 	
 	g_queue_push_nth(pilaPasos, aux, quad_number);
 	g_queue_pop_nth(pilaPasos, quad_number+1);
@@ -367,8 +370,8 @@ void generate_fin_llamada(char *func_name){
 	new_quadruple->operando1 = -1;
 	new_quadruple->resultado = func_name ;
 	
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	
 	quadruple_index++;
@@ -384,8 +387,8 @@ void generate_fin_while(){
 	new_quadruple->operando1 = -1;
 	new_quadruple->resultado = retorno;
 	
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
 	
@@ -393,15 +396,39 @@ void generate_fin_while(){
 	aux->resultado = quadruple_index;
 	
 	//cout << "La siguiente instruccion es la numero: " << retorno << "\n";
-	cout << "Cuadruplo actualizado: ";
-	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+	//cout << "Cuadruplo actualizado: ";
+	//cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
 	
 	g_queue_push_nth(pilaPasos, aux, falso);
 	g_queue_pop_nth(pilaPasos, falso+1);
 }
 
+void generate_obj(){
+	GQueue* stack_aux = g_queue_new();
+	
+	objeto.open("test.obj");
+	
+	//Directorio de Procedimientos
+	for(int i=0; i< g_queue_get_length(tableProc_stack); i++){
+		stack_aux = (GQueue *)g_queue_peek_nth(tableProc_stack, i);
+		g_queue_foreach(stack_aux,print_pilas,NULL);
+	}
+	
+	objeto << "\n" << "%%" << "\n";
+	
+	//Directorio de constantes
+	g_hash_table_foreach(constants, print_hashTable, NULL);
+	
+	objeto << "\n" << "%%" << "\n";
+	
+	//Cuadruplos
+	g_queue_foreach(pilaPasos,print_quadruples,NULL);
+	
+	objeto.close();
+}
+
 void generateQuadruple(){
-	cout << "#" << quadruple_index << " ";
+	//cout << "#" << quadruple_index << " ";
 	int op, operando1, operando2, temp;
 	char *aux, *temp_aux;
 	int resultadoCubo, operador, op1, op2, dirVir;
@@ -453,7 +480,7 @@ void generateQuadruple(){
 		new_quadruple->operando1 = operando1;
 		new_quadruple->resultado = dirVir;
 		
-		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		g_queue_push_tail(pilaPasos, new_quadruple);
 		quadruple_index++;
 		
@@ -497,8 +524,8 @@ void generateQuadruple_array(){
 	new_quadruple->operando1 = operando1;
 	new_quadruple->resultado = dirVir;
 	
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
 	
@@ -519,7 +546,7 @@ void generateQuadruple_array(){
 }
 
 void generateQuadruple_asignacion(){
-	cout << "#" << quadruple_index << " ";
+	//cout << "#" << quadruple_index << " ";
 	int op, operando1, temp;
 	char *aux;
 	int operador, op1, op2, resultadoCubo, res;
@@ -546,7 +573,7 @@ void generateQuadruple_asignacion(){
 		new_quadruple->operando1 = operando1;
 		new_quadruple->resultado = res;
 		
-		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		//cout << "Cuadruplo creado \n";
 		g_queue_push_tail(pilaPasos, new_quadruple);
 		quadruple_index++;
@@ -579,7 +606,7 @@ void generateQuadruple_else(){
 	new_quadruple->operando2 = -1;
 	new_quadruple->resultado = -1;
 	
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
@@ -594,8 +621,8 @@ void generateQuadruple_else(){
 	aux->resultado = quadruple_index;
 	
 	//cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
-	cout << "Cuadruplo actualizado: ";
-	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+	//cout << "Cuadruplo actualizado: ";
+	//cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
 	
 	g_queue_push_nth(pilaPasos, aux, quad_number);
 	g_queue_pop_nth(pilaPasos, quad_number+1);
@@ -603,7 +630,7 @@ void generateQuadruple_else(){
 }
 
 void generateQuadruple_for2(){
-	cout << "#" << quadruple_index << " ";
+	//cout << "#" << quadruple_index << " ";
 	int aux, resultado;
 	
 	aux = GPOINTER_TO_INT(g_queue_pop_tail(pilaTipos));
@@ -617,7 +644,7 @@ void generateQuadruple_for2(){
 		new_quadruple->operando2 = -1;
 		new_quadruple->resultado = -1;
 		
-		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		g_queue_push_tail(pilaPasos, new_quadruple);
 		g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
 		
@@ -676,7 +703,7 @@ void generateQuadruple_for3(){
 		new_quadruple->operando1 = operando1;
 		new_quadruple->resultado = dirVir;
 		
-		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		g_queue_push_tail(pilaAuxFor, new_quadruple);
 		quadruple_index++;
 		
@@ -708,7 +735,7 @@ void generateQuadruple_for3(){
 		new_quadruple->operando1 = operando1;
 		new_quadruple->resultado = res;
 		
-		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 
 		g_queue_push_tail(pilaAuxFor, new_quadruple);
 		quadruple_index++;
@@ -720,7 +747,7 @@ void generateQuadruple_for3(){
 }
 
 void generateQuadruple_if(){
-	cout << "#" << quadruple_index << " ";
+	//cout << "#" << quadruple_index << " ";
 	int aux, resultado;
 	
 	aux = GPOINTER_TO_INT(g_queue_pop_tail(pilaTipos));
@@ -734,7 +761,7 @@ void generateQuadruple_if(){
 		new_quadruple->operando2 = -1;
 		new_quadruple->resultado = -1;
 		
-		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		g_queue_push_tail(pilaPasos, new_quadruple);
 		g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
 		
@@ -760,14 +787,14 @@ void generateQuadruple_print(){
 	new_quadruple->operando2 = -1;
 	new_quadruple->resultado = resultado;
 	
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
 }
 
 void generateQuadruple_while(){
-	cout << "#" << quadruple_index << " ";
+	//cout << "#" << quadruple_index << " ";
 	int aux, resultado;
 	
 	aux = GPOINTER_TO_INT(g_queue_pop_tail(pilaTipos));
@@ -781,7 +808,7 @@ void generateQuadruple_while(){
 		new_quadruple->operando2 = -1;
 		new_quadruple->resultado = -1;
 		
-		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		g_queue_push_tail(pilaPasos, new_quadruple);
 		g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
 		quadruple_index++;
@@ -1118,17 +1145,43 @@ void insert_to_vars_table(string id, string type){
 }
 
 void main_function_name(char *function_name){
-	main_function = function_name;
-	//cout << "MAIN FUNCTION: " << main_function << "\n";
+	Procedure *proc = new Procedure;
+
+	main_function = function_name;	
+	proc = get_proc(function_name);
+	proc->numParams = 0;
+	
 }
 
 void pop_of_pilaOperadores(){
-	cout << "POP PILA OPERADORES \n";
+	//cout << "POP PILA OPERADORES \n";
 	g_queue_pop_tail(pilaOperadores);
 }
 
+void print_hashTable(gpointer key, gpointer value, gpointer user_data){
+	objeto << (char *)key << ", " << GPOINTER_TO_INT(value) << "\n";
+}
+
 void print_pilas(gpointer data, gpointer user_data){
-	cout << GPOINTER_TO_INT(data) << " ";
+	Procedure *proc = new Procedure;
+	VarCont *locales = new VarCont;
+	VarCont *temporales = new VarCont;
+	
+	proc = (Procedure *)data;
+
+	objeto << proc->name << ", " << proc->dirInitial << ", " << proc->numParams << ", " <<
+			  proc->locals.integers << ", " << proc->locals.flotantes  << ", " << proc->locals.estrings << ", " << proc->locals.booleans << ", " << proc->locals.chars << ", " <<
+			  proc->temps.integers << ", " << proc->temps.flotantes  << ", " << proc->temps.estrings << ", " << proc->temps.booleans << ", " << proc->temps.chars << "\n";
+	
+	//cout << GPOINTER_TO_INT(data) << " ";
+}
+
+void print_quadruples(gpointer data, gpointer user_data){
+	Quadruple *quad = new Quadruple;
+	
+	quad = (Quadruple *)data;
+	
+	objeto << quad->operador << ", " << quad->operando1 << ", " << quad->operando2 << ", " << quad->resultado << "\n";
 }
 
 void push_quadruple_index_to_pilaSaltos(){
@@ -1446,8 +1499,8 @@ void set_fin_function(char *func){
 	new_quadruple->operando1 = -1;
 	new_quadruple->resultado = -1;
 	
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
 	
@@ -1463,8 +1516,8 @@ void set_start_function(char *func){
 	new_quadruple->operando1 = -1;
 	new_quadruple->resultado = -1;
 	
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	
 	proc = get_proc(func);
@@ -1485,8 +1538,8 @@ void verify_arr_limit(char *var_cte){
 	new_quadruple->operando1 = resultado;
 	new_quadruple->resultado = limit;
 	
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
 
@@ -1570,8 +1623,8 @@ void verify_parameters(char *func_name){
 		new_quadruple->operando1 = argumento;
 		new_quadruple->resultado = param_counter;
 		
-		cout << "#" << quadruple_index << " ";
-		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		//cout << "#" << quadruple_index << " ";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		g_queue_push_tail(pilaPasos, new_quadruple);
 	
 		quadruple_index++;
