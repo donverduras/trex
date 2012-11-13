@@ -48,9 +48,13 @@ int main(int argc, char *argv[]) {
 	int contCharGlobales = 0;
 	//matriz de constantes
 	string *arrConst;
+	int tamanoConst = 0;
 	int *arrConstDirVir;
-	int primerValor = 0;
+	int primerValorConst = 0;
 	int numConst = 0;
+	//cuadruplos
+	int tamanoCuadruplos = 0;
+	int primerValorCuadruplo = 0;
 	
 	string line;
 	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
@@ -153,44 +157,63 @@ int main(int argc, char *argv[]) {
 				numFuncion++;
 			}
 			else if(contPorciento == 1){
-				if(primerValor == 0){
-					int tamano = atoi(str);
-					primerValor++;
-					arrConst = new string[primerValor];
-					arrConstDirVir = new int[primerValor];
+				if(primerValorConst == 0){
+					tamanoConst = atoi(str);
+					primerValorConst++;
+					arrConst = new string[tamanoConst];
+					arrConstDirVir = new int[tamanoConst];
 				}
 				else{
 					pch = strtok (str," ,-");
-					cout << "Primer pch: " << pch << "\n";
-					arrConst[numConst] = "hola";
-					
-					/*(while (pch != NULL){
-						switch (i) 
+					while (pch != NULL){
+						switch (i){
 						case 0 : //nombre Constante
-							cout << "Segundo pch: " << pch << "\n";
 							arrConst[numConst] = pch;
 							i++;
 							break;
 						case 1 : //Dir de constante
-							cout << "Tercer pch: " << pch << "\n";
 							arrConstDirVir[numConst] = atoi(pch);
 							i++;
 							break;
 						}
-						cout << "PRE Cuarto pch: " << pch << "\n";
-						pch = strtok (NULL,"");
-						cout << "Cuarto pch: " << pch << "\n";
-					}*/
-					pch = strtok (NULL,", ");
-					cout << "Segundo pch: " << pch << "\n";
-					arrConstDirVir[numConst] = atoi(pch);
-
+						pch = strtok(NULL, " ,.-");
+					}
 					i = 0;
 					numConst++;
 				}
 			}
 			else if(contPorciento == 2){
-				cout << "Hola2" << "\n";
+				if(primerValorCuadruplo == 0){
+					tamanoCuadruplos = atoi(str);
+					primerValorCuadruplo++;
+					cout << tamanoCuadruplos << "\n";
+				}
+				else{
+					pch = strtok (str," ,-");
+					while (pch != NULL){
+						switch (i) {
+						case 0 : 
+							cout << atoi(pch) << "\n";
+							i++;
+							break;
+						case 1 : 
+							cout << atoi(pch) << "\n";
+							i++;
+							break;
+						case 2 : 
+							cout << atoi(pch) << "\n";
+							i++;
+							break;
+						case 3 : //enteros
+							cout << atoi(pch) << "\n";
+							i++;
+							break;
+					}
+					pch = strtok (NULL, ",");
+				}
+					i = 0;
+					numFuncion++;
+				}
 			}
 		}
 		myfile.close();
@@ -207,12 +230,10 @@ int main(int argc, char *argv[]) {
 	tempBooleano = new int[contBooleanoTemps];
 	tempChar = new int[contCharTemps];
 	
-	cout << "( " << arrConst[0] << ", " << arrConstDirVir[0] << " )\n";
-	cout << "( " << arrConst[1] << ", " << arrConstDirVir[1] << " )\n";
-	cout << "( " << arrConst[2] << ", " << arrConstDirVir[2] << " )\n";
-	cout << "( " << arrConst[3] << ", " << arrConstDirVir[3] << " )\n";
-	cout << "( " << arrConst[4] << ", " << arrConstDirVir[4] << " )\n";
-	/*	
+	for(int i = 0; i < tamanoConst; i++){
+		cout << "(" << arrConst[i] << ", " << arrConstDirVir[i] << ")\n";
+	}
+	/*
 	cout << "contEnteroGlobales = " << contEnteroGlobales << "\n";
 	cout << "contFlotanteGlobales = " << contFlotanteGlobales << "\n";
 	cout << "contStringGlobales = " << contStringGlobales << "\n";
