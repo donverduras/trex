@@ -11,6 +11,7 @@ int main(int argc, char *argv[]) {
 	char *pch;
 	int i = 0;
 	int numFuncion = 0;
+	int contPorciento = 0;
 	string nombreFuncion[20];//0
 	int cuadruploInicial[20]; //1
 	int numParam[20]; //2
@@ -45,100 +46,152 @@ int main(int argc, char *argv[]) {
 	int contStringGlobales = 0;
 	int contBooleanoGlobales = 0;
 	int contCharGlobales = 0;
+	//matriz de constantes
+	string *arrConst;
+	int *arrConstDirVir;
+	int primerValor = 0;
+	int numConst = 0;
 	
 	string line;
-	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/Flex_Bison/test.obj");
+	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
 	
 	if (myfile.is_open()){
 		while ( myfile.good()){
 			getline (myfile,line);
 			str = &line[0];
-		
-			pch = strtok (str," ,.-");
-			while (pch != NULL){
-				switch (i) {
-					case 0 : //nombreFuncion
-						nombreFuncion[numFuncion] = pch;
-						i++;
-				    	break;
-				    case 1 : 
-						cuadruploInicial[numFuncion] = atoi(pch);
-						i++;
-				    	break;
-					case 2 : 
-				    	numParam[numFuncion] = atoi(pch);
-						i++;
-				    	break;
-					case 3 : //enteros
-						if(numFuncion == 0){
-							contEnteroGlobales = atoi(pch);
-							globalEntero = new int[contEnteroGlobales];
-						}
-						else
-							contEnteroLocales += atoi(pch);
-						i++;
-						break;
-					case 4 : //flotantes
-						if(numFuncion == 0){
-							contFlotanteGlobales = atoi(pch);
-							globalFlotante = new int[contFlotanteGlobales];
-						}
-						else
-							contFlotanteLocales += atoi(pch);
-						i++;
-						break;
-					case 5 : //strings
-						if(numFuncion == 0){
-							contStringGlobales = atoi(pch);
-							globalString = new int[contStringGlobales];
-						}
-						else
-							contStringLocales += atoi(pch);
-						i++;
-						break;
-					case 6 : //booleanos
-						if(numFuncion == 0){
-							contBooleanoGlobales = atoi(pch);
-							globalBooleano = new int[contBooleanoGlobales];
-						}
-						else
-							contBooleanoLocales += atoi(pch);
-						i++;
-						break;
-					case 7 : //chars
-				    	if(numFuncion == 0){
-							contCharGlobales = atoi(pch);
-							globalChar = new int[contCharGlobales];
-						}
-						else
-							contCharLocales += atoi(pch);
-						i++;
-						break;
-					case 8 : //Enteros temps
-						contEnteroTemps += atoi(pch);
-						i++;
-						break;
-					case 9 : //flotantes temps
-						contFlotanteTemps += atoi(pch);
-						i++;
-						break;
-					case 10	: //string temps
-						contStringTemps += atoi(pch);
-						i++;
-						break;
-					case 11 : //booleanos temps
-						contBooleanoTemps += atoi(pch);
-						i++;
-						break;
-					case 12 : //char temps
-						contCharTemps += atoi(pch);
-						i++;
-						break;
-				}
-				pch = strtok (NULL, ",");
+			
+			if(strcmp(str, "%%") == 0){
+				getline(myfile, line);
+				str = &line[0];
+				contPorciento++;
 			}
-			i = 0;
-			numFuncion++;
+			if(contPorciento == 0){
+				pch = strtok (str," ,.-");
+				while (pch != NULL){
+					switch (i) {
+						case 0 : //nombreFuncion
+							nombreFuncion[numFuncion] = pch;
+							i++;
+							break;
+						case 1 : 
+							cuadruploInicial[numFuncion] = atoi(pch);
+							i++;
+							break;
+						case 2 : 
+							numParam[numFuncion] = atoi(pch);
+							i++;
+							break;
+						case 3 : //enteros
+							if(numFuncion == 0){
+								contEnteroGlobales = atoi(pch);
+								globalEntero = new int[contEnteroGlobales];
+							}
+							else
+								contEnteroLocales += atoi(pch);
+							i++;
+							break;
+						case 4 : //flotantes
+							if(numFuncion == 0){
+								contFlotanteGlobales = atoi(pch);
+								globalFlotante = new int[contFlotanteGlobales];
+							}
+							else
+								contFlotanteLocales += atoi(pch);
+							i++;
+							break;
+						case 5 : //strings
+							if(numFuncion == 0){
+								contStringGlobales = atoi(pch);
+								globalString = new int[contStringGlobales];
+							}
+							else
+								contStringLocales += atoi(pch);
+							i++;
+							break;
+						case 6 : //booleanos
+							if(numFuncion == 0){
+								contBooleanoGlobales = atoi(pch);
+								globalBooleano = new int[contBooleanoGlobales];
+							}
+							else
+								contBooleanoLocales += atoi(pch);
+							i++;
+							break;
+						case 7 : //chars
+							if(numFuncion == 0){
+								contCharGlobales = atoi(pch);
+								globalChar = new int[contCharGlobales];
+							}
+							else
+								contCharLocales += atoi(pch);
+							i++;
+							break;
+						case 8 : //Enteros temps
+							contEnteroTemps += atoi(pch);
+							i++;
+							break;
+						case 9 : //flotantes temps
+							contFlotanteTemps += atoi(pch);
+							i++;
+							break;
+						case 10	: //string temps
+							contStringTemps += atoi(pch);
+							i++;
+							break;
+						case 11 : //booleanos temps
+							contBooleanoTemps += atoi(pch);
+							i++;
+							break;
+						case 12 : //char temps
+							contCharTemps += atoi(pch);
+							i++;
+							break;
+					}
+					pch = strtok (NULL, ",");
+				}
+				i = 0;
+				numFuncion++;
+			}
+			else if(contPorciento == 1){
+				if(primerValor == 0){
+					int tamano = atoi(str);
+					primerValor++;
+					arrConst = new string[primerValor];
+					arrConstDirVir = new int[primerValor];
+				}
+				else{
+					pch = strtok (str," ,-");
+					cout << "Primer pch: " << pch << "\n";
+					arrConst[numConst] = "hola";
+					
+					/*(while (pch != NULL){
+						switch (i) 
+						case 0 : //nombre Constante
+							cout << "Segundo pch: " << pch << "\n";
+							arrConst[numConst] = pch;
+							i++;
+							break;
+						case 1 : //Dir de constante
+							cout << "Tercer pch: " << pch << "\n";
+							arrConstDirVir[numConst] = atoi(pch);
+							i++;
+							break;
+						}
+						cout << "PRE Cuarto pch: " << pch << "\n";
+						pch = strtok (NULL,"");
+						cout << "Cuarto pch: " << pch << "\n";
+					}*/
+					pch = strtok (NULL,", ");
+					cout << "Segundo pch: " << pch << "\n";
+					arrConstDirVir[numConst] = atoi(pch);
+
+					i = 0;
+					numConst++;
+				}
+			}
+			else if(contPorciento == 2){
+				cout << "Hola2" << "\n";
+			}
 		}
 		myfile.close();
 	}else cout << "Unable to open file";
@@ -154,6 +207,12 @@ int main(int argc, char *argv[]) {
 	tempBooleano = new int[contBooleanoTemps];
 	tempChar = new int[contCharTemps];
 	
+	cout << "( " << arrConst[0] << ", " << arrConstDirVir[0] << " )\n";
+	cout << "( " << arrConst[1] << ", " << arrConstDirVir[1] << " )\n";
+	cout << "( " << arrConst[2] << ", " << arrConstDirVir[2] << " )\n";
+	cout << "( " << arrConst[3] << ", " << arrConstDirVir[3] << " )\n";
+	cout << "( " << arrConst[4] << ", " << arrConstDirVir[4] << " )\n";
+	/*	
 	cout << "contEnteroGlobales = " << contEnteroGlobales << "\n";
 	cout << "contFlotanteGlobales = " << contFlotanteGlobales << "\n";
 	cout << "contStringGlobales = " << contStringGlobales << "\n";
@@ -171,4 +230,5 @@ int main(int argc, char *argv[]) {
 	cout << "contStringTemps = " << contStringTemps << "\n";
 	cout << "contBooleanoTemps = " << contBooleanoTemps << "\n";
 	cout << "contCharTemps = " << contCharTemps << "\n";
+	*/
 }
