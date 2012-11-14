@@ -59,11 +59,13 @@ int main(int argc, char *argv[]) {
 	int *arrConstDirVir;
 	int primerValorConst = 0;
 	int numConst = 0;
-	//cuadruplos
+	//Cuadruplos
 	Quadruple *listOfQuads;
 	int tamanoCuadruplos = 0;
 	int primerValorCuadruplo = 0;
 	int numQuads = 0;
+	//Index principal
+	int main_index = 0;
 	
 	string line;
 	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
@@ -269,4 +271,14 @@ int main(int argc, char *argv[]) {
 	cout << "contBooleanoTemps = " << contBooleanoTemps << "\n";
 	cout << "contCharTemps = " << contCharTemps << "\n";
 	*/
+	
+	while(main_index != tamanoCuadruplos){
+		if(listOfQuads[main_index].operador == 6){
+			if(listOfQuads[main_index].operando1 >= 76000 && listOfQuads[main_index].operando1 <= 96999){
+				cout << "El valor a asignar es una constante \n";
+				
+				main_index++;
+			}
+		}
+	}
 }
