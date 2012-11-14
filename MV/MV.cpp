@@ -6,6 +6,13 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
+
+	struct Quadruple{
+		int operador;
+		int operando1;
+		int operando2;
+		int resultado;
+	};
 		
 	char *str;
 	char *pch;
@@ -53,11 +60,14 @@ int main(int argc, char *argv[]) {
 	int primerValorConst = 0;
 	int numConst = 0;
 	//cuadruplos
+	Quadruple *listOfQuads;
 	int tamanoCuadruplos = 0;
 	int primerValorCuadruplo = 0;
+	int numQuads = 0;
 	
 	string line;
-	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
+	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
+	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 	
 	if (myfile.is_open()){
 		while ( myfile.good()){
@@ -184,35 +194,38 @@ int main(int argc, char *argv[]) {
 			}
 			else if(contPorciento == 2){
 				if(primerValorCuadruplo == 0){
+					//Declaracion del arreglo que obtendra cuadruplos del tamano especificado
 					tamanoCuadruplos = atoi(str);
+					cout << "Tamano de arreglo de cuadruplos: " << tamanoCuadruplos << "\n";
 					primerValorCuadruplo++;
-					cout << tamanoCuadruplos << "\n";
+					listOfQuads = new Quadruple[tamanoCuadruplos];
 				}
 				else{
 					pch = strtok (str," ,-");
 					while (pch != NULL){
 						switch (i) {
 						case 0 : 
-							cout << atoi(pch) << "\n";
+							listOfQuads[numQuads].operador = atoi(pch);
 							i++;
 							break;
 						case 1 : 
-							cout << atoi(pch) << "\n";
+							listOfQuads[numQuads].operando1 = atoi(pch);
 							i++;
 							break;
 						case 2 : 
-							cout << atoi(pch) << "\n";
+							listOfQuads[numQuads].operando2 = atoi(pch);
 							i++;
 							break;
 						case 3 : //enteros
-							cout << atoi(pch) << "\n";
+							listOfQuads[numQuads].resultado = atoi(pch);
 							i++;
-							break;
+							break;		
 					}
 					pch = strtok (NULL, ",");
 				}
 					i = 0;
 					numFuncion++;
+					numQuads++;
 				}
 			}
 		}
@@ -230,9 +243,13 @@ int main(int argc, char *argv[]) {
 	tempBooleano = new int[contBooleanoTemps];
 	tempChar = new int[contCharTemps];
 	
+	cout << "Tabla de Constantes: \n";
 	for(int i = 0; i < tamanoConst; i++){
 		cout << "(" << arrConst[i] << ", " << arrConstDirVir[i] << ")\n";
 	}
+	
+	cout << "Lista de cuadruplos: \n";
+	cout << "( " << listOfQuads[0].operador << ", " << listOfQuads[0].operando1 << ", " << listOfQuads[0].operando2 << ", " << listOfQuads[0].resultado << " )" << "\n";
 	/*
 	cout << "contEnteroGlobales = " << contEnteroGlobales << "\n";
 	cout << "contFlotanteGlobales = " << contFlotanteGlobales << "\n";

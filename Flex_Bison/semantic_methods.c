@@ -417,11 +417,13 @@ void generate_obj(){
 	objeto << "\n" << "%%" << "\n";
 	
 	//Directorio de constantes
+	objeto << g_hash_table_size(constants) << "\n";
 	g_hash_table_foreach(constants, print_hashTable, NULL);
-	
+
 	objeto << "\n" << "%%" << "\n";
 	
 	//Cuadruplos
+	objeto << g_queue_get_length(pilaPasos) << "\n";
 	g_queue_foreach(pilaPasos,print_quadruples,NULL);
 	
 	objeto.close();

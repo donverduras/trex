@@ -1,31 +1,6 @@
 program test{
 	
 	int a;
-	int b;
-	float f;
-	
-	function uno(int c){
-		c=c+b*a;
-		print(a,b,a+b);
-	}
-	
-	function dos(int d, int e, float g){
-		int i;
-		
-		i=e;
-		
-		while(i>0){
-			d=d+e*i+e;
-			uno(i*2);
-			print(d);
-			i = i - 1;
-		}
-	}
-	
-	a=3;
-	b=a+1;
-	print(a,b);
-	f=3.14;
-	dos(a+b*2,b,f*3);
-	print(a,b,f*2+1);
+
+	a = 2;
 }
