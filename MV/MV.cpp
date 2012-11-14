@@ -5,6 +5,70 @@
 
 using namespace std;
 
+class Memoria{
+	private:
+		int id;
+		int *enteros;
+		float *flotantes;
+		string *strings;
+		bool *booleans;
+		char *chars;
+	
+	public:
+		Memoria(int id_name, int tamanoEnteros, int tamanoFlotantes, int tamanoStrings, int tamanoBooleans, int tamanoChars){
+			id = id_name;
+			enteros = new int[tamanoEnteros];
+			flotantes = new float[tamanoFlotantes];
+			strings = new string[tamanoStrings];
+			booleans = new bool[tamanoBooleans];
+			chars = new char[tamanoChars];
+		}
+		
+		int getId(){
+			return id;
+		}
+		
+		int getValorEnteros(int index){
+			return enteros[index];
+		}
+		
+		void setValorEnteros(int index, int valor){
+			enteros[index] = valor;
+		}
+		
+		float getValorFlotantes(int index){
+			return flotantes[index];
+		}
+		
+		void setValorFlotantes(int index, float valor){
+			flotantes[index] = valor;
+		}
+		
+		string getValorStrings(int index){
+			return strings[index];
+		}
+		
+		void setValorStrings(int index, string valor){
+			strings[index] = valor;
+		}
+		
+		bool getValorBooleans(int index){
+			return booleans[index];
+		}
+		
+		void setValorBooleans(int index, bool valor){
+			booleans[index] = valor;
+		}
+		
+		char getValorChars(int index){
+			return chars[index];
+		}
+		
+		void setValorChars(int index, char valor){
+			chars[index] = valor;
+		}
+};
+
 int main(int argc, char *argv[]) {
 
 	struct Quadruple{
@@ -38,21 +102,16 @@ int main(int argc, char *argv[]) {
 	int *globalBooleano;
 	int *globalChar;
 	//Contadores de variables para generar arreglos y llamar tamaño
-	int contEnteroLocales = 0;
-	int contFlotanteLocales = 0;
-	int contStringLocales = 0;
-	int contBooleanoLocales = 0;
-	int contCharLocales = 0;
-	int contEnteroTemps = 0;
-	int contFlotanteTemps = 0;
-	int contStringTemps = 0;
-	int contBooleanoTemps = 0;
-	int contCharTemps = 0;
-	int contEnteroGlobales = 0;
-	int contFlotanteGlobales = 0;
-	int contStringGlobales = 0;
-	int contBooleanoGlobales = 0;
-	int contCharGlobales = 0;
+	int valorEntero = 0;
+	int valorFlotante = 0;
+	int valorString = 0;
+	int valorBoolean = 0;
+	int valorChar = 0;
+	int valorEnteroTemps = 0;
+	int valorFlotanteTemps = 0;
+	int valorStringTemps = 0;
+	int valorBooleanTemps = 0;
+	int valorCharTemps = 0;
 	//matriz de constantes
 	string *arrConst;
 	int tamanoConst = 0;
@@ -64,12 +123,17 @@ int main(int argc, char *argv[]) {
 	int tamanoCuadruplos = 0;
 	int primerValorCuadruplo = 0;
 	int numQuads = 0;
+	//Arreglo de memorias
+	Memoria *arrLocal;
+	Memoria *arrTemp;
+	int primerValorFunc = 0;
+	int tamanoFunc;
 	//Index principal
 	int main_index = 0;
 	
 	string line;
-	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
-	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
+	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
+	//ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 	
 	if (myfile.is_open()){
 		while ( myfile.good()){
@@ -82,91 +146,79 @@ int main(int argc, char *argv[]) {
 				contPorciento++;
 			}
 			if(contPorciento == 0){
-				pch = strtok (str," ,.-");
-				while (pch != NULL){
-					switch (i) {
-						case 0 : //nombreFuncion
-							nombreFuncion[numFuncion] = pch;
-							i++;
-							break;
-						case 1 : 
-							cuadruploInicial[numFuncion] = atoi(pch);
-							i++;
-							break;
-						case 2 : 
-							numParam[numFuncion] = atoi(pch);
-							i++;
-							break;
-						case 3 : //enteros
-							if(numFuncion == 0){
-								contEnteroGlobales = atoi(pch);
-								globalEntero = new int[contEnteroGlobales];
-							}
-							else
-								contEnteroLocales += atoi(pch);
-							i++;
-							break;
-						case 4 : //flotantes
-							if(numFuncion == 0){
-								contFlotanteGlobales = atoi(pch);
-								globalFlotante = new int[contFlotanteGlobales];
-							}
-							else
-								contFlotanteLocales += atoi(pch);
-							i++;
-							break;
-						case 5 : //strings
-							if(numFuncion == 0){
-								contStringGlobales = atoi(pch);
-								globalString = new int[contStringGlobales];
-							}
-							else
-								contStringLocales += atoi(pch);
-							i++;
-							break;
-						case 6 : //booleanos
-							if(numFuncion == 0){
-								contBooleanoGlobales = atoi(pch);
-								globalBooleano = new int[contBooleanoGlobales];
-							}
-							else
-								contBooleanoLocales += atoi(pch);
-							i++;
-							break;
-						case 7 : //chars
-							if(numFuncion == 0){
-								contCharGlobales = atoi(pch);
-								globalChar = new int[contCharGlobales];
-							}
-							else
-								contCharLocales += atoi(pch);
-							i++;
-							break;
-						case 8 : //Enteros temps
-							contEnteroTemps += atoi(pch);
-							i++;
-							break;
-						case 9 : //flotantes temps
-							contFlotanteTemps += atoi(pch);
-							i++;
-							break;
-						case 10	: //string temps
-							contStringTemps += atoi(pch);
-							i++;
-							break;
-						case 11 : //booleanos temps
-							contBooleanoTemps += atoi(pch);
-							i++;
-							break;
-						case 12 : //char temps
-							contCharTemps += atoi(pch);
-							i++;
-							break;
-					}
-					pch = strtok (NULL, ",");
+				if(primerValorFunc == 0){
+					tamanoFunc = atoi(str);
+					primerValorFunc++;
+					arrLocal = new Memoria[tamanoFunc];
+					arrTemp = new Memoria[tamanoFunc];
 				}
-				i = 0;
-				numFuncion++;
+				else{
+					pch = strtok (str," ,.-");
+					while (pch != NULL){
+						switch (i) {
+							case 0 : //nombreFuncion
+								nombreFuncion[numFuncion] = pch;
+								i++;
+								break;
+							case 1 : 
+								cuadruploInicial[numFuncion] = atoi(pch);
+								i++;
+								break;
+							case 2 : 
+								numParam[numFuncion] = atoi(pch);
+								i++;
+								break;
+							case 3 : //enteros
+								valorEntero = atoi(pch);
+								i++;
+								break;
+							case 4 : //flotantes
+								valorFlotante = atoi(pch);
+								i++;
+								break;
+							case 5 : //strings
+								valorString = atoi(pch);
+								i++;
+								break;
+							case 6 : //booleanos
+								valorBoolean = atoi(pch);
+								i++;
+								break;
+							case 7 : //chars
+								valorChar = atoi(pch);
+								i++;
+								break;
+							case 8 : //Enteros temps
+								valorEnteroTemps = atoi(pch);
+								i++;
+								break;
+							case 9 : //flotantes temps
+								valorFlotanteTemps = atoi(pch);
+								i++;
+								break;
+							case 10	: //string temps
+								valorStringTemps = atoi(pch);
+								i++;
+								break;
+							case 11 : //booleanos temps
+								valorBooleanTemps = atoi(pch);
+								i++;
+								break;
+							case 12 : //char temps
+								valorCharTemps = atoi(pch);
+								i++;
+								break;
+						}
+						pch = strtok (NULL, ",");
+					}
+					//Activacion de memoria
+					Memoria local(numFuncion, valorEntero, valorFlotante, valorString, valorBoolean, valorChar);
+					Memoria temporal(numFuncion, valorEnteroTemps, valorFlotanteTemps, valorStringTemps, valorBooleanTemps, valorCharTemps);
+					cout << "Memoria Local: " << local.getId() << "\n";
+					cout << "Memoria Temp: " << temporal.getId() << "\n";
+					i = 0;
+					numFuncion++;
+				}
 			}
 			else if(contPorciento == 1){
 				if(primerValorConst == 0){
@@ -233,17 +285,7 @@ int main(int argc, char *argv[]) {
 		}
 		myfile.close();
 	}else cout << "Unable to open file";
-	
-	localEntero = new int[contEnteroLocales];
-	localFlotante = new int[contFlotanteLocales];
-	localString = new int[contStringLocales];
-	localBooleano = new int[contBooleanoLocales];
-	localChar = new int[contCharLocales];
-	tempEntero = new int[contEnteroTemps];
-	tempFlotante = new int[contFlotanteTemps];
-	tempString = new int[contStringTemps];
-	tempBooleano = new int[contBooleanoTemps];
-	tempChar = new int[contCharTemps];
+
 	
 	cout << "Tabla de Constantes: \n";
 	for(int i = 0; i < tamanoConst; i++){
