@@ -409,18 +409,19 @@ void generate_obj(){
 	objeto.open("test.obj");
 	
 	//Directorio de Procedimientos
+	objeto << g_queue_get_length(tableProc_stack) << "\n";
 	for(int i=0; i< g_queue_get_length(tableProc_stack); i++){
 		stack_aux = (GQueue *)g_queue_peek_nth(tableProc_stack, i);
 		g_queue_foreach(stack_aux,print_pilas,NULL);
 	}
 	
-	objeto << "\n" << "%%" << "\n";
+	objeto << "%%" << "\n";
 	
 	//Directorio de constantes
 	objeto << g_hash_table_size(constants) << "\n";
 	g_hash_table_foreach(constants, print_hashTable, NULL);
 
-	objeto << "\n" << "%%" << "\n";
+	objeto << "%%" << "\n";
 	
 	//Cuadruplos
 	objeto << g_queue_get_length(pilaPasos) << "\n";
