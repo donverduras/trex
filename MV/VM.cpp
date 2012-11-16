@@ -115,6 +115,7 @@ struct Procedure{
 Memoria *arrGlobal;
 Memoria *arrGlobalTemp;
 Procedure *proc;
+int sizeOfProc;
 		
 //Matriz de constantes
 string *arrConst;
@@ -127,8 +128,23 @@ Quadruple *listOfQuads;
 //Index principal
 int main_index = 0;
 
+int searchForProc(string name){
+	const char* aux;
+	const char* func = name.c_str();
+	int index = 0;
+	
+	for(int i=0; i<sizeOfProc; i++){
+		aux = proc[index].name.c_str();
+		
+		if(strcmp(aux,func) == 0)
+			return index;
+		
+		index++;
+	}
+}
+
 void readFile(){
-	ifstream myfile ("/Users/ssalazars/Desktop/test.obj");
+	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 	string line;
 	char *str, *pch;
 	int i = 0, contPorciento = 0, primerValor = 0, tamano = 0, numFuncion = 0, numConst = 0, numQuads = 0;
@@ -151,6 +167,7 @@ void readFile(){
 			if(contPorciento == 0){
 				if(primerValor == 0){
 					tamano = atoi(str);
+					sizeOfProc = tamano;
 					primerValor++;
 					arrGlobal = new Memoria;
 					arrGlobalTemp = new Memoria;
@@ -348,5 +365,7 @@ void readFile(){
 }
 
 int main(int argc, char *argv[]) {
+	int proc_index;
+	
 	readFile();
 }
