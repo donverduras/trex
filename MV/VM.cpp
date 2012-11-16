@@ -110,7 +110,19 @@ struct Procedure{
 	VarCont locals;
 	VarCont temps;
 };
-		
+
+enum tipos { G_INT = 0,		G_FLOAT = 1,	G_STRING = 2,	G_BOOLEAN = 3,	G_CHAR = 4,
+			 L_INT = 5,		L_FLOAT = 6,	L_STRINL = 7,	L_BOOLEAN = 8,	L_CHAR = 9,
+			 T_INT = 10,	T_FLOAT = 11,	T_STRINT = 12,	T_BOOLEAN = 13,	T_CHAR = 14,
+			 C_INT = 15,	C_FLOAT = 16,	C_STRINC = 17,	C_BOOLEAN = 18,	C_CHAR =19,
+			 P = 20 };
+
+enum symbols {	BASE_GLOBAL_INT = 1000,	BASE_GLOBAL_FLOAT = 6000,	BASE_GLOBAL_STRING = 11000,	BASE_GLOBAL_BOOLEAN = 16000,	BASE_GLOBAL_CHAR = 21000,
+				BASE_LOCAL_INT = 1000,	BASE_LOCAL_FLOAT = 6000, 	BASE_LOCAL_STRING = 11000, 	BASE_LOCAL_BOOLEAN = 16000, 	BASE_LOCAL_CHAR = 21000,
+				BASE_TEMP_INT = 1000,	BASE_TEMP_FLOAT = 6000, 	BASE_TEMP_STRING = 11000, 	BASE_TEMP_BOOLEAN = 16000, 		BASE_TEMP_CHAR = 21000,
+				CONST_INT = 1000,		CONST_FLOAT = 6000, 		CONST_STRING = 11000, 		CONST_BOOLEAN = 16000, 			CONST_CHAR = 21000,
+				BASE_POINTERS = 100000, BLOQUE = 5000	};
+
 //Arreglo de memorias
 Memoria *arrGlobal;
 Memoria *arrGlobalTemp;
@@ -121,12 +133,22 @@ int sizeOfProc;
 string *arrConst;
 int *arrConstDirVir;
 int primerValorConst = 0;
+int tamanoConst;
 
 //Cuadruplos
 Quadruple *listOfQuads;
+int tamanoCuadruplos;
 
 //Index principal
 int main_index = 0;
+
+string getConstantValue(int dirVir){
+	for(int i=0; i<tamanoConst; i++){
+		if(arrConstDirVir[i] == dirVir){
+			return arrConst[i];
+		}
+	}
+}
 
 int searchForProc(string name){
 	const char* aux;
@@ -292,6 +314,7 @@ void readFile(){
 			}else if(contPorciento == 1){
 				if(primerValor == 0){
 					tamano = atoi(str);
+					tamanoConst = tamano;
 					primerValor++;
 					arrConst = new string[tamano];
 					arrConstDirVir = new int[tamano];
@@ -323,6 +346,7 @@ void readFile(){
 				if(primerValor == 0){
 					//Declaracion del arreglo que obtendra cuadruplos del tamano especificado
 					tamano = atoi(str);
+					tamanoCuadruplos = tamano;
 					primerValor++;
 					listOfQuads = new Quadruple[tamano];
 				}
@@ -364,8 +388,71 @@ void readFile(){
 	}else cout << "Unable to open file";
 }
 
+void run(){
+	int tipo_dato1, tipo_dato2, tipo_resultado, index;
+	int operador = listOfQuads[main_index].operador;
+	int operando1 = listOfQuads[main_index].operando1;
+	int operando2 = listOfQuads[main_index].operando2;
+	int resultado = listOfQuads[main_index].resultado;
+	
+	int op1_int, op2_int, res_int;
+	
+	while(main_index != tamanoCuadruplos){
+		switch(operador){
+			case 0:																			//+
+				cout << "Suma \n";
+				tipo_dato1 = operando1 / BLOQUE;
+				tipo_dato2 = operando2 / BLOQUE;
+				tipo_resultado = resultado / BLOQUE;
+				if(tipo_dato1 == C_INT && tipo_dato2 == C_INT){								//Suma de dos enteros
+					if(tipo_resultado == G_INT){											//Guardado en casilla entera global
+						op1_int = atoi(getConstantValue(operando1).c_str());
+						op2_int = atoi(getConstantValue(operando2).c_str());
+						res_int = op1_int + op2_int;
+						index = resultado - BASE_GLOBAL_INT;
+						arrGlobal->setValorEnteros(index, res_int);
+						cout << "Operando 1: " << op1_int << "\n";
+						cout << "Operando 2: " << op2_int << "\n";
+						cout << "Resultado: " << res_int << "\n";
+						cout << "Offset: " << index << "\n";
+						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorEnteros(index) << "\n";
+					}else if(tipo_resultado == L_INT){										//Guardado en casilla entera local
+					
+					}else if(tipo_resultado == T_INT){										//Guardado en casilla entera temporal
+						
+					}
+				} 
+				break;
+			case 1:																			//-
+				break;
+			case 2:																			///
+				break;
+			case 3:																			//*
+				break;
+			case 4:																			//<
+				break;
+			case 5:																			//>
+				break;
+			case 6:																			//=
+				cout << "Asignacion \n";
+				break;
+			case 7:																			//<>
+				break;
+			case 8:																			//==
+				break;
+			case 15:																		//POINTER
+				break;
+			case 300:																		//PRINT	
+				break;
+		}
+		main_index++;
+	}
+}
+
 int main(int argc, char *argv[]) {
 	int proc_index;
 	
 	readFile();
+	
+	run();
 }
