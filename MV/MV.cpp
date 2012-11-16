@@ -161,18 +161,18 @@ string line;
 //ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
 ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 
-string getValor(int dirVir){
+string getValorConstante(int dirVir){
 	cout << "La direccion a buscar es: " << dirVir << "\n";
-	//Constante
-	if(dirVir >= 76000 && dirVir <= 99999){
-		cout << "Si es una constante! \n";
-		for(int i=0; i<tamanoConst; i++){
-			if(arrConstDirVir[i] == dirVir){
-				cout << "El valor de dicha direccion es: " << arrConst[i] << "\n";
-				return arrConst[i];
-			}
+	//Constantes
+	//if(dirVir >= 76000 && dirVir <= 99999){
+	cout << "Si es una constante! \n";
+	for(int i=0; i<tamanoConst; i++){
+		if(arrConstDirVir[i] == dirVir){
+			cout << "El valor de dicha direccion es: " << arrConst[i] << "\n";
+			return arrConst[i];
 		}
 	}
+	//}
 }
 
 int main(int argc, char *argv[]) {
@@ -372,7 +372,12 @@ int main(int argc, char *argv[]) {
 	*/
 	
 	while(main_index != tamanoCuadruplos){
-		if(listOfQuads[main_index].operador == 6){
+		const char* string_aux;
+		int operador = listOfQuads[main_index].operador;
+		int operando1 = listOfQuads[main_index].operando1;
+		int operando2 = listOfQuads[main_index].operando2;
+		
+		/*if(listOfQuads[main_index].operador == 6){
 			const char* string_aux;
 			
 			string operando1 = getValor(listOfQuads[main_index].operando1);
@@ -383,7 +388,44 @@ int main(int argc, char *argv[]) {
 			cout << "El valor guardado es: " << arrLocal[0].getValorEnteros(0) << "\n";
 				
 			main_index++;
+		}*/
+		
+		switch(operador){
+			case 0:										//+
+				break;
+			case 1:										//-
+				break;
+			case 2:										///
+				break;
+			case 3:										//*
+				break;
+			case 4:										//<
+				break;
+			case 5:										//>
+				break;
+			case 6:										//=
+				if(operando1 >= 76000 && operando1 <= 99999){
+					cout << "Constante \n";
+					operando1 = getValorConstante(operando1);
+					string_aux = operando1.c_str();
+					operando1 = atoi(string_aux);
+				}
+				break;
+			case 7:										//<>
+				break;
+			case 8:										//==
+				break;
+			case 15:									//POINTER
+				break;
+			case 200:									//GOTO
+				break;
+			case 201:									//GOTOF
+				break;
+			case 300:									//PRINT
+				break;
 		}
+		
+		main_index++;
 	}
 	
 	//Para las variables locales si tengo que arreglar el problema de tirar las variables, porque si no, la primer variable local entera seria 26005 por ejemplo, y no 26000 como deberia de ser, y asi no jalaria la funcion que se planea
