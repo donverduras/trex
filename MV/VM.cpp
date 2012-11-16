@@ -112,9 +112,9 @@ struct Procedure{
 };
 
 enum tipos { G_INT = 0,		G_FLOAT = 1,	G_STRING = 2,	G_BOOLEAN = 3,	G_CHAR = 4,
-			 L_INT = 5,		L_FLOAT = 6,	L_STRINL = 7,	L_BOOLEAN = 8,	L_CHAR = 9,
-			 T_INT = 10,	T_FLOAT = 11,	T_STRINT = 12,	T_BOOLEAN = 13,	T_CHAR = 14,
-			 C_INT = 15,	C_FLOAT = 16,	C_STRINC = 17,	C_BOOLEAN = 18,	C_CHAR =19,
+			 L_INT = 5,		L_FLOAT = 6,	L_STRING = 7,	L_BOOLEAN = 8,	L_CHAR = 9,
+			 T_INT = 10,	T_FLOAT = 11,	T_STRING = 12,	T_BOOLEAN = 13,	T_CHAR = 14,
+			 C_INT = 15,	C_FLOAT = 16,	C_STRING = 17,	C_BOOLEAN = 18,	C_CHAR =19,
 			 P = 20 };
 
 enum symbols {	BASE_GLOBAL_INT = 1000,	BASE_GLOBAL_FLOAT = 6000,	BASE_GLOBAL_STRING = 11000,	BASE_GLOBAL_BOOLEAN = 16000,	BASE_GLOBAL_CHAR = 21000,
@@ -390,27 +390,42 @@ void readFile(){
 
 void run(){
 	int tipo_dato1, tipo_dato2, tipo_resultado, index;
-	int operador = listOfQuads[main_index].operador;
-	int operando1 = listOfQuads[main_index].operando1;
-	int operando2 = listOfQuads[main_index].operando2;
-	int resultado = listOfQuads[main_index].resultado;
+	int operador, operando1, operando2, resultado;
 	
 	int op1_int, op2_int, res_int;
+	float op1_float, op2_float, res_float;
+	string op1_string, op2_string, res_string;
+	bool op1_boolean, op2_boolean, res_boolean;
+	char op1_char, op2_char, res_char;
 	
 	while(main_index != tamanoCuadruplos){
+		operador = listOfQuads[main_index].operador;
+		operando1 = listOfQuads[main_index].operando1;
+		operando2 = listOfQuads[main_index].operando2;
+		resultado = listOfQuads[main_index].resultado;
+		
+		/*
+		cout << "Operador: " << operador << "\n";
+		cout << "Operando1: " << operando1 << "\n";
+		cout << "Operando2: " << operando2 << "\n";
+		cout << "Resultado: " << resultado << "\n";
+		cout << "***************************************\n";
+		*/
+		
 		switch(operador){
 			case 0:																			//+
 				cout << "Suma \n";
 				tipo_dato1 = operando1 / BLOQUE;
 				tipo_dato2 = operando2 / BLOQUE;
 				tipo_resultado = resultado / BLOQUE;
-				if(tipo_dato1 == C_INT && tipo_dato2 == C_INT){								//Suma de dos enteros
+				if(tipo_dato1 == C_INT && tipo_dato2 == C_INT){								//Suma de dos constantes enteras
 					if(tipo_resultado == G_INT){											//Guardado en casilla entera global
 						op1_int = atoi(getConstantValue(operando1).c_str());
 						op2_int = atoi(getConstantValue(operando2).c_str());
 						res_int = op1_int + op2_int;
 						index = resultado - BASE_GLOBAL_INT;
 						arrGlobal->setValorEnteros(index, res_int);
+						
 						cout << "Operando 1: " << op1_int << "\n";
 						cout << "Operando 2: " << op2_int << "\n";
 						cout << "Resultado: " << res_int << "\n";
@@ -434,7 +449,84 @@ void run(){
 			case 5:																			//>
 				break;
 			case 6:																			//=
-				cout << "Asignacion \n";
+				cout << "Asignación \n";
+				tipo_dato1 = operando1 / BLOQUE;
+				tipo_resultado = resultado / BLOQUE;
+				if(tipo_dato1 == C_INT){
+					if(tipo_resultado == G_INT){											//Asigna una constante entera a una global entera
+						op1_int = atoi(getConstantValue(operando1).c_str());
+						res_int = op1_int;
+						index = resultado - BASE_GLOBAL_INT;
+						arrGlobal->setValorEnteros(index,res_int);
+						
+						cout << "Operando 1: " << op1_int << "\n";
+						cout << "Resultado: " << res_int << "\n";
+						cout << "Offset: " << index << "\n";
+						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorEnteros(index) << "\n";
+					}else if(tipo_resultado == L_INT){
+					
+					}
+				}else if(tipo_dato1 == C_FLOAT){
+					if(tipo_resultado == G_FLOAT){											//Asigna una constante flotante a una global entera
+						op1_float = atof(getConstantValue(operando1).c_str());
+						res_float = op1_float;
+						index = resultado - BASE_GLOBAL_FLOAT;
+						arrGlobal->setValorFlotantes(index,res_float);
+						
+						cout << "Operando 1: " << op1_float << "\n";
+						cout << "Resultado: " << res_float << "\n";
+						cout << "Offset: " << index << "\n";
+						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorFlotantes(index) << "\n";
+					}else if(tipo_resultado == L_FLOAT){
+					
+					}
+				}else if(tipo_dato1 == C_STRING){
+					if(tipo_resultado == G_STRING){											//Asigna una constante string a una global string
+						op1_string = getConstantValue(operando1);
+						res_string = op1_string;
+						index = resultado - BASE_GLOBAL_STRING;
+						arrGlobal->setValorStrings(index,res_string);
+						
+						cout << "Operando 1: " << op1_string << "\n";
+						cout << "Resultado: " << res_string << "\n";
+						cout << "Offset: " << index << "\n";
+						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorStrings(index) << "\n";
+					}else if(tipo_resultado == L_STRING){
+					
+					}
+				}else if(tipo_dato1 == C_BOOLEAN){
+					cout << "Asignacion boolean \n";
+					if(tipo_resultado == G_BOOLEAN){											//Asigna una constante booleana a una global booleana
+						if(strcmp("true",getConstantValue(operando1).c_str()) == 0)
+							op1_boolean = true;
+						else
+							op1_boolean = false;
+						res_boolean = op1_boolean;
+						index = resultado - BASE_GLOBAL_BOOLEAN;
+						arrGlobal->setValorBooleans(index,res_boolean);
+						
+						cout << "Operando 1: " << op1_boolean << "\n";
+						cout << "Resultado: " << res_boolean << "\n";
+						cout << "Offset: " << index << "\n";
+						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorBooleans(index) << "\n";
+					}else if(tipo_resultado == L_BOOLEAN){
+					
+					}
+				}else if(tipo_dato1 == C_CHAR){
+					if(tipo_resultado == G_CHAR){											//Asigna una constante char a una global char
+						op1_char = getConstantValue(operando1)[1];
+						res_char = op1_char;
+						index = resultado - BASE_GLOBAL_CHAR;
+						arrGlobal->setValorChars(index,res_char);
+						
+						cout << "Operando 1: " << op1_char << "\n";
+						cout << "Resultado: " << res_char << "\n";
+						cout << "Offset: " << index << "\n";
+						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorChars(index) << "\n";
+					}else if(tipo_resultado == L_CHAR){
+					
+					}
+				}
 				break;
 			case 7:																			//<>
 				break;
