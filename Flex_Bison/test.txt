@@ -1,6 +1,10 @@
 program test{
 	
 	int a;
-
+	
+	function uno(int a){
+		int b;
+	}
+	
 	a = 2;
 }

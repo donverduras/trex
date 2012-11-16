@@ -47,6 +47,7 @@ static int quadruple_index = 1;
 static int param_counter = 0;
 static int current_function;
 static char* main_function;
+static char* current_function_name;
 
 static ofstream objeto;
 
@@ -169,7 +170,7 @@ struct Variable{
 	string type;
 	int dirVirtual;
 	int limite;
-	
+	char* procName;
 };
 
 /****************************************Métodos*****************************************/
@@ -297,6 +298,30 @@ bool check_if_stack_exists(int key, int arrType){
 
 void count_params(){
 	param_counter++;
+}
+
+void delete_vars_from_varTable(char *func_name){
+	GQueue *aux = g_queue_new();
+	const char* aux_func_name = func_name;
+	const char* aux_var_func_name;
+	
+	for(int i=0; i<g_queue_get_length(tableVar_stack); i++){
+		aux = (GQueue *)g_queue_peek_nth(tableVar_stack,i);
+		
+		for(int j=0; j<g_queue_get_length(aux); j++){
+			Variable *var = new Variable;
+			
+			var = (Variable *)g_queue_peek_nth(aux, j);
+			aux_var_func_name = var->procName;
+			
+			//cout << "Func name: " << aux_func_name << "\n";
+			//cout << "Var func name: " << aux_var_func_name << "\n";
+			
+			if(strcmp(aux_var_func_name,aux_func_name) == 0){
+				g_queue_pop_nth(aux, j);
+			}
+		}
+	}
 }
 
 void generate_activation_record(char *func_name){
@@ -903,6 +928,43 @@ Procedure *get_proc(char *var_cte){
 	}
 }
 
+Variable *get_var(char *var_cte){
+	int ascii, stack_position;
+	const char *string_aux;					//String auxiliar
+	GQueue* stack_aux = g_queue_new();		//Pila auxiliar
+	GList* variable_in_stack;				//Lista utilizada para encontrar alguna variable
+	Variable *node_aux = new Variable;		//Nodo auxiliar
+	int dirVirtual;
+	
+	ascii = get_hash_key(var_cte);
+	stack_position = variable_index[ascii]-1;
+	
+	if(stack_position >= 0){
+	
+		stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, stack_position);
+	
+		if(g_queue_get_length(stack_aux) == 1){
+			node_aux = (Variable *)g_queue_peek_head(stack_aux);
+		
+			//dirVirtual = node_aux->dirVirtual;
+			return node_aux;
+		}else{
+			for(int i=g_queue_get_length(stack_aux)-1; i>0; i--){
+				node_aux = (Variable *)g_queue_peek_nth(stack_aux,i);
+				string_aux = node_aux->name.c_str();
+			
+				if(strcmp(string_aux,var_cte) == 0){
+					//dirVirtual = node_aux->dirVirtual;
+					return node_aux;
+				}
+			}
+		}
+	}else{
+		cout << "Error: Variable no declarada. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
 int get_var_type(const char *var_cte){
 	//cout << "Push to pila tipos: " << var_cte << "\n";
 	
@@ -1094,7 +1156,7 @@ void insert_to_procs_table(string id){
  * tipo de dato y direccion virtual a la   *
  * tabla de variables	   				   *
  *******************************************/
-void insert_to_vars_table(string id, string type){
+void insert_to_vars_table(string id, string type, char* func_name){
 	int hash_key;						//Valor que le corresponde dependiendo la primera letra del id
 	int value_inside_array;				//Valor que se encuentre dentro de la casilla del arreglo, que corresponde a la posicion dentro de la lista principal			
 	bool stack_exists;					//Checa si hay alguna lista dentro de alguna casilla de la lista principal
@@ -1113,6 +1175,9 @@ void insert_to_vars_table(string id, string type){
 	node->name = id;					//Se asigna el id al nodo
 	node->type = type;					//Se asigna el tipo de dato al nodo
 	node->dirVirtual = dirVirtual;		//Se asigna la direccion virtual al nodo
+	node->procName = func_name;			//Se asigna el nombre de la funcion a la que pertenece
+	
+	//cout << "Dir virtual: " << dirVirtual << "\n";
 	
 	hash_key = get_hash_key(id);							//Busca la hash key que le corresponde al identificador
 	stack_exists = check_if_stack_exists(hash_key, 1);		//Checa si en esa posicion existe alguna lista almacenando alguna otra variable
@@ -1132,16 +1197,32 @@ void insert_to_vars_table(string id, string type){
 		string_aux = id.c_str();															//Convierto el nombre del id en char *
 		variable_in_stack = g_queue_find_custom(stack_aux, string_aux, search_for_id);		//Checo si existe el nombre del id dentro de la lista
 		
-		if(!variable_in_stack){														//Si no existe el nombre de la variable en la lista
-			g_queue_push_tail(stack_aux, node);										//Agrego el nuevo id (nodo) a la lista
-			g_queue_push_nth(tableVar_stack, stack_aux, value_inside_array);		//Meto la lista actualizada en la posicion original de la lista
-			g_queue_pop_nth(tableVar_stack, value_inside_array+1);					//Elimino la lista "desactualizada" que se encuentra una posicion adelante de la recien agregada
+		if(!variable_in_stack){															//Si no existe el nombre de la variable en la lista
+			g_queue_push_tail(stack_aux, node);											//Agrego el nuevo id (nodo) a la lista
+			g_queue_push_nth(tableVar_stack, stack_aux, value_inside_array);			//Meto la lista actualizada en la posicion original de la lista
+			g_queue_pop_nth(tableVar_stack, value_inside_array+1);						//Elimino la lista "desactualizada" que se encuentra una posicion adelante de la recien agregada
 			//cout << "La pila tiene :" << g_queue_get_length(tableVar_stack) << "\n";
 			//node_aux = (Variable *)g_queue_peek_head(stack_aux);
 			//cout << node_aux->name << "\n";
-		}else{																	//Si ya existia la variable, truena el programa
-			cout << "Error: La variable ya ha sido declarada anteriormente. \n";
-			exit (EXIT_FAILURE);
+		}else{																			//Si ya existia la variable, truena el programa
+			const char* aux1, *aux2;
+			Variable *nova = new Variable;
+			
+			nova = get_var(&id[0]);
+			aux1 = nova->procName;
+			aux2 = func_name;
+			
+			//cout << aux1 << "\n";
+			//cout << aux2 << "\n";
+			
+			if(strcmp(aux1,aux2) == 0){
+				cout << "Error: La variable ya ha sido declarada anteriormente. \n";
+				exit (EXIT_FAILURE);
+			}else{
+				g_queue_push_tail(stack_aux, node);											//Agrego el nuevo id (nodo) a la lista
+				g_queue_push_nth(tableVar_stack, stack_aux, value_inside_array);			//Meto la lista actualizada en la posicion original de la lista
+				g_queue_pop_nth(tableVar_stack, value_inside_array+1);						//Elimino la lista "desactualizada" que se encuentra una posicion adelante de la recien agregada
+			}
 		}
 	}
 	//cout << "La variable " << id << " ha sido agregada exitosamente\n";
@@ -1307,6 +1388,19 @@ void quadruple_relational(){
 	}
 }
 
+void reset_conts(){
+	local_int_cont = 0;
+	local_float_cont = 0;
+	local_string_cont = 0;
+	local_boolean_cont = 0;
+	local_char_cont = 0;
+	temp_int_cont = 0;
+	temp_float_cont = 0;
+	temp_string_cont = 0;
+	temp_boolean_cont = 0;
+	temp_char_cont = 0;
+}
+
 void reset_func_count(){	
 	local_int_cont_func = 0;
 	local_float_cont_func = 0;
@@ -1379,7 +1473,7 @@ int search_for_id(gconstpointer a, gconstpointer b){
 	//cout << "Segundo string: " << id_node << "\n";
 	
 	if(strcmp(id,id_node) == 0){						//Si los strings son equivalente...
-		cout << "Variables del mismo nombre \n";
+		//cout << "Variables del mismo nombre \n";
 		return 0;
 	}else{
 		return -1;
@@ -1393,14 +1487,20 @@ int search_for_dirVirtual(char *var_cte){
 	GList* variable_in_stack;			//Lista utilizada para encontrar alguna variable
 	Variable *node_aux = new Variable;	//Nodo auxiliar
 	int dirVirtual;
-	
+		
 	ascii = get_hash_key(var_cte);
 	stack_position = variable_index[ascii]-1;
 	
 	if(stack_position >= 0){
 	
 		stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, stack_position);
-	
+		
+		if(g_queue_get_length(stack_aux) == 0){
+			cout << "Error: Variable no declarada. \n";
+			exit (EXIT_FAILURE);
+		}
+			
+		
 		if(g_queue_get_length(stack_aux) == 1){
 			node_aux = (Variable *)g_queue_peek_head(stack_aux);
 			string_aux = node_aux->name.c_str();
@@ -1467,10 +1567,11 @@ char *search_for_variable_type(char *var_cte){
 	}
 }
 
-void set_current_function(char *function){
+void set_current_function(char *function, char* func_name){
 	//cout << "CURRENT FUNCTION: " << function << "\n";
 	
 	current_function = atoi(function);
+	current_function_name = func_name;
 }
 
 void set_fin_function(char *func){
@@ -1508,6 +1609,7 @@ void set_fin_function(char *func){
 	quadruple_index++;
 	
 	reset_func_count();
+	delete_vars_from_varTable(func);
 }
 
 void set_start_function(char *func){

@@ -200,6 +200,7 @@ char *var_type;
 char *name;
 char *size;
 char *function_name;
+char *main_func;
 char *function_called;
  
 void yyerror(const char *s);
@@ -226,12 +227,12 @@ void yyerror(const char *s);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 25 "Trex.y"
+#line 26 "Trex.y"
 {
 	char *sval;
 }
 /* Line 193 of yacc.c.  */
-#line 235 "Trex.tab.c"
+#line 236 "Trex.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -244,7 +245,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 248 "Trex.tab.c"
+#line 249 "Trex.tab.c"
 
 #ifdef short
 # undef short
@@ -582,21 +583,21 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    87,    87,    88,    89,    90,    94,    94,    94,    98,
-      99,   103,   104,   108,   112,   113,   117,   118,   122,   126,
-     127,   131,   132,   136,   137,   141,   142,   146,   147,   148,
-     149,   150,   154,   155,   156,   157,   158,   159,   163,   164,
-     165,   166,   167,   168,   169,   170,   174,   174,   178,   182,
-     182,   183,   187,   187,   191,   195,   195,   196,   200,   204,
-     205,   209,   210,   211,   212,   213,   214,   218,   218,   222,
-     222,   223,   227,   228,   232,   232,   236,   236,   237,   241,
-     242,   246,   247,   248,   249,   253,   253,   257,   261,   261,
-     261,   261,   261,   265,   265,   265,   265,   269,   269,   269,
-     273,   273,   277,   278,   282,   282,   282,   286,   287,   291,
-     295,   295,   299,   299,   299,   303,   304,   308,   309,   313,
-     314,   318,   318,   318,   318,   322,   323,   327,   327,   331,
-     331,   332,   336,   336,   340,   340,   340,   341,   345,   345,
-     345,   345
+       0,    88,    88,    89,    90,    91,    95,    95,    95,    99,
+     100,   104,   105,   109,   113,   114,   118,   119,   123,   127,
+     128,   132,   133,   137,   138,   142,   143,   147,   148,   149,
+     150,   151,   155,   156,   157,   158,   159,   160,   164,   165,
+     166,   167,   168,   169,   170,   171,   175,   175,   179,   183,
+     183,   184,   188,   188,   192,   196,   196,   197,   201,   205,
+     206,   210,   211,   212,   213,   214,   215,   219,   219,   223,
+     223,   224,   228,   229,   233,   233,   237,   237,   238,   242,
+     243,   247,   248,   249,   250,   254,   254,   258,   262,   262,
+     262,   262,   262,   266,   266,   266,   266,   270,   270,   270,
+     274,   274,   278,   279,   283,   283,   283,   287,   288,   292,
+     296,   296,   300,   300,   300,   304,   305,   309,   310,   314,
+     315,   319,   319,   319,   319,   323,   324,   328,   328,   332,
+     332,   333,   337,   337,   341,   341,   341,   342,   346,   346,
+     346,   346
 };
 #endif
 
@@ -1670,383 +1671,383 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 87 "Trex.y"
-    { generate_obj(); cout << "EXITO" << endl;;}
-    break;
-
-  case 3:
 #line 88 "Trex.y"
     { generate_obj(); cout << "EXITO" << endl;;}
     break;
 
-  case 4:
+  case 3:
 #line 89 "Trex.y"
     { generate_obj(); cout << "EXITO" << endl;;}
     break;
 
-  case 5:
+  case 4:
 #line 90 "Trex.y"
     { generate_obj(); cout << "EXITO" << endl;;}
     break;
 
+  case 5:
+#line 91 "Trex.y"
+    { generate_obj(); cout << "EXITO" << endl;;}
+    break;
+
   case 6:
-#line 94 "Trex.y"
+#line 95 "Trex.y"
     { initialize(); ;}
     break;
 
   case 7:
-#line 94 "Trex.y"
-    { function_name = yylval.sval; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0");;}
+#line 95 "Trex.y"
+    { function_name = yylval.sval; main_func = function_name; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0", function_name);;}
     break;
 
   case 23:
-#line 136 "Trex.y"
-    { name = (yyvsp[(2) - (4)].sval); insert_to_vars_table(name,var_type); ;}
+#line 137 "Trex.y"
+    { name = (yyvsp[(2) - (4)].sval); insert_to_vars_table(name,var_type,function_name); ;}
     break;
 
   case 24:
-#line 137 "Trex.y"
+#line 138 "Trex.y"
     { name = (yyvsp[(2) - (6)].sval);  size = (yyvsp[(4) - (6)].sval); insert_arr_to_vars_table(name,var_type, size); ;}
     break;
 
   case 27:
-#line 146 "Trex.y"
-    { var_type = yylval.sval;;}
-    break;
-
-  case 28:
 #line 147 "Trex.y"
     { var_type = yylval.sval;;}
     break;
 
-  case 29:
+  case 28:
 #line 148 "Trex.y"
     { var_type = yylval.sval;;}
     break;
 
-  case 30:
+  case 29:
 #line 149 "Trex.y"
     { var_type = yylval.sval;;}
     break;
 
-  case 31:
+  case 30:
 #line 150 "Trex.y"
     { var_type = yylval.sval;;}
     break;
 
+  case 31:
+#line 151 "Trex.y"
+    { var_type = yylval.sval;;}
+    break;
+
   case 32:
-#line 154 "Trex.y"
+#line 155 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "0"); push_to_pilaTipos_directly("10"); ;}
     break;
 
   case 33:
-#line 155 "Trex.y"
+#line 156 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "1"); push_to_pilaTipos_directly("11"); ;}
     break;
 
   case 34:
-#line 156 "Trex.y"
+#line 157 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "2"); push_to_pilaTipos_directly("12"); ;}
     break;
 
   case 35:
-#line 157 "Trex.y"
+#line 158 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "3"); push_to_pilaTipos_directly("13"); ;}
     break;
 
   case 36:
-#line 158 "Trex.y"
+#line 159 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "4"); push_to_pilaTipos_directly("14"); ;}
     break;
 
   case 37:
-#line 159 "Trex.y"
+#line 160 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "5");  push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 46:
-#line 174 "Trex.y"
+#line 175 "Trex.y"
     { push_to_pilaOperadores("print"); ;}
     break;
 
   case 48:
-#line 178 "Trex.y"
+#line 179 "Trex.y"
     { generateQuadruple_print(); ;}
     break;
 
   case 49:
-#line 182 "Trex.y"
+#line 183 "Trex.y"
     { push_to_pilaOperadores("print"); ;}
     break;
 
   case 52:
-#line 187 "Trex.y"
+#line 188 "Trex.y"
     { generateQuadruple_if(); ;}
     break;
 
   case 53:
-#line 187 "Trex.y"
+#line 188 "Trex.y"
     { generate_fin_if(); ;}
     break;
 
   case 55:
-#line 195 "Trex.y"
+#line 196 "Trex.y"
     { generateQuadruple_else(); ;}
     break;
 
   case 59:
-#line 204 "Trex.y"
+#line 205 "Trex.y"
     { quadruple_relational(); ;}
     break;
 
   case 61:
-#line 209 "Trex.y"
-    { push_to_pilaOperadores(yylval.sval); ;}
-    break;
-
-  case 62:
 #line 210 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
-  case 63:
+  case 62:
 #line 211 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
-  case 64:
+  case 63:
 #line 212 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
-  case 65:
+  case 64:
 #line 213 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
-  case 66:
+  case 65:
 #line 214 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
+  case 66:
+#line 215 "Trex.y"
+    { push_to_pilaOperadores(yylval.sval); ;}
+    break;
+
   case 67:
-#line 218 "Trex.y"
+#line 219 "Trex.y"
     { quadruple_add_sub(); ;}
     break;
 
   case 69:
-#line 222 "Trex.y"
+#line 223 "Trex.y"
     { quadruple_add_sub(); ;}
     break;
 
   case 72:
-#line 227 "Trex.y"
-    { push_to_pilaOperadores(yylval.sval); ;}
-    break;
-
-  case 73:
 #line 228 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
+  case 73:
+#line 229 "Trex.y"
+    { push_to_pilaOperadores(yylval.sval); ;}
+    break;
+
   case 74:
-#line 232 "Trex.y"
+#line 233 "Trex.y"
     { quadruple_mult_div(); ;}
     break;
 
   case 76:
-#line 236 "Trex.y"
+#line 237 "Trex.y"
     { quadruple_mult_div(); ;}
     break;
 
   case 79:
-#line 241 "Trex.y"
-    { push_to_pilaOperadores(yylval.sval); ;}
-    break;
-
-  case 80:
 #line 242 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
+  case 80:
+#line 243 "Trex.y"
+    { push_to_pilaOperadores(yylval.sval); ;}
+    break;
+
   case 85:
-#line 253 "Trex.y"
+#line 254 "Trex.y"
     { push_to_pilaOperadores("#"); ;}
     break;
 
   case 86:
-#line 253 "Trex.y"
+#line 254 "Trex.y"
     { pop_of_pilaOperadores(); ;}
     break;
 
   case 87:
-#line 257 "Trex.y"
+#line 258 "Trex.y"
     { generate_fin_for(); ;}
     break;
 
   case 88:
-#line 261 "Trex.y"
+#line 262 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "5"); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 89:
-#line 261 "Trex.y"
+#line 262 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
   case 90:
-#line 261 "Trex.y"
+#line 262 "Trex.y"
     { generateQuadruple_asignacion(); ;}
     break;
 
   case 91:
-#line 261 "Trex.y"
+#line 262 "Trex.y"
     { generateQuadruple_for2(); ;}
     break;
 
   case 93:
-#line 265 "Trex.y"
+#line 266 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "5"); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 94:
-#line 265 "Trex.y"
+#line 266 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
   case 95:
-#line 265 "Trex.y"
+#line 266 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (5)].sval), "5"); push_to_pilaTipos((yyvsp[(1) - (5)].sval)); ;}
     break;
 
   case 96:
-#line 265 "Trex.y"
+#line 266 "Trex.y"
     { push_to_pilaOperandos((yyvsp[(1) - (8)].sval), "0");  generateQuadruple_for3(); ;}
     break;
 
   case 97:
-#line 269 "Trex.y"
+#line 270 "Trex.y"
     { push_quadruple_index_to_pilaSaltos(); ;}
     break;
 
   case 98:
-#line 269 "Trex.y"
+#line 270 "Trex.y"
     { generateQuadruple_while(); ;}
     break;
 
   case 99:
-#line 269 "Trex.y"
+#line 270 "Trex.y"
     { generate_fin_while(); ;}
     break;
 
   case 100:
-#line 273 "Trex.y"
+#line 274 "Trex.y"
     { name = (yyvsp[(1) - (1)].sval); push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "5"); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 104:
-#line 282 "Trex.y"
+#line 283 "Trex.y"
     { push_to_pilaOperadores(yylval.sval); ;}
     break;
 
   case 105:
-#line 282 "Trex.y"
+#line 283 "Trex.y"
     { quadruple_relational(); ;}
     break;
 
   case 107:
-#line 286 "Trex.y"
+#line 287 "Trex.y"
     { verify_arr_limit(name); generateQuadruple_array(); ;}
     break;
 
   case 110:
-#line 295 "Trex.y"
-    { function_name = yylval.sval; insert_to_procs_table(function_name); set_current_function("1");;}
+#line 296 "Trex.y"
+    { function_name = yylval.sval; insert_to_procs_table(function_name); set_current_function("1", function_name); reset_conts(); ;}
     break;
 
   case 112:
-#line 299 "Trex.y"
+#line 300 "Trex.y"
     { reset_param_counter(); ;}
     break;
 
   case 113:
-#line 299 "Trex.y"
+#line 300 "Trex.y"
     { set_start_function(function_name); ;}
     break;
 
   case 114:
-#line 299 "Trex.y"
-    { set_current_function("0"); set_fin_function(function_name); ;}
+#line 300 "Trex.y"
+    { set_current_function("0", main_func); set_fin_function(function_name); ;}
     break;
 
   case 121:
-#line 318 "Trex.y"
+#line 319 "Trex.y"
     { function_called = (yyvsp[(1) - (1)].sval); verify_function_name(function_called); ;}
     break;
 
   case 122:
-#line 318 "Trex.y"
+#line 319 "Trex.y"
     { generate_activation_record(function_called); ;}
     break;
 
   case 123:
-#line 318 "Trex.y"
+#line 319 "Trex.y"
     { reset_param_counter(); ;}
     break;
 
   case 124:
-#line 318 "Trex.y"
+#line 319 "Trex.y"
     { generate_fin_llamada(function_called); ;}
     break;
 
   case 127:
-#line 327 "Trex.y"
-    { name = yylval.sval; insert_to_vars_table(name,var_type); count_params(); insert_param_type(function_name, var_type); ;}
+#line 328 "Trex.y"
+    { name = yylval.sval; insert_to_vars_table(name,var_type,function_name); count_params(); insert_param_type(function_name, var_type); ;}
     break;
 
   case 129:
-#line 331 "Trex.y"
-    { name = yylval.sval; insert_to_vars_table(name,var_type); count_params(); insert_param_type(function_name, var_type); ;}
+#line 332 "Trex.y"
+    { name = yylval.sval; insert_to_vars_table(name,var_type,function_name); count_params(); insert_param_type(function_name, var_type); ;}
     break;
 
   case 132:
-#line 336 "Trex.y"
+#line 337 "Trex.y"
     { verify_parameters(function_called); ;}
     break;
 
   case 134:
-#line 340 "Trex.y"
+#line 341 "Trex.y"
     { count_params(); ;}
     break;
 
   case 135:
-#line 340 "Trex.y"
+#line 341 "Trex.y"
     { verify_parameters(function_called); ;}
     break;
 
   case 138:
-#line 345 "Trex.y"
+#line 346 "Trex.y"
     { name = (yyvsp[(1) - (1)].sval); push_to_pilaOperandos((yyvsp[(1) - (1)].sval), "5"); push_to_pilaTipos((yyvsp[(1) - (1)].sval)); ;}
     break;
 
   case 139:
-#line 345 "Trex.y"
+#line 346 "Trex.y"
     { push_to_pilaOperadores("#"); ;}
     break;
 
   case 140:
-#line 345 "Trex.y"
+#line 346 "Trex.y"
     { pop_of_pilaOperadores(); ;}
     break;
 
   case 141:
-#line 345 "Trex.y"
+#line 346 "Trex.y"
     { verify_arr_limit(name); generateQuadruple_array(); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2050 "Trex.tab.c"
+#line 2051 "Trex.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2260,7 +2261,7 @@ yyreturn:
 }
 
 
-#line 348 "Trex.y"
+#line 349 "Trex.y"
 
 
 main(int argc, char *argv[]) {

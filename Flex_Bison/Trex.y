@@ -16,6 +16,7 @@ char *var_type;
 char *name;
 char *size;
 char *function_name;
+char *main_func;
 char *function_called;
  
 void yyerror(const char *s);
@@ -91,7 +92,7 @@ programa:
 	;
 
 programa_a:
-	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0");} LLAVEIZQ
+	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; main_func = function_name; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0", function_name);} LLAVEIZQ
 	;
 
 programa_b:
@@ -133,7 +134,7 @@ c:
 	;
 
 vars:
-	tipo CTE_ID vars2 PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type); }
+	tipo CTE_ID vars2 PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,function_name); }
 	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA { name = $2;  size = $4; insert_arr_to_vars_table(name,var_type, size); }
 	;
 
@@ -292,11 +293,11 @@ lectura:
 	;
 	
 funcion:
-	FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name); set_current_function("1");} PARENTESISIZQ funcion_c funcion_a
+	FUNCTION CTE_ID { function_name = yylval.sval; insert_to_procs_table(function_name); set_current_function("1", function_name); reset_conts(); } PARENTESISIZQ funcion_c funcion_a
 	;
 
 funcion_a:
-	PARENTESISDER { reset_param_counter(); } LLAVEIZQ { set_start_function(function_name); } funcion_d LLAVEDER { set_current_function("0"); set_fin_function(function_name); } 
+	PARENTESISDER { reset_param_counter(); } LLAVEIZQ { set_start_function(function_name); } funcion_d LLAVEDER { set_current_function("0", main_func); set_fin_function(function_name); } 
 	;
 
 funcion_b:
@@ -324,11 +325,11 @@ llamada_2:
 	;
 
 param:
-	tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type); count_params(); insert_param_type(function_name, var_type); } g
+	tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type,function_name); count_params(); insert_param_type(function_name, var_type); } g
 	;
 
 g:
-	COMA tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type); count_params(); insert_param_type(function_name, var_type); } g
+	COMA tipo CTE_ID { name = yylval.sval; insert_to_vars_table(name,var_type,function_name); count_params(); insert_param_type(function_name, var_type); } g
 	|
 	;
 
