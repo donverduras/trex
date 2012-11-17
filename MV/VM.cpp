@@ -3777,8 +3777,107 @@ void run(){
 				break;
 			case 15:																		//POINTER
 				break;
-			case 300:																		//PRINT	
+			case 20:																		//POINTER
+ 				break;
+ 			case 300:																		//PRINT	
+			case GOTO:																		//GOTO
 				break;
+			case GOTOF:																		//GOTOF
+				break;
+			case PRINT:																		//PRINT
+				tipo_resultado = getDataType(resultado);
+				switch(tipo_resultado){
+					case INTEGER:
+						if(generateDataType(resultado) == CTE_INT){
+							op1_int = atoi(getConstantValue(resultado).c_str());							
+							res_int = op1_int;
+							
+							cout << res_int;
+						}else{
+							offsetOp1 = generateOffsetInt(resultado, generateDataType(resultado));
+							op1_int = memStack.top().getValorEnteros(offsetOp1);							
+							res_int = op1_int;
+							
+							cout << res_int;
+						}
+						break;
+					case FLOAT:
+						if(generateDataType(resultado) == CTE_FLOAT){
+							op1_float = atof(getConstantValue(resultado).c_str());							
+							res_float = op1_float;
+							
+							cout << res_float;
+						}else{
+							offsetOp1 = generateOffsetFloat(resultado, generateDataType(resultado));
+							op1_float = memStack.top().getValorFlotantes(offsetOp1);							
+							res_float = op1_float;
+	
+							cout << res_float;
+						}
+						break;
+					case STRING:
+						if(generateDataType(resultado) == CTE_STRING){
+							op1_string = getConstantValue(resultado);							
+							res_string = op1_string;
+							
+							cout << res_string;
+						}else{
+							offsetOp1 = generateOffsetString(resultado, generateDataType(resultado));
+							op1_string = memStack.top().getValorStrings(offsetOp1);							
+							res_string = op1_string;
+							
+							cout << res_string;
+						}
+						break;
+					case BOOLEAN:
+						if(generateDataType(resultado) == CTE_BOOLEAN){
+							if(strcmp("true",getConstantValue(resultado).c_str()) == 0)
+								op1_string = "true";
+							else
+								op1_string = "false";
+						
+							res_string = op1_string;
+							
+							cout << res_string;
+						}else{
+							offsetOp1 = generateOffsetBoolean(resultado, generateDataType(resultado));
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							if(op1_boolean == 1)
+								res_string = "true";
+							else
+								res_string = "false";
+
+							cout << res_string;
+						}
+						break;
+					case CHAR:
+						if(generateDataType(resultado) == CTE_CHAR){
+							op1_char = getConstantValue(resultado)[1];	
+							res_char = op1_char;
+							
+							cout << res_char;
+						}else{
+							offsetOp1 = generateOffsetChar(resultado, generateDataType(resultado));
+							op1_char = memStack.top().getValorChars(offsetOp1);							
+							res_char = op1_char;
+							
+							cout << res_char;
+						}
+						break;
+				}
+				break;
+			case ERA:																		//ERA
+				break;
+			case GOSUB:																		//GOSUB
+				break;
+			case PARAM:																		//PARAM
+				break;
+			case VER:																		//VER
+				break;
+			case INIPROC:																	//INIPROC
+				break;
+			case RET:																		//RET
+ 				break;
 		}
 		main_index++;
 	}
