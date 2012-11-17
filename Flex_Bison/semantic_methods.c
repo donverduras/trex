@@ -1513,7 +1513,7 @@ int search_for_dirVirtual(char *var_cte){
 				exit (EXIT_FAILURE);
 			}
 		}else{
-			for(int i=0; i<g_queue_get_length(stack_aux); i++){
+			for(int i=g_queue_get_length(stack_aux)-1; i>0; i--){
 				node_aux = (Variable *)g_queue_peek_nth(stack_aux,i);
 				string_aux = node_aux->name.c_str();
 			
@@ -1574,19 +1574,39 @@ void set_current_function(char *function, char* func_name){
 	current_function_name = func_name;
 }
 
-void set_fin_function(char *func){
+void set_fin_function(char *func, char *curr){
 	VarCont *locales = new VarCont;
 	VarCont *temporales = new VarCont;
 	Quadruple *new_quadruple = new Quadruple;
 	Procedure *proc = new Procedure;
+	int curr_func = atoi(curr);
 	
 	proc = get_proc(func);
+	//cout << "Metodo: " << func << "\n";
+	//cout << "Num params: " << g_queue_get_length(proc->pilaParams) << "\n";
+	proc->numParams = g_queue_get_length(proc->pilaParams);
 	
-	locales->integers = local_int_cont_func;
-	locales->flotantes = local_float_cont_func;
-	locales->estrings = local_string_cont_func;
-	locales->booleans = local_boolean_cont_func;
-	locales->chars = local_char_cont_func;
+	if(curr_func == 0){
+		locales->integers = global_int_cont;
+		locales->flotantes = global_float_cont;
+		locales->estrings = global_string_cont;
+		locales->booleans = global_boolean_cont;
+		locales->chars = global_char_cont;
+	}else if(curr_func == 1){
+		locales->integers = local_int_cont_func;
+		locales->flotantes = local_float_cont_func;
+		locales->estrings = local_string_cont_func;
+		locales->booleans = local_boolean_cont_func;
+		locales->chars = local_char_cont_func;
+	}
+	
+	/*
+	cout << "Variables locales int: " << locales->integers << "\n";
+	cout << "Variables locales float: " << locales->flotantes << "\n";
+	cout << "Variables locales string: " << locales->estrings << "\n";
+	cout << "Variables locales boolean: " << locales->booleans << "\n";
+	cout << "Variables locales char: " << locales->chars << "\n";
+	*/
 	
 	proc->locals = *locales;
 		
@@ -1595,6 +1615,14 @@ void set_fin_function(char *func){
 	temporales->estrings = temp_string_cont_func;
 	temporales->booleans = temp_boolean_cont_func;
 	temporales->chars = temp_char_cont_func;
+	
+	/*
+	cout << "Variables temporales int: " << temporales->integers << "\n";
+	cout << "Variables temporales float: " << temporales->flotantes << "\n";
+	cout << "Variables temporales string: " << temporales->estrings << "\n";
+	cout << "Variables temporales boolean: " << temporales->booleans << "\n";
+	cout << "Variables temporales char: " << temporales->chars << "\n";
+	*/
 	
 	proc->temps = *temporales;
 		
@@ -1621,13 +1649,14 @@ void set_start_function(char *func){
 	new_quadruple->operando1 = -1;
 	new_quadruple->resultado = -1;
 	
+	//cout << "Empieza la funcion: " << func << "\n";
+	
 	//cout << "#" << quadruple_index << " ";
 	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	
 	proc = get_proc(func);
-	proc->dirInitial = quadruple_index;
-	proc->numParams = param_counter;
+	proc->dirInitial = quadruple_index-1;
 	
 	quadruple_index++;
 }

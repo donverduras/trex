@@ -2,6 +2,7 @@
 #include <string>
 #include <stdlib.h>
 #include <fstream>
+#include <stack>
 
 using namespace std;
 
@@ -141,6 +142,8 @@ int tamanoCuadruplos;
 
 //Index principal
 int main_index = 0;
+
+stack<Memoria> pilaMemorias;
 
 string getConstantValue(int dirVir){
 	for(int i=0; i<tamanoConst; i++){
