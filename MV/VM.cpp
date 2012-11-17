@@ -2,6 +2,7 @@
 #include <string>
 #include <stdlib.h>
 #include <fstream>
+#include <stack>
 
 using namespace std;
 
@@ -118,14 +119,12 @@ enum tipos { G_INT = 0,		G_FLOAT = 1,	G_STRING = 2,	G_BOOLEAN = 3,	G_CHAR = 4,
 			 P = 20 };
 
 enum symbols {	BASE_GLOBAL_INT = 1000,	BASE_GLOBAL_FLOAT = 6000,	BASE_GLOBAL_STRING = 11000,	BASE_GLOBAL_BOOLEAN = 16000,	BASE_GLOBAL_CHAR = 21000,
-				BASE_LOCAL_INT = 1000,	BASE_LOCAL_FLOAT = 6000, 	BASE_LOCAL_STRING = 11000, 	BASE_LOCAL_BOOLEAN = 16000, 	BASE_LOCAL_CHAR = 21000,
-				BASE_TEMP_INT = 1000,	BASE_TEMP_FLOAT = 6000, 	BASE_TEMP_STRING = 11000, 	BASE_TEMP_BOOLEAN = 16000, 		BASE_TEMP_CHAR = 21000,
-				CONST_INT = 1000,		CONST_FLOAT = 6000, 		CONST_STRING = 11000, 		CONST_BOOLEAN = 16000, 			CONST_CHAR = 21000,
+				BASE_LOCAL_INT = 26000,	BASE_LOCAL_FLOAT = 31000, 	BASE_LOCAL_STRING = 36000, 	BASE_LOCAL_BOOLEAN = 41000, 	BASE_LOCAL_CHAR = 46000,
+				BASE_TEMP_INT = 51000,	BASE_TEMP_FLOAT = 56000, 	BASE_TEMP_STRING = 61000, 	BASE_TEMP_BOOLEAN = 66000, 		BASE_TEMP_CHAR = 71000,
+				CONST_INT = 76000,		CONST_FLOAT = 81000, 		CONST_STRING = 86000, 		CONST_BOOLEAN = 91000, 			CONST_CHAR = 96000,
 				BASE_POINTERS = 100000, BLOQUE = 5000	};
 
 //Arreglo de memorias
-Memoria *arrGlobal;
-Memoria *arrGlobalTemp;
 Procedure *proc;
 int sizeOfProc;
 		
@@ -141,6 +140,7 @@ int tamanoCuadruplos;
 
 //Index principal
 int main_index = 0;
+stack<Memoria> memStack;
 
 string getConstantValue(int dirVir){
 	for(int i=0; i<tamanoConst; i++){
@@ -165,13 +165,127 @@ int searchForProc(string name){
 	}
 }
 
+int generateDataType(int dirVir){
+	return dirVir / 5000;
+}
+
+int getDataTypeNumber(int dirVir){
+	int tipoDato = generateDataType(dirVir);
+	
+	switch(tipoDato){
+		case 0: case 5: case 10:
+			return 0;
+			break;
+		case 1: case 6: case 11:
+			return 1;
+			break;
+		case 2: case 7: case 12:
+			return 2;
+			break;
+		case 3: case 8: case 13:
+			return 3;
+			break;
+		case 4 : case 9: case 14:
+			return 4;
+			break;
+	}
+}
+
+int generateOffsetInt(int dirVir, int tipoDato){
+	int offset = 0;
+	
+	switch(tipoDato){
+		case 0 :
+			offset = dirVir - BASE_GLOBAL_INT;
+			break;
+		case 5 :
+			offset = dirVir - (BASE_LOCAL_INT + proc[0].locals.integers + proc[(memStack.size() - 1)].temps.integers);
+			break;
+		case 10 :
+			offset = dirVir - (BASE_LOCAL_INT + proc[0].locals.integers);
+			break;
+	}
+	return offset;
+}
+
+int generateOffsetFloat(int dirVir, int tipoDato){
+	int offset = 0;
+	
+	switch(tipoDato){
+		case 0 :
+			offset = dirVir - BASE_GLOBAL_FLOAT;
+			break;
+		case 5 :
+			offset = dirVir - (BASE_LOCAL_FLOAT + proc[0].locals.integers + proc[(memStack.size() - 1)].temps.integers);
+			break;
+		case 10 :
+			offset = dirVir - (BASE_LOCAL_FLOAT + proc[0].locals.integers);
+			break;
+	}
+	return offset;
+}
+
+int generateOffsetString(int dirVir, int tipoDato){
+	int offset = 0;
+	
+	switch(tipoDato){
+		case 0 :
+			offset = dirVir - BASE_GLOBAL_STRING;
+			break;
+		case 5 :
+			offset = dirVir - (BASE_LOCAL_STRING + proc[0].locals.integers + proc[(memStack.size() - 1)].temps.integers);
+			break;
+		case 10 :
+			offset = dirVir - (BASE_LOCAL_STRING + proc[0].locals.integers);
+			break;
+	}
+	return offset;
+}
+
+int generateOffsetBoolean(int dirVir, int tipoDato){
+	int offset = 0;
+	
+	switch(tipoDato){
+		case 0 :
+			offset = dirVir - BASE_GLOBAL_BOOLEAN;
+			break;
+		case 5 :
+			offset = dirVir - (BASE_LOCAL_BOOLEAN + proc[0].locals.integers + proc[(memStack.size() - 1)].temps.integers);
+			break;
+		case 10 :
+			offset = dirVir - (BASE_LOCAL_BOOLEAN + proc[0].locals.integers);
+			break;
+	}
+	return offset;
+}
+
+int generateOffsetChar(int dirVir, int tipoDato){
+	int offset = 0;
+	
+	switch(tipoDato){
+		case 0 :
+			offset = dirVir - BASE_GLOBAL_CHAR;
+			break;
+		case 5 :
+			offset = dirVir - (BASE_LOCAL_CHAR + proc[0].locals.integers + proc[(memStack.size() - 1)].temps.integers);
+			break;
+		case 10 :
+			offset = dirVir - (BASE_LOCAL_CHAR + proc[0].locals.integers);
+			break;
+	}
+	return offset;
+}
+
 void readFile(){
-	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
+	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
+	//ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 	string line;
 	char *str, *pch;
 	int i = 0, contPorciento = 0, primerValor = 0, tamano = 0, numFuncion = 0, numConst = 0, numQuads = 0;
+	int contEnteros = 0, contFlotantes = 0, contStrings = 0, contBooleans = 0, contChars = 0;
 	VarCont *locales;
 	VarCont *temporales;
+	Memoria *arrGlobal;
 	
 	if (myfile.is_open()){
 		while (myfile.good()){
@@ -192,7 +306,6 @@ void readFile(){
 					sizeOfProc = tamano;
 					primerValor++;
 					arrGlobal = new Memoria;
-					arrGlobalTemp = new Memoria;
 					proc = new Procedure[tamano];
 					locales = new VarCont;
 					temporales = new VarCont;
@@ -204,7 +317,6 @@ void readFile(){
 								proc[numFuncion].name = pch;
 								if(numFuncion == 0){
 									arrGlobal->setId(numFuncion);
-									arrGlobalTemp->setId(numFuncion);
 								}
 								i++;
 								break;
@@ -219,76 +331,81 @@ void readFile(){
 							case 3 : //enteros
 								locales->integers = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobal->setEnteros(atoi(pch));
+									contEnteros += atoi(pch);
 								}
 								i++;
 								break;
 							case 4 : //flotantes
 								locales->flotantes = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobal->setFlotantes(atoi(pch));
+									contFlotantes += atoi(pch);
 								}
 								i++;
 								break;
 							case 5 : //strings
 								locales->estrings = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobal->setStrings(atoi(pch));
+									contStrings += atoi(pch);
 								}
 								i++;
 								break;
 							case 6 : //booleanos
 								locales->booleans = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobal->setBooleans(atoi(pch));
+									contBooleans += atoi(pch);
 								}
 								i++;
 								break;
 							case 7 : //chars
 								locales->chars = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobal->setChars(atoi(pch));
+									contChars += atoi(pch);
 								}
 								i++;
 								break;
 							case 8 : //Enteros temps
 								temporales->integers = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobalTemp->setEnteros(atoi(pch));
+									contEnteros += atoi(pch);
 								}
 								i++;
 								break;
 							case 9 : //flotantes temps
 								temporales->flotantes = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobalTemp->setFlotantes(atoi(pch));
+									contFlotantes += atoi(pch);
 								}
 								i++;
 								break;
 							case 10	: //string temps
 								temporales->estrings = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobalTemp->setStrings(atoi(pch));
+									contStrings += atoi(pch);
 								}
 								i++;
 								break;
 							case 11 : //booleanos temps
 								temporales->booleans = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobalTemp->setBooleans(atoi(pch));
+									contBooleans += atoi(pch);
 								}
 								i++;
 								break;
 							case 12 : //char temps
 								temporales->chars = atoi(pch);
 								if(numFuncion == 0){
-									arrGlobalTemp->setChars(atoi(pch));
+									contChars += atoi(pch);
 								}
 								i++;
 								break;
 						}
 						pch = strtok (NULL, ",");
 					}
+					arrGlobal->setEnteros(contEnteros);
+					arrGlobal->setFlotantes(contFlotantes);
+					arrGlobal->setStrings(contStrings);
+					arrGlobal->setBooleans(contBooleans);
+					arrGlobal->setChars(contChars);
 					proc[numFuncion].locals = *locales;
 					proc[numFuncion].temps = *temporales;
 					i = 0;
@@ -337,7 +454,7 @@ void readFile(){
 					i = 0;
 					
 					/*
-					cout << "( " << arrConst[numConst] << ", " << arrConstDirVir[numConst] << " ) \n";
+					cout << "(" << arrConst[numConst] << ", " << arrConstDirVir[numConst] << ") \n";
 					*/
 					
 					numConst++;
@@ -374,10 +491,9 @@ void readFile(){
 						pch = strtok (NULL, ",");
 					}
 					i = 0;
-					
 					/*
-					cout << "( " << listOfQuads[numQuads].operador << ", " << listOfQuads[numQuads].operando1 << ", " <<
-									listOfQuads[numQuads].operando2 << ", " << listOfQuads[numQuads].resultado << " ) \n";
+					cout << "(" << listOfQuads[numQuads].operador << ", " << listOfQuads[numQuads].operando1 << ", " <<
+									listOfQuads[numQuads].operando2 << ", " << listOfQuads[numQuads].resultado << ") \n";
 					*/
 					
 					numQuads++;
@@ -413,7 +529,7 @@ void run(){
 		*/
 		
 		switch(operador){
-			case 0:																			//+
+			case 0:												/*							//+
 				cout << "Suma \n";
 				tipo_dato1 = operando1 / BLOQUE;
 				tipo_dato2 = operando2 / BLOQUE;
@@ -437,6 +553,7 @@ void run(){
 						
 					}
 				} 
+				*/
 				break;
 			case 1:																			//-
 				break;
@@ -448,7 +565,7 @@ void run(){
 				break;
 			case 5:																			//>
 				break;
-			case 6:																			//=
+			case 6:												/*							//=
 				cout << "Asignación \n";
 				tipo_dato1 = operando1 / BLOQUE;
 				tipo_resultado = resultado / BLOQUE;
@@ -466,67 +583,8 @@ void run(){
 					}else if(tipo_resultado == L_INT){
 					
 					}
-				}else if(tipo_dato1 == C_FLOAT){
-					if(tipo_resultado == G_FLOAT){											//Asigna una constante flotante a una global entera
-						op1_float = atof(getConstantValue(operando1).c_str());
-						res_float = op1_float;
-						index = resultado - BASE_GLOBAL_FLOAT;
-						arrGlobal->setValorFlotantes(index,res_float);
-						
-						cout << "Operando 1: " << op1_float << "\n";
-						cout << "Resultado: " << res_float << "\n";
-						cout << "Offset: " << index << "\n";
-						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorFlotantes(index) << "\n";
-					}else if(tipo_resultado == L_FLOAT){
-					
-					}
-				}else if(tipo_dato1 == C_STRING){
-					if(tipo_resultado == G_STRING){											//Asigna una constante string a una global string
-						op1_string = getConstantValue(operando1);
-						res_string = op1_string;
-						index = resultado - BASE_GLOBAL_STRING;
-						arrGlobal->setValorStrings(index,res_string);
-						
-						cout << "Operando 1: " << op1_string << "\n";
-						cout << "Resultado: " << res_string << "\n";
-						cout << "Offset: " << index << "\n";
-						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorStrings(index) << "\n";
-					}else if(tipo_resultado == L_STRING){
-					
-					}
-				}else if(tipo_dato1 == C_BOOLEAN){
-					cout << "Asignacion boolean \n";
-					if(tipo_resultado == G_BOOLEAN){											//Asigna una constante booleana a una global booleana
-						if(strcmp("true",getConstantValue(operando1).c_str()) == 0)
-							op1_boolean = true;
-						else
-							op1_boolean = false;
-						res_boolean = op1_boolean;
-						index = resultado - BASE_GLOBAL_BOOLEAN;
-						arrGlobal->setValorBooleans(index,res_boolean);
-						
-						cout << "Operando 1: " << op1_boolean << "\n";
-						cout << "Resultado: " << res_boolean << "\n";
-						cout << "Offset: " << index << "\n";
-						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorBooleans(index) << "\n";
-					}else if(tipo_resultado == L_BOOLEAN){
-					
-					}
-				}else if(tipo_dato1 == C_CHAR){
-					if(tipo_resultado == G_CHAR){											//Asigna una constante char a una global char
-						op1_char = getConstantValue(operando1)[1];
-						res_char = op1_char;
-						index = resultado - BASE_GLOBAL_CHAR;
-						arrGlobal->setValorChars(index,res_char);
-						
-						cout << "Operando 1: " << op1_char << "\n";
-						cout << "Resultado: " << res_char << "\n";
-						cout << "Offset: " << index << "\n";
-						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorChars(index) << "\n";
-					}else if(tipo_resultado == L_CHAR){
-					
-					}
 				}
+				*/
 				break;
 			case 7:																			//<>
 				break;
@@ -546,5 +604,8 @@ int main(int argc, char *argv[]) {
 	
 	readFile();
 	
-	run();
+	cout << getDataTypeNumber(1001) << "\n";
+	cout << generateOffsetInt(1001, generateDataType(1001));
+	
+	//run();
 }
