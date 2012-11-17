@@ -277,8 +277,8 @@ int generateOffsetChar(int dirVir, int tipoDato){
 }
 
 void readFile(){
-	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
-	//ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
+	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
+	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 	string line;
 	char *str, *pch;
 	int i = 0, contPorciento = 0, primerValor = 0, tamano = 0, numFuncion = 0, numConst = 0, numQuads = 0;
@@ -809,15 +809,6 @@ void run(){
 							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_string << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_string << "\n";
-							cout << "Resultado: " << res_string << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorStrings(offsetRes) << "\n";
 						}
 						break;
 					case STRING:
@@ -848,8 +839,30 @@ void run(){
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
-						//28 cte_string + int FALTA
-						//29 cte_string + float FALTA
+						//28 cte_string + int
+						else if(generateDataType(operando1) == CTE_STRING && generateDataType(operando2) == INTEGER){
+							op1_string = getConstantValue(operando1).c_str();
+							offsetOp2 = generateOffsetInt(operando2, generateDataType(offsetOp2));
+							ostr << memStack.top().getValorEnteros(offsetOp2);	
+							op2_string = ostr.str();
+							ostr.str(string());				
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//29 cte_string + float
+						else if(generateDataType(operando1) == CTE_STRING && generateDataType(operando2) == FLOAT){
+							op1_string = getConstantValue(operando1).c_str();
+							offsetOp2 = generateOffsetFloat(operando2, generateDataType(offsetOp2));
+							ostr << memStack.top().getValorFlotantes(offsetOp2);	
+							op2_string = ostr.str();
+							ostr.str(string());				
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
 						//30 cte_string + string
 						else if(generateDataType(operando1) == CTE_STRING && generateDataType(operando2) == STRING){
 							op1_string = getConstantValue(operando1).c_str();
@@ -885,17 +898,50 @@ void run(){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							op2_string = getConstantValue(operando2).c_str();					
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string.substr(1, op1_string.size());
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//34 string + int
+						else if(generateDataType(operando1) == STRING && generateDataType(operando2) == INTEGER){
+							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
+							op1_string = memStack.top().getValorStrings(offsetOp1);
+							offsetOp2 = generateOffsetInt(operando2, generateDataType(offsetOp2));
+							ostr << memStack.top().getValorEnteros(offsetOp2);	
+							op2_string = ostr.str();
+							ostr.str(string());				
 							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
 							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
-						//34 string + int FALTA
-						//35 string + float FALTA
+						//35 string + float
+						else if(generateDataType(operando1) == STRING && generateDataType(operando2) == FLOAT){
+							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
+							op1_string = memStack.top().getValorStrings(offsetOp1);
+							offsetOp2 = generateOffsetFloat(operando2, generateDataType(offsetOp2));
+							ostr << memStack.top().getValorFlotantes(offsetOp2);	
+							op2_string = ostr.str();
+							ostr.str(string());				
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_string << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_string << "\n";
+							cout << "Resultado: " << res_string << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorStrings(offsetRes) << "\n";
+						}
 						//36 string + string
 						else if(generateDataType(operando1) == STRING && generateDataType(operando2) == STRING){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
-							op1_string = getConstantValue(operando1).c_str();
+							op1_string = memStack.top().getValorStrings(offsetOp1);
 							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
 							op2_string = memStack.top().getValorStrings(offsetOp2);							
 							res_string = op1_string.substr(0, op1_string.size()-1) + &op2_string[1];
@@ -904,32 +950,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						break;
-				}
-				/*	
-				cout << "Suma \n";
-				tipo_dato1 = operando1 / BLOQUE;
-				tipo_dato2 = operando2 / BLOQUE;
-				tipo_resultado = resultado / BLOQUE;
-				if(tipo_dato1 == C_INT && tipo_dato2 == C_INT){								//Suma de dos constantes enteras
-					if(tipo_resultado == G_INT){											//Guardado en casilla entera global
-						op1_int = atoi(getConstantValue(operando1).c_str());
-						op2_int = atoi(getConstantValue(operando2).c_str());
-						res_int = op1_int + op2_int;
-						index = resultado - BASE_GLOBAL_INT;
-						arrGlobal->setValorEnteros(index, res_int);
-						
-						cout << "Operando 1: " << op1_int << "\n";
-						cout << "Operando 2: " << op2_int << "\n";
-						cout << "Resultado: " << res_int << "\n";
-						cout << "Offset: " << index << "\n";
-						cout << "El valor almacenado en memoria es: " << arrGlobal->getValorEnteros(index) << "\n";
-					}else if(tipo_resultado == L_INT){										//Guardado en casilla entera local
-					
-					}else if(tipo_resultado == T_INT){										//Guardado en casilla entera temporal
-						
 					}
-				} 
-				*/
 				break;
 			case 1:																			//-
 				break;
