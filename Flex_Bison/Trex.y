@@ -85,10 +85,10 @@ void yyerror(const char *s);
 %%
 
 programa:
-	programa_a  vars programa_b funcion programa_c programa_d { generate_obj(); cout << "EXITO" << endl;}
-	| programa_a funcion programa_c programa_d { generate_obj(); cout << "EXITO" << endl;}
-	| programa_a vars programa_b programa_d { generate_obj(); cout << "EXITO" << endl;}
-	| programa_a programa_d { generate_obj(); cout << "EXITO" << endl;}
+	programa_a  vars programa_b funcion programa_c { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a funcion programa_c { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a vars programa_b { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
 	;
 
 programa_a:
@@ -106,7 +106,7 @@ programa_c:
 	;
 
 programa_d:
-	bloque LLAVEDER
+	bloque LLAVEDER { set_fin_function(main_func, "0"); }
 	;
 
 bloque:
@@ -297,7 +297,7 @@ funcion:
 	;
 
 funcion_a:
-	PARENTESISDER { reset_param_counter(); } LLAVEIZQ { set_start_function(function_name); } funcion_d LLAVEDER { set_current_function("0", main_func); set_fin_function(function_name); } 
+	PARENTESISDER { reset_param_counter(); } LLAVEIZQ { set_start_function(function_name); } funcion_d LLAVEDER { set_current_function("0", main_func); set_fin_function(function_name, "1"); } 
 	;
 
 funcion_b:

@@ -142,6 +142,8 @@ int tamanoCuadruplos;
 int main_index = 0;
 stack<Memoria> memStack;
 
+stack<Memoria> pilaMemorias;
+
 string getConstantValue(int dirVir){
 	for(int i=0; i<tamanoConst; i++){
 		if(arrConstDirVir[i] == dirVir){

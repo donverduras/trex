@@ -4,7 +4,10 @@ program test{
 	
 	function uno(int a){
 		int b;
+		
+		a = 3 * a;
 	}
 	
 	a = 2;
+	uno();
 }
