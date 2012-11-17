@@ -3,10 +3,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <stack>
-<<<<<<< HEAD
 #include <stdio.h>
-=======
->>>>>>> 9db97c3e9693156864affb4102c32a30b6a852e8
 #include <sstream>
 
 using namespace std;
@@ -280,8 +277,8 @@ int generateOffsetChar(int dirVir, int tipoDato){
 }
 
 void readFile(){
-	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
-	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
+	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
+	//ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 	string line;
 	char *str, *pch;
 	int i = 0, contPorciento = 0, primerValor = 0, tamano = 0, numFuncion = 0, numConst = 0, numQuads = 0;
