@@ -140,6 +140,7 @@ int tamanoCuadruplos;
 int main_index = 0;
 stack<Memoria> memStack;
 
+//BORRAR ESTA!!
 stack<Memoria> pilaMemorias;
 
 string getConstantValue(int dirVir){
