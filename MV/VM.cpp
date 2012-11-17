@@ -145,6 +145,7 @@ stack<Memoria> pilaMemorias;
 string getConstantValue(int dirVir){
 	for(int i=0; i<tamanoConst; i++){
 		if(arrConstDirVir[i] == dirVir){
+			//cout << "(" << arrConst[i] << ", " << dirVir << ")\n";
 			return arrConst[i];
 		}
 	}
@@ -278,8 +279,8 @@ int generateOffsetChar(int dirVir, int tipoDato){
 }
 
 void readFile(){
-	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
-	//ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
+	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
+	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 	string line;
 	char *str, *pch;
 	int i = 0, contPorciento = 0, primerValor = 0, tamano = 0, numFuncion = 0, numConst = 0, numQuads = 0;
@@ -2859,9 +2860,298 @@ void run(){
 					case BOOLEAN:
 						//17 cte_bool <> cte_bool
 						if(generateDataType(operando1) == CTE_BOOLEAN && generateDataType(operando2) == CTE_BOOLEAN){
+							op1_string = getConstantValue(operando1);
+							op2_string = getConstantValue(operando2);
+							if(strcmp(op1_string.c_str(), op2_string.c_str()) != 0)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << getConstantValue(operando1) << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << getConstantValue(operando2) << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
+						}
+						//18 cte_bool <> bool
+						else if(generateDataType(operando1) == CTE_BOOLEAN && generateDataType(operando2) == BOOLEAN){
+							op1_string = getConstantValue(operando1);
+							if(strcmp("true", op1_string.c_str()) == 0)	
+								op1_boolean = true;
+							else
+								op1_boolean = false;
+							offsetOp2 = generateOffsetBoolean(operando2, generateDataType(operando2));
+							op2_boolean = memStack.top().getValorBooleans(offsetOp2);
+							
+							if(op1_boolean != op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_boolean << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_boolean << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
+						}
+						//19 bool <> cte_bool
+						else if(generateDataType(operando1) == BOOLEAN && generateDataType(operando2) == CTE_BOOLEAN){
+							offsetOp1 = generateOffsetBoolean(operando1, generateDataType(operando1));
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							op2_string = getConstantValue(operando2);
+							if(strcmp("true",op2_string.c_str()) == 0)
+								op2_boolean = true;
+							else
+								op2_boolean = false;
+							
+							if(op1_boolean != op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_boolean << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_boolean << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
+						}
+						//20 bool <> bool
+						else if(generateDataType(operando1) == BOOLEAN && generateDataType(operando2) == BOOLEAN){
+							offsetOp1 = generateOffsetBoolean(operando1, generateDataType(operando1));
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							offsetOp2 = generateOffsetBoolean(operando2, generateDataType(operando2));
+							op2_boolean = memStack.top().getValorBooleans(offsetOp2);
+							
+							if(op1_boolean != op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_boolean << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_boolean << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
+						}
+				}
+				break;
+			case 8:																			//==
+				tipo_dato1 = getDataType(operando1);
+				tipo_dato2 = getDataType(operando2);
+				tipo_resultado = getDataType(resultado);
+				switch(tipo_dato1){
+					case INTEGER:
+						//1 cte_int == cte_int
+						if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_INT){ 
+							op1_int = atoi(getConstantValue(operando1).c_str());
+							op2_int = atoi(getConstantValue(operando2).c_str());
+							if(op1_int == op2_int)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//2 cte_int == cte_float
+						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_FLOAT){
+							op1_int = atoi(getConstantValue(operando1).c_str());
+							op2_float = atof(getConstantValue(operando2).c_str());						
+							if(op1_int == op2_float)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+						}
+						//3 cte_int == int
+						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == INTEGER){ 
+							op1_int = atoi(getConstantValue(operando1).c_str());
+							offsetOp2 = generateOffsetInt(operando2, generateDataType(operando2));
+							op2_int = memStack.top().getValorEnteros(offsetOp2);						
+							if(op1_int == op2_int)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//4 cte_int == float
+						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == FLOAT){
+							op1_int = atoi(getConstantValue(operando1).c_str());
+							offsetOp2 = generateOffsetFloat(operando2, generateDataType(operando2));
+							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+							if(op1_int == op2_float)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//5 int == cte_int
+						else if(generateDataType(operando1) == INTEGER && generateDataType(operando2) == CTE_INT){
+							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
+							op1_int = memStack.top().getValorEnteros(offsetOp1);	
+							op2_int = atoi(getConstantValue(operando2).c_str());						
+							if(op1_int == op2_int)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//6 int == cte_float
+						else if(generateDataType(operando1) == INTEGER && generateDataType(operando2) == CTE_FLOAT){
+							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
+							op1_int = memStack.top().getValorEnteros(offsetOp1);	
+							op2_float = atof(getConstantValue(operando2).c_str());						
+							if(op1_int == op2_float)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//7 int == int
+						else if(generateDataType(operando1) == INTEGER && generateDataType(operando2) == INTEGER){ 
+							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
+							op1_int = memStack.top().getValorEnteros(offsetOp1);
+							offsetOp2 = generateOffsetInt(operando2, generateDataType(operando2));
+							op2_int = memStack.top().getValorEnteros(offsetOp2);						
+							if(op1_int == op2_int)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//8 int == float
+						else if(generateDataType(operando1) == INTEGER && generateDataType(operando2) == FLOAT){ 
+							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
+							op1_int = memStack.top().getValorEnteros(offsetOp1);
+							offsetOp2 = generateOffsetFloat(operando2, generateDataType(operando2));
+							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+							if(op1_int == op2_float)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);	
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						break;
+					case FLOAT:
+						//9 cte_float == cte_int
+						if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == CTE_INT){
 							op1_float = atof(getConstantValue(operando1).c_str());	
 							op2_int = atoi(getConstantValue(operando2).c_str());					
-							if(op1_float != op2_int)						
+							if(op1_float == op2_int)						
 								res_boolean = true;
 							else
 								res_boolean = false;
@@ -2878,9 +3168,267 @@ void run(){
 							cout << "Direccion Final: " << resultado << "\n";
 							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
 						}
-				}
-				break;
-			case 8:																			//==
+						//10 cte_float == cte_float
+						else if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == CTE_FLOAT){
+							op1_float = atof(getConstantValue(operando1).c_str());
+							op2_float = atof(getConstantValue(operando2).c_str());						
+							if(op1_float == op2_float)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_float << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//11 cte_float == int
+						else if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == INTEGER){ 
+							op1_float = atof(getConstantValue(operando1).c_str());
+							offsetOp2 = generateOffsetInt(operando2, generateDataType(operando2));
+							op2_int = memStack.top().getValorEnteros(offsetOp2);						
+							if(op1_float == op2_int)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_float << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+						}
+						//12 cte_float == float
+						else if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == FLOAT){
+							op1_float = atof(getConstantValue(operando1).c_str());
+							offsetOp2 = generateOffsetFloat(operando2, generateDataType(operando2));
+							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+							if(op1_float == op2_float)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_float << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//13 float == cte_int
+						else if(generateDataType(operando1) == FLOAT && generateDataType(operando2) == CTE_INT){
+							offsetOp1 = generateOffsetFloat(operando1, generateDataType(operando1));
+							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
+							op2_int = atoi(getConstantValue(operando2).c_str());						
+							if(op1_float == op2_int)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_float << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//14 float == cte_float
+						else if(generateDataType(operando1) == FLOAT && generateDataType(operando2) == CTE_FLOAT){
+							offsetOp1 = generateOffsetFloat(operando1, generateDataType(operando1));
+							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
+							op2_float = atof(getConstantValue(operando2).c_str());						
+							if(op1_float == op2_float)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_float << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//15 float == int
+						else if(generateDataType(operando1) == FLOAT && generateDataType(operando2) == INTEGER){ 
+							offsetOp1 = generateOffsetFloat(operando1, generateDataType(operando1));
+							op1_float = memStack.top().getValorFlotantes(offsetOp1);
+							offsetOp2 = generateOffsetInt(operando2, generateDataType(operando2));
+							op2_int = memStack.top().getValorEnteros(offsetOp2);						
+							if(op1_float == op2_int)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_float << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						//16 float == float
+						else if(generateDataType(operando1) == FLOAT && generateDataType(operando2) == FLOAT){ 
+							offsetOp1 = generateOffsetFloat(operando1, generateDataType(operando1));
+							op1_float = memStack.top().getValorFlotantes(offsetOp1);
+							offsetOp2 = generateOffsetFloat(operando2, generateDataType(operando2));
+							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+							if(op1_float == op2_float)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);	
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_float << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						}
+						break;
+					case BOOLEAN:
+						//17 cte_bool == cte_bool
+						if(generateDataType(operando1) == CTE_BOOLEAN && generateDataType(operando2) == CTE_BOOLEAN){
+							op1_string = getConstantValue(operando1);
+							op2_string = getConstantValue(operando2);
+							if(strcmp(op1_string.c_str(), op2_string.c_str()) == 0)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << getConstantValue(operando1) << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << getConstantValue(operando2) << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
+						}
+						//18 cte_bool == bool
+						else if(generateDataType(operando1) == CTE_BOOLEAN && generateDataType(operando2) == BOOLEAN){
+							op1_string = getConstantValue(operando1);
+							if(strcmp("true", op1_string.c_str()) == 0)	
+								op1_boolean = true;
+							else
+								op1_boolean = false;
+							offsetOp2 = generateOffsetBoolean(operando2, generateDataType(operando2));
+							op2_boolean = memStack.top().getValorBooleans(offsetOp2);
+							
+							if(op1_boolean == op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_boolean << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_boolean << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
+						}
+						//19 bool == cte_bool
+						else if(generateDataType(operando1) == BOOLEAN && generateDataType(operando2) == CTE_BOOLEAN){
+							offsetOp1 = generateOffsetBoolean(operando1, generateDataType(operando1));
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							op2_string = getConstantValue(operando2);
+							if(strcmp("true",op2_string.c_str()) == 0)
+								op2_boolean = true;
+							else
+								op2_boolean = false;
+							
+							if(op1_boolean == op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_boolean << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_boolean << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
+						}
+						//20 bool == bool
+						else if(generateDataType(operando1) == BOOLEAN && generateDataType(operando2) == BOOLEAN){
+							offsetOp1 = generateOffsetBoolean(operando1, generateDataType(operando1));
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							offsetOp2 = generateOffsetBoolean(operando2, generateDataType(operando2));
+							op2_boolean = memStack.top().getValorBooleans(offsetOp2);
+							
+							if(op1_boolean == op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_boolean << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_boolean << "\n";
+							cout << "Resultado: " << res_boolean << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
+						}
+					}
 				break;
 			case 15:																		//POINTER
 				break;
