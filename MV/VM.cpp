@@ -120,7 +120,9 @@ enum symbols {	BASE_GLOBAL_INT = 1000,	BASE_GLOBAL_FLOAT = 6000,	BASE_GLOBAL_STR
 				CONST_INT = 76000,		CONST_FLOAT = 81000, 		CONST_STRING = 86000, 		CONST_BOOLEAN = 91000, 			CONST_CHAR = 96000,
 				BASE_POINTERS = 100000, BLOQUE = 5000, 				INTEGER = 0,				FLOAT = 1,						STRING = 2,
 				BOOLEAN = 3, 			CHAR = 4, 					CTE_INT = 15, 				CTE_FLOAT = 16, 				CTE_STRING = 17,
-				CTE_BOOLEAN = 18, 		CTE_CHAR = 19, 				POINTERS = 20 };
+				CTE_BOOLEAN = 18, 		CTE_CHAR = 19, 				GOTO=200,					GOTOF=201,						PARAM=402,
+				PRINT=300,				ERA=400,					GOSUB=401,					RET=501,						VER=403,
+				INIPROC=500 };
 
 //Arreglo de memorias
 Procedure *proc;
@@ -3431,9 +3433,105 @@ void run(){
 						}
 					}
 				break;
-			case 15:																		//POINTER
+			case 20:																		//POINTER
 				break;
-			case 300:																		//PRINT	
+			case GOTO:																		//GOTO
+				break;
+			case GOTOF:																		//GOTOF
+				break;
+			case PRINT:																		//PRINT
+				tipo_resultado = getDataType(resultado);
+				switch(tipo_resultado){
+					case INTEGER:
+						if(generateDataType(resultado) == CTE_INT){
+							op1_int = atoi(getConstantValue(resultado).c_str());							
+							res_int = op1_int;
+							
+							cout << res_int;
+						}else{
+							offsetOp1 = generateOffsetInt(resultado, generateDataType(resultado));
+							op1_int = memStack.top().getValorEnteros(offsetOp1);							
+							res_int = op1_int;
+							
+							cout << res_int;
+						}
+						break;
+					case FLOAT:
+						if(generateDataType(resultado) == CTE_FLOAT){
+							op1_float = atof(getConstantValue(resultado).c_str());							
+							res_float = op1_float;
+							
+							cout << res_float;
+						}else{
+							offsetOp1 = generateOffsetFloat(resultado, generateDataType(resultado));
+							op1_float = memStack.top().getValorFlotantes(offsetOp1);							
+							res_float = op1_float;
+	
+							cout << res_float;
+						}
+						break;
+					case STRING:
+						if(generateDataType(resultado) == CTE_STRING){
+							op1_string = getConstantValue(resultado);							
+							res_string = op1_string;
+							
+							cout << res_string;
+						}else{
+							offsetOp1 = generateOffsetString(resultado, generateDataType(resultado));
+							op1_string = memStack.top().getValorStrings(offsetOp1);							
+							res_string = op1_string;
+							
+							cout << res_string;
+						}
+						break;
+					case BOOLEAN:
+						if(generateDataType(resultado) == CTE_BOOLEAN){
+							if(strcmp("true",getConstantValue(resultado).c_str()) == 0)
+								op1_string = "true";
+							else
+								op1_string = "false";
+						
+							res_string = op1_string;
+							
+							cout << res_string;
+						}else{
+							offsetOp1 = generateOffsetBoolean(resultado, generateDataType(resultado));
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							if(op1_boolean == 1)
+								res_string = "true";
+							else
+								res_string = "false";
+
+							cout << res_string;
+						}
+						break;
+					case CHAR:
+						if(generateDataType(resultado) == CTE_CHAR){
+							op1_char = getConstantValue(resultado)[1];	
+							res_char = op1_char;
+							
+							cout << res_char;
+						}else{
+							offsetOp1 = generateOffsetChar(resultado, generateDataType(resultado));
+							op1_char = memStack.top().getValorChars(offsetOp1);							
+							res_char = op1_char;
+							
+							cout << res_char;
+						}
+						break;
+				}
+				break;
+			case ERA:																		//ERA
+				break;
+			case GOSUB:																		//GOSUB
+				break;
+			case PARAM:																		//PARAM
+				break;
+			case VER:																		//VER
+				break;
+			case INIPROC:																	//INIPROC
+				break;
+			case RET:																		//RET
 				break;
 		}
 		main_index++;
