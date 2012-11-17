@@ -112,17 +112,13 @@ struct Procedure{
 	VarCont temps;
 };
 
-enum tipos { G_INT = 0,		G_FLOAT = 1,	G_STRING = 2,	G_BOOLEAN = 3,	G_CHAR = 4,
-			 L_INT = 5,		L_FLOAT = 6,	L_STRING = 7,	L_BOOLEAN = 8,	L_CHAR = 9,
-			 T_INT = 10,	T_FLOAT = 11,	T_STRING = 12,	T_BOOLEAN = 13,	T_CHAR = 14,
-			 C_INT = 15,	C_FLOAT = 16,	C_STRING = 17,	C_BOOLEAN = 18,	C_CHAR =19,
-			 P = 20 };
-
 enum symbols {	BASE_GLOBAL_INT = 1000,	BASE_GLOBAL_FLOAT = 6000,	BASE_GLOBAL_STRING = 11000,	BASE_GLOBAL_BOOLEAN = 16000,	BASE_GLOBAL_CHAR = 21000,
 				BASE_LOCAL_INT = 26000,	BASE_LOCAL_FLOAT = 31000, 	BASE_LOCAL_STRING = 36000, 	BASE_LOCAL_BOOLEAN = 41000, 	BASE_LOCAL_CHAR = 46000,
 				BASE_TEMP_INT = 51000,	BASE_TEMP_FLOAT = 56000, 	BASE_TEMP_STRING = 61000, 	BASE_TEMP_BOOLEAN = 66000, 		BASE_TEMP_CHAR = 71000,
 				CONST_INT = 76000,		CONST_FLOAT = 81000, 		CONST_STRING = 86000, 		CONST_BOOLEAN = 91000, 			CONST_CHAR = 96000,
-				BASE_POINTERS = 100000, BLOQUE = 5000	};
+				BASE_POINTERS = 100000, BLOQUE = 5000, 				INTEGER = 0,				FLOAT = 1,						STRING = 2,
+				BOOLEAN = 3, 			CHAR = 4, 					CTE_INT = 15, 				CTE_FLOAT = 16, 				CTE_STRING = 17,
+				CTE_BOOLEAN = 18, 		CTE_CHAR = 19, 				POINTERS = 20 };
 
 //Arreglo de memorias
 Procedure *proc;
@@ -168,27 +164,27 @@ int searchForProc(string name){
 }
 
 int generateDataType(int dirVir){
-	return dirVir / 5000;
+	return dirVir / BLOQUE;
 }
 
-int getDataTypeNumber(int dirVir){
+int getDataType(int dirVir){
 	int tipoDato = generateDataType(dirVir);
 	
 	switch(tipoDato){
-		case 0: case 5: case 10:
-			return 0;
+		case 0: case 5: case 10: case 15:
+			return INTEGER;
 			break;
-		case 1: case 6: case 11:
-			return 1;
+		case 1: case 6: case 11: case 16:
+			return FLOAT;
 			break;
-		case 2: case 7: case 12:
-			return 2;
+		case 2: case 7: case 12: case 17:
+			return STRING;
 			break;
-		case 3: case 8: case 13:
-			return 3;
+		case 3: case 8: case 13: case 18:
+			return BOOLEAN;
 			break;
-		case 4 : case 9: case 14:
-			return 4;
+		case 4 : case 9: case 14: case 19:
+			return CHAR;
 			break;
 	}
 }
@@ -408,6 +404,7 @@ void readFile(){
 					arrGlobal->setStrings(contStrings);
 					arrGlobal->setBooleans(contBooleans);
 					arrGlobal->setChars(contChars);
+					memStack.push(*arrGlobal);
 					proc[numFuncion].locals = *locales;
 					proc[numFuncion].temps = *temporales;
 					i = 0;
@@ -507,7 +504,7 @@ void readFile(){
 }
 
 void run(){
-	int tipo_dato1, tipo_dato2, tipo_resultado, index;
+	int tipo_dato1, tipo_dato2, tipo_resultado, offset, offsetAux;
 	int operador, operando1, operando2, resultado;
 	
 	int op1_int, op2_int, res_int;
@@ -567,9 +564,93 @@ void run(){
 				break;
 			case 5:																			//>
 				break;
-			case 6:												/*							//=
-				cout << "Asignación \n";
-				tipo_dato1 = operando1 / BLOQUE;
+			case 6:																			//=
+				tipo_dato1 = getDataType(operando1);
+				tipo_resultado = getDataType(resultado);
+				switch(tipo_dato1){
+					case INTEGER:
+						if(generateDataType(operando1) == CTE_INT){
+							op1_int = atoi(getConstantValue(operando1).c_str());							
+							res_int = op1_int;
+							offset = generateOffsetInt(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorEnteros(offset, res_int);
+							/*
+							cout << "Direccion: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Resultado: " << res_int << "\n";
+							cout << "Index: " << offset << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorStrings(offset) << "\n";
+							*/
+						}else{
+							offsetAux = generateOffsetInt(operando1, generateDataType(operando1));
+							op1_int = memStack.top().getValorEnteros(offsetAux);							
+							res_int = op1_int;
+							offset = generateOffsetInt(resultado, generateDataType(resultado));
+						}
+						break;
+					case FLOAT:
+						if(generateDataType(operando1) == CTE_FLOAT){
+							op1_float = atof(getConstantValue(operando1).c_str());							
+							res_float = op1_float;
+							offset = generateOffsetFloat(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorFlotantes(offset, res_float);
+						}else{
+							offsetAux = generateOffsetFloat(operando1, generateDataType(operando1));
+							op1_float = memStack.top().getValorFlotantes(offsetAux);							
+							res_float = op1_float;
+							offset = generateOffsetFloat(resultado, generateDataType(resultado));
+						}
+						break;
+					case STRING:
+						if(generateDataType(operando1) == CTE_STRING){
+							op1_string = getConstantValue(operando1);							
+							res_string = op1_string;
+							offset = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offset, res_string);
+						}else{
+							offsetAux = generateOffsetString(operando1, generateDataType(operando1));
+							op1_string = memStack.top().getValorStrings(offsetAux);							
+							res_string = op1_string;
+							offset = generateOffsetString(resultado, generateDataType(resultado));
+						}
+						break;
+					case BOOLEAN:
+						if(generateDataType(operando1) == CTE_BOOLEAN){
+							if(strcmp("true",getConstantValue(operando1).c_str()) == 0)
+								op1_boolean = true;
+							else
+								op1_boolean = false;
+						
+							res_boolean = op1_boolean;
+							offset = generateOffsetBoolean(resultado, generateDataType(resultado));
+							memStack.top().setValorBooleans(offset, res_boolean);
+						}else{
+							offsetAux = generateOffsetBoolean(operando1, generateDataType(operando1));
+							op1_boolean = memStack.top().getValorBooleans(offsetAux);							
+							res_boolean = op1_boolean;
+							offset = generateOffsetBoolean(resultado, generateDataType(resultado));
+						}
+						break;
+					case CHAR:
+						if(generateDataType(operando1) == CTE_CHAR){
+							op1_char = getConstantValue(operando1)[1];	
+							res_char = op1_char;
+							offset = generateOffsetChar(resultado, generateDataType(resultado));
+							memStack.top().setValorChars(offset, res_char);
+						}else{
+							offsetAux = generateOffsetChar(operando1, generateDataType(operando1));
+							op1_char = memStack.top().getValorChars(offsetAux);							
+							res_char = op1_char;
+							offset = generateOffsetChar(resultado, generateDataType(resultado));
+						}
+						break;
+				}
+				/*
+				tipo_dato1 = 
 				tipo_resultado = resultado / BLOQUE;
 				if(tipo_dato1 == C_INT){
 					if(tipo_resultado == G_INT){											//Asigna una constante entera a una global entera
@@ -606,8 +687,6 @@ int main(int argc, char *argv[]) {
 	
 	readFile();
 	
-	cout << getDataTypeNumber(1001) << "\n";
-	cout << generateOffsetInt(1001, generateDataType(1001));
-	
-	//run();
+	run();
+
 }
