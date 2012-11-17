@@ -840,6 +840,15 @@ void run(){
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
+						//27.5 cte_string + cte_char
+						else if(generateDataType(operando1) == CTE_STRING && generateDataType(operando2) == CTE_CHAR){
+							op1_string = getConstantValue(operando1).c_str();
+							op2_string = getConstantValue(operando2).c_str()[1];						
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
 						//28 cte_string + int
 						else if(generateDataType(operando1) == CTE_STRING && generateDataType(operando2) == INTEGER){
 							op1_string = getConstantValue(operando1).c_str();
@@ -874,6 +883,16 @@ void run(){
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
+						//30.5 cte_string + char
+						else if(generateDataType(operando1) == CTE_STRING && generateDataType(operando2) == CHAR){
+							op1_string = getConstantValue(operando1).c_str();
+							offsetOp2 = generateOffsetChar(operando2, generateDataType(offsetOp2));
+							op2_string = memStack.top().getValorChars(offsetOp2);								
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
 						//31 string + cte_int
 						else if(generateDataType(operando1) == STRING && generateDataType(operando2) == CTE_INT){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
@@ -904,6 +923,16 @@ void run(){
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
+						//33.5 string + cte_string
+						else if(generateDataType(operando1) == STRING && generateDataType(operando2) == CTE_CHAR){
+							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
+							op1_string = memStack.top().getValorStrings(offsetOp1);
+							op2_string = getConstantValue(operando2).c_str()[1];						
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
 						//34 string + int
 						else if(generateDataType(operando1) == STRING && generateDataType(operando2) == INTEGER){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
@@ -929,15 +958,6 @@ void run(){
 							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_string << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_string << "\n";
-							cout << "Resultado: " << res_string << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorStrings(offsetRes) << "\n";
 						}
 						//36 string + string
 						else if(generateDataType(operando1) == STRING && generateDataType(operando2) == STRING){
@@ -949,6 +969,108 @@ void run(){
 							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//36.5 string + char
+						else if(generateDataType(operando1) == STRING && generateDataType(operando2) == CHAR){
+							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
+							op1_string = memStack.top().getValorStrings(offsetOp1);
+							offsetOp2 = generateOffsetChar(operando2, generateDataType(offsetOp2));
+							op2_string = memStack.top().getValorChars(offsetOp2);					
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						break;
+					case CHAR:
+						//37 cte_char + cte_string
+						if(generateDataType(operando1) == CTE_CHAR && generateDataType(operando2) == CTE_STRING){
+							op1_string = getConstantValue(operando1).c_str()[1];
+							op2_string = getConstantValue(operando2).c_str();						
+							res_string = "\"" + op1_string + op2_string.substr(1, op2_string.size());
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//38 cte_char + cte_char
+						else if(generateDataType(operando1) == CTE_CHAR && generateDataType(operando2) == CTE_CHAR){
+							op1_string = getConstantValue(operando1).c_str()[1];
+							op2_string = getConstantValue(operando2).c_str()[1];						
+							res_string = "\"" + op1_string + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//39 cte_char + string
+						if(generateDataType(operando1) == CTE_CHAR && generateDataType(operando2) == STRING){
+							op1_string = getConstantValue(operando1).c_str()[1];
+							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
+							op2_string = memStack.top().getValorStrings(offsetOp2);							
+							res_string = "\"" + op1_string + op2_string.substr(1, op2_string.size());
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//40 cte_char + char
+						else if(generateDataType(operando1) == CTE_CHAR && generateDataType(operando2) == CHAR){
+							op1_string = getConstantValue(operando1).c_str()[1];
+							offsetOp2 = generateOffsetChar(operando2, generateDataType(offsetOp2));
+							op2_string = memStack.top().getValorChars(offsetOp2);						
+							res_string = "\"" + op1_string + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//41 char + cte_string
+						if(generateDataType(operando1) == CHAR && generateDataType(operando2) == CTE_STRING){
+							offsetOp1 = generateOffsetChar(operando1, generateDataType(offsetOp1));
+							op1_string = memStack.top().getValorChars(offsetOp1);
+							op2_string = getConstantValue(operando2).c_str();						
+							res_string = "\"" + op1_string + op2_string.substr(1, op2_string.size());
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//42 char + cte_char
+						else if(generateDataType(operando1) == CHAR && generateDataType(operando2) == CTE_CHAR){
+							offsetOp1 = generateOffsetChar(operando1, generateDataType(offsetOp1));
+							op1_string = memStack.top().getValorChars(offsetOp1);
+							op2_string = getConstantValue(operando2).c_str()[1];						
+							res_string = "\"" + op1_string + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//43 char + string
+						if(generateDataType(operando1) == CHAR && generateDataType(operando2) == STRING){
+							offsetOp1 = generateOffsetChar(operando1, generateDataType(offsetOp1));
+							op1_string = memStack.top().getValorChars(offsetOp1);
+							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
+							op2_string = memStack.top().getValorStrings(offsetOp2);							
+							res_string = "\"" + op1_string + op2_string.substr(1, op2_string.size());
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//44 char + char
+						else if(generateDataType(operando1) == CHAR && generateDataType(operando2) == CHAR){
+							offsetOp1 = generateOffsetChar(operando1, generateDataType(offsetOp1));
+							op1_string = memStack.top().getValorChars(offsetOp1);
+							offsetOp2 = generateOffsetChar(operando2, generateDataType(offsetOp2));
+							op2_string = memStack.top().getValorChars(offsetOp2);						
+							res_string = "\"" + op1_string + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_string << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_string << "\n";
+							cout << "Resultado: " << res_string << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorStrings(offsetRes) << "\n";
 						}
 						break;
 					}
