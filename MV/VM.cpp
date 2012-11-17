@@ -212,13 +212,13 @@ int generateOffsetFloat(int dirVir, int tipoDato){
 	int offset = 0;
 	
 	switch(tipoDato){
-		case 0 :
+		case 1 :
 			offset = dirVir - BASE_GLOBAL_FLOAT;
 			break;
-		case 5 :
+		case 6 :
 			offset = dirVir - (BASE_LOCAL_FLOAT + proc[0].locals.flotantes + proc[(memStack.size() - 1)].temps.flotantes);
 			break;
-		case 10 :
+		case 11 :
 			offset = dirVir - (BASE_LOCAL_FLOAT + proc[0].locals.flotantes);
 			break;
 	}
@@ -227,18 +227,19 @@ int generateOffsetFloat(int dirVir, int tipoDato){
 
 int generateOffsetString(int dirVir, int tipoDato){
 	int offset = 0;
-	
+
 	switch(tipoDato){
-		case 0 :
+		case 2 :
 			offset = dirVir - BASE_GLOBAL_STRING;
 			break;
-		case 5 :
+		case 7 :
 			offset = dirVir - (BASE_LOCAL_STRING + proc[0].locals.estrings + proc[(memStack.size() - 1)].temps.estrings);
 			break;
-		case 10 :
+		case 12 :
 			offset = dirVir - (BASE_LOCAL_STRING + proc[0].locals.estrings);
 			break;
 	}
+
 	return offset;
 }
 
@@ -246,13 +247,13 @@ int generateOffsetBoolean(int dirVir, int tipoDato){
 	int offset = 0;
 	
 	switch(tipoDato){
-		case 0 :
+		case 3 :
 			offset = dirVir - BASE_GLOBAL_BOOLEAN;
 			break;
-		case 5 :
+		case 8 :
 			offset = dirVir - (BASE_LOCAL_BOOLEAN + proc[0].locals.booleans + proc[(memStack.size() - 1)].temps.booleans);
 			break;
-		case 10 :
+		case 13 :
 			offset = dirVir - (BASE_LOCAL_BOOLEAN + proc[0].locals.booleans);
 			break;
 	}
@@ -263,13 +264,13 @@ int generateOffsetChar(int dirVir, int tipoDato){
 	int offset = 0;
 	
 	switch(tipoDato){
-		case 0 :
+		case 4 :
 			offset = dirVir - BASE_GLOBAL_CHAR;
 			break;
-		case 5 :
+		case 9 :
 			offset = dirVir - (BASE_LOCAL_CHAR + proc[0].locals.chars + proc[(memStack.size() - 1)].temps.chars);
 			break;
-		case 10 :
+		case 14 :
 			offset = dirVir - (BASE_LOCAL_CHAR + proc[0].locals.chars);
 			break;
 	}
