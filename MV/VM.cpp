@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <stack>
+#include <stdio.h>
 
 using namespace std;
 
@@ -656,17 +657,17 @@ void run(){
 						else if(generateDataType(operando1) == INTEGER && generateDataType(operando2) == FLOAT){ 
 							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
-							offsetOp2 = generateOffsetInt(operando2, generateDataType(operando2));
+							offsetOp2 = generateOffsetFloat(operando2, generateDataType(operando2));
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
 							res_float = op1_int + op2_float;
-							offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+							offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorFlotantes(offsetRes, res_int);
 						}
-						//12 int + string
+						//12 int + string FALTA ARREGLAR
 						else if(generateDataType(operando1) == INTEGER && generateDataType(operando2) == STRING){
 							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
-							op1_int = memStack.top().getValorEnteros(offsetOp1);
+							//sprintf(op1_string, "%d", memStack.top().getValorEnteros(offsetOp1));
 							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
 							op2_string = memStack.top().getValorStrings(offsetOp2);					
 							res_string = "\"" + op1_string + &op2_string[1];
@@ -674,7 +675,87 @@ void run(){
 							
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
-						
+						break;
+					case FLOAT:
+						//13 cte_float + cte_int
+						if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == CTE_INT){
+							op1_float = atof(getConstantValue(operando1).c_str());	
+							op2_int = atoi(getConstantValue(operando2).c_str());					
+							res_float = op1_float + op2_int;
+							offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorFlotantes(offsetRes, res_float);	
+						}
+						//14 cte_float + cte_float
+						else if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == CTE_FLOAT){
+							op1_float = atof(getConstantValue(operando1).c_str());
+							op2_float = atof(getConstantValue(operando2).c_str());						
+							res_float = op1_float + op2_float;
+							offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorFlotantes(offsetRes, res_float);	
+						}
+						//15 cte_float + cte_string
+						else if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == CTE_STRING){
+							op1_string = getConstantValue(operando1).c_str();
+							op2_string = getConstantValue(operando2).c_str();						
+							res_string = "\"" + op1_string + &op2_string[1];
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//16 cte_float + int
+						else if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == INTEGER){ 
+							op1_float = atof(getConstantValue(operando1).c_str());
+							offsetOp2 = generateOffsetInt(operando2, generateDataType(operando2));
+							op2_int = memStack.top().getValorEnteros(offsetOp2);						
+							res_float = op1_float + op2_int;
+							offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorFlotantes(offsetRes, res_float);	
+						}
+						//17 cte_float + float
+						else if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == FLOAT){
+							op1_float = atof(getConstantValue(operando1).c_str());
+							offsetOp2 = generateOffsetInt(operando2, generateDataType(operando2));
+							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+							res_float = op1_float + op2_float;
+							offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorFlotantes(offsetRes, res_int);
+						}
+						//18  cte_float + string
+						else if(generateDataType(operando1) == CTE_FLOAT && generateDataType(operando2) == STRING){
+							op1_string = getConstantValue(operando1).c_str();
+							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
+							op2_string = memStack.top().getValorStrings(offsetOp2);					
+							res_string = "\"" + op1_string + &op2_string[1];
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						break;
+					case STRING:
+						//25 cte_string + cte_int
+						if(generateDataType(operando1) == CTE_STRING && generateDataType(operando2) == CTE_INT){
+							op1_string = getConstantValue(operando1).c_str();
+							op2_string = getConstantValue(operando2).c_str();						
+							res_string = op1_string.substr(0, op1_string.size()-1) + op2_string + "\"";
+							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
+						}
+						//26 cte_string + cte_float
+						//27 cte_string + cte_string
+						//28 cte_string + int
+						//29 cte_string + float
+						//30 cte_string + string
+						//31 string + cte_int
+						//32 string + cte_float
+						//33 string + cte_string
+						//34 string + int
+						//35 string + float
+						//36 string + string
 						break;
 				}
 				/*	
