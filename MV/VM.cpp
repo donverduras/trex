@@ -528,7 +528,86 @@ void run(){
 		*/
 		
 		switch(operador){
-			case 0:												/*							//+
+			case 0:																		//+
+				tipo_dato1 = getDataType(operando1);
+				tipo_dato2 = getDataType(operando2);
+				tipo_resultado = getDataType(resultado);
+				
+				switch(tipo_dato1){
+					case INTEGER:
+						if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_INT){ //Suma de dos constantes enteras
+							op1_int = atoi(getConstantValue(operando1).c_str());
+							op2_int = atoi(getConstantValue(operando2).c_str());						
+							res_int = op1_int + op2_int;
+							offset = generateOffsetInt(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorEnteros(offset, res_int);	
+							/*
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_float << "\n";
+							cout << "Resultado: " << res_float << "\n";
+							cout << "Index: " << offset << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorFlotantes(offset) << "\n";
+							*/
+						}
+						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_INT){ //cte entera con flotante entera
+							op1_int = atoi(getConstantValue(operando1).c_str());
+							op2_float = atof(getConstantValue(operando2).c_str());						
+							res_float = op1_int + op2_float;
+							offset = generateOffsetFloat(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorFlotantes(offset, res_float);	
+						}
+						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_STRING){ //cte entera con cte string
+							op1_string = getConstantValue(operando1).c_str();
+							op2_string = getConstantValue(operando2).c_str();						
+							res_string = "\"" + op1_string + &op2_string[1];
+							offset = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offset, res_string);
+						}
+						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == INTEGER){ //Suma de cte entera y entero
+							op1_int = atoi(getConstantValue(operando1).c_str());
+							offsetAux = generateOffsetInt(operando2, generateDataType(operando2));
+							op2_int = memStack.top().getValorEnteros(offsetAux);						
+							res_int = op1_int + op2_int;
+							offset = generateOffsetInt(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorEnteros(offset, res_int);	
+						}
+						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == FLOAT){ //Suma de cte entera y flotante
+							op1_int = atoi(getConstantValue(operando1).c_str());
+							offsetAux = generateOffsetInt(operando2, generateDataType(operando2));
+							op2_float = memStack.top().getValorFlotantes(offsetAux);						
+							res_float = op1_int + op2_float;
+							offset = generateOffsetInt(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorFlotantes(offset, res_int);
+						}
+						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == STRING){ //cte entera con string
+							op1_string = getConstantValue(operando1).c_str();
+							offsetAux = generateOffsetString(operando2, generateDataType(operando2));
+							op2_string = memStack.top().getValorStrings(offsetAux);					
+							res_string = "\"" + op1_string + &op2_string[1];
+							offset = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offset, res_string);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_string << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_string << "\n";
+							cout << "Resultado: " << res_string << "\n";
+							cout << "Index: " << offset << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorStrings(offset) << "\n";
+						}
+						break;
+				}
+				/*	
 				cout << "Suma \n";
 				tipo_dato1 = operando1 / BLOQUE;
 				tipo_dato2 = operando2 / BLOQUE;
