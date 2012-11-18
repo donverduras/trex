@@ -106,7 +106,7 @@ programa_c:
 	;
 
 programa_d:
-	bloque LLAVEDER { set_fin_function(main_func, "0"); }
+	bloque LLAVEDER
 	;
 
 bloque:

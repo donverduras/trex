@@ -65,6 +65,7 @@ int search_for_arrLimit(char *var_cte);
 int search_for_id(gconstpointer a, gconstpointer b);
 int search_for_dirVirtual(char *var_cte);
 char *search_for_variable_type(char *var_cte);
+void search_in_pilas(gpointer data, gpointer user_data);
 void set_current_function(char *function, char* func_name);
 void set_fin_function(char *func, char *curr);
 void set_start_function(char *func);

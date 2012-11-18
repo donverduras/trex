@@ -48,6 +48,8 @@ static int param_counter = 0;
 static int current_function;
 static char* main_function;
 static char* current_function_name;
+static int numeroFuncionLlamada_index = 0;
+static int numeroFuncionLlamada;
 
 static ofstream objeto;
 
@@ -304,9 +306,9 @@ void fillQuadruple_main(){
 	Quadruple *aux = (Quadruple *)g_queue_peek_nth(pilaPasos,0);
 	aux->resultado = quadruple_index;
 	
-	cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
-	cout << "Cuadruplo actualizado: ";
-	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+	//cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
+	//cout << "Cuadruplo actualizado: ";
+	//cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
 	
 	g_queue_push_nth(pilaPasos, aux, 0);
 	g_queue_pop_nth(pilaPasos, 1);
@@ -337,11 +339,20 @@ void delete_vars_from_varTable(char *func_name){
 }
 
 void generate_activation_record(char *func_name){
-	Function *new_quadruple = new Function;
+	Quadruple *new_quadruple = new Quadruple;
+	GQueue* stack_aux = g_queue_new();
+	
+	//Directorio de Procedimientos
+	numeroFuncionLlamada_index = 0;
+	for(int i=0; i< g_queue_get_length(tableProc_stack); i++){
+		stack_aux = (GQueue *)g_queue_peek_nth(tableProc_stack, i);
+		g_queue_foreach(stack_aux,search_in_pilas,func_name);
+	}
+	
 	new_quadruple->operador = ERA;
 	new_quadruple->operando2 = -1;
 	new_quadruple->operando1 = -1;
-	new_quadruple->resultado = func_name;
+	new_quadruple->resultado = numeroFuncionLlamada;
 	//cout << "#" << quadruple_index << " ";
 	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
@@ -401,11 +412,20 @@ void generate_fin_if(){
 }
 
 void generate_fin_llamada(char *func_name){
-	Function *new_quadruple = new Function;
+	Quadruple *new_quadruple = new Quadruple;
+	GQueue* stack_aux = g_queue_new();
+	
+	//Directorio de Procedimientos
+	numeroFuncionLlamada_index = 0;
+	for(int i=0; i< g_queue_get_length(tableProc_stack); i++){
+		stack_aux = (GQueue *)g_queue_peek_nth(tableProc_stack, i);
+		g_queue_foreach(stack_aux,search_in_pilas,func_name);
+	}
+	
 	new_quadruple->operador = GOSUB;
 	new_quadruple->operando2 = -1;
 	new_quadruple->operando1 = -1;
-	new_quadruple->resultado = func_name ;
+	new_quadruple->resultado = numeroFuncionLlamada;
 	
 	//cout << "#" << quadruple_index << " ";
 	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
@@ -830,8 +850,8 @@ void generateQuadruple_main(){
 	new_quadruple->operando2 = -1;
 	new_quadruple->resultado = -1;
 		
-	cout << "#" << quadruple_index << " ";
-	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
 		
@@ -1610,6 +1630,20 @@ char *search_for_variable_type(char *var_cte){
 			}
 		}
 	}
+}
+
+void search_in_pilas(gpointer data, gpointer user_data){
+	Procedure *proc = new Procedure;
+	const char *aux = (char *)user_data;
+	proc = (Procedure *)data;
+	
+	//cout << "FUNC NAME" << (char *)user_data << "\n"; 
+	//cout << proc->name << "\n";
+	
+	if(strcmp(aux,proc->name.c_str()) == 0)
+		numeroFuncionLlamada = numeroFuncionLlamada_index;
+	
+	numeroFuncionLlamada_index++;
 }
 
 void set_current_function(char *function, char* func_name){

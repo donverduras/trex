@@ -1,8 +1,13 @@
 program test{
 	
-	function uno(){
-		print("hola");
+	function uno(int x){
+		print("X: ", x);
+		if(x > 1){
+			x = x - 1;
+			uno(x);
+		}
 	}
 	
 	print("mAIN");
+	uno(3);
 }

@@ -1720,11 +1720,6 @@ yyreduce:
     { function_name = yylval.sval; main_func = function_name; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0", function_name);;}
     break;
 
-  case 17:
-#line 109 "Trex.y"
-    { set_fin_function(main_func, "0"); ;}
-    break;
-
   case 27:
 #line 137 "Trex.y"
     { name = (yyvsp[(2) - (3)].sval); insert_to_vars_table(name,var_type,function_name); ;}
@@ -2072,7 +2067,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2076 "Trex.tab.c"
+#line 2071 "Trex.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

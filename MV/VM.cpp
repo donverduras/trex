@@ -142,9 +142,26 @@ int tamanoCuadruplos;
 int main_index = 0;
 stack<Memoria> memStack;
 int *apuntadores;
+stack<int> return_index;
 
-//BORRAR ESTA!!
-stack<Memoria> pilaMemorias;
+void activation_record(int funcion){
+	Memoria *nueva = new Memoria;
+	int contEnteros, contFlotantes, contStrings, contBooleans, contChars;
+	
+	contEnteros = proc[0].locals.integers + proc[0].temps.integers + proc[funcion].locals.integers + proc[funcion].temps.integers;
+	contFlotantes = proc[0].locals.flotantes + proc[0].temps.flotantes + proc[funcion].locals.flotantes + proc[funcion].temps.flotantes;
+	contStrings = proc[0].locals.estrings + proc[0].temps.estrings + proc[funcion].locals.estrings + proc[funcion].temps.estrings;
+	contBooleans = proc[0].locals.booleans + proc[0].temps.booleans + proc[funcion].locals.booleans + proc[funcion].temps.booleans;
+	contChars = proc[0].locals.chars + proc[0].temps.chars + proc[funcion].locals.chars + proc[funcion].temps.chars;
+	
+	nueva->setEnteros(contEnteros);
+	nueva->setFlotantes(contFlotantes);
+	nueva->setStrings(contStrings);
+	nueva->setBooleans(contBooleans);
+	nueva->setChars(contChars);
+	
+	memStack.push(*nueva);
+}
 
 string getConstantValue(int dirVir){
 	for(int i=0; i<tamanoConst; i++){
@@ -279,6 +296,169 @@ int generateOffsetChar(int dirVir, int tipoDato){
 			break;
 	}
 	return offset;
+}
+
+void asignacion_parametros(int operando1, int resultado){
+	int tipo_dato1, offsetRes, offsetOp1, offsetOp2;
+	
+	int op1_int, op2_int, res_int;
+	float op1_float, op2_float, res_float;
+	string op1_string, op2_string, res_string;
+	bool op1_boolean, op2_boolean, res_boolean;
+	char op1_char, op2_char, res_char;
+	
+	tipo_dato1 = getDataType(operando1);
+	switch(tipo_dato1){
+		case INTEGER:
+			resultado += BASE_LOCAL_INT;
+			if(generateDataType(operando1) == CTE_INT){
+			op1_int = atoi(getConstantValue(operando1).c_str());							
+			res_int = op1_int;
+
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorEnteros(offsetRes, res_int);
+			
+			/*		
+			cout << "Direccion: " << operando1 << "\n";
+			cout << "Operando 1: " << op1_int << "\n";
+			cout << "Resultado: " << res_int << "\n";
+			cout << "Index: " << offsetRes << "\n";
+			cout << "Direccion Final: " << resultado << "\n";
+			cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
+			*/
+							
+		}else{
+			offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
+			op1_int = memStack.top().getValorEnteros(offsetOp1);							
+			res_int = op1_int;
+
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorEnteros(offsetRes, res_int);
+							
+			//cout << "Direccion Final: " << apuntadores[resultado - BASE_POINTERS] << "\n";
+			//cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
+		}
+		break;
+	case FLOAT:
+		if(generateDataType(operando1) == CTE_FLOAT){
+			op1_float = atof(getConstantValue(operando1).c_str());							
+			res_float = op1_float;
+							
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorFlotantes(offsetRes, res_float);
+		}else{
+			offsetOp1 = generateOffsetFloat(operando1, generateDataType(operando1));
+			op1_float = memStack.top().getValorFlotantes(offsetOp1);							
+			res_float = op1_float;
+							
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorFlotantes(offsetRes, res_float);
+		}
+		break;
+	case STRING:
+		if(generateDataType(operando1) == CTE_STRING){
+			op1_string = getConstantValue(operando1);						
+			res_string = op1_string;
+							
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorStrings(offsetRes, res_string);
+		}else{
+			offsetOp1 = generateOffsetString(operando1, generateDataType(operando1));
+			op1_string = memStack.top().getValorStrings(offsetOp1);							
+			res_string = op1_string;
+							
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+		}
+							
+			memStack.top().setValorStrings(offsetRes, res_string);
+		}
+		break;
+	case BOOLEAN:
+		if(generateDataType(operando1) == CTE_BOOLEAN){
+			if(strcmp("true",getConstantValue(operando1).c_str()) == 0)
+				op1_boolean = true;
+			else
+				op1_boolean = false;
+						
+			res_boolean = op1_boolean;
+							
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorBooleans(offsetRes, res_boolean);
+		}else{
+			offsetOp1 = generateOffsetBoolean(operando1, generateDataType(operando1));
+			op1_boolean = memStack.top().getValorBooleans(offsetOp1);							
+			res_boolean = op1_boolean;
+							
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorBooleans(offsetRes, res_boolean);
+		}
+		break;
+	case CHAR:
+		if(generateDataType(operando1) == CTE_CHAR){
+			op1_char = getConstantValue(operando1)[1];	
+			res_char = op1_char;
+							
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetChar(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorChars(offsetRes, res_char);
+		}else{
+			offsetOp1 = generateOffsetChar(operando1, generateDataType(operando1));
+			op1_char = memStack.top().getValorChars(offsetOp1);							
+			res_char = op1_char;
+							
+			if(generateDataType(resultado) != POINTER){
+				offsetRes = generateOffsetChar(resultado, generateDataType(resultado));
+			}else{
+				offsetRes = apuntadores[resultado - BASE_POINTERS];
+			}
+							
+			memStack.top().setValorChars(offsetRes, res_char);
+		}
+		break;
+		//FALTA EL CASO DE ASIGNAR UN APUNTADOR A UN APUNTADOR
+	}
 }
 
 void readFile(){
@@ -529,7 +709,7 @@ void run(){
 		operando1 = listOfQuads[main_index].operando1;
 		operando2 = listOfQuads[main_index].operando2;
 		resultado = listOfQuads[main_index].resultado;
-		
+				
 		/*
 		cout << "Operador: " << operador << "\n";
 		cout << "Operando1: " << operando1 << "\n";
@@ -3868,6 +4048,11 @@ void run(){
 				op1_boolean = memStack.top().getValorBooleans(offsetOp1);
 				if(op1_boolean == 0)
 					main_index = resultado - 2;
+				
+				cout << "\n";
+				cout << "operando1: " << operando1 << "\n";
+				cout << "offset: " << offsetOp1 << "\n";
+				cout << "op1: " << op1_boolean << "\n";
 				break;
 			case PRINT:																		//PRINT PROBADA
 				tipo_resultado = getDataType(resultado);
@@ -3952,10 +4137,15 @@ void run(){
 				}
 				break;
 			case ERA:																		//ERA
+				//Activation record
+				activation_record(resultado);				
 				break;
 			case GOSUB:																		//GOSUB
+				return_index.push(main_index);
+				main_index = proc[resultado].dirInitial;
 				break;
 			case PARAM:																		//PARAM
+				asignacion_parametros(operando1, resultado);
 				break;
 			case VER:																		//VER
 				if(generateDataType(operando1) == CTE_INT){
@@ -3970,8 +4160,13 @@ void run(){
 					exit (EXIT_FAILURE);
 				}
 				break;
-			case INIPROC: case RET:															//INIPROC RET
+			case INIPROC:																	//INIPROC
 				//Do nothing
+				break;
+			case RET:
+				main_index = return_index.top();
+				return_index.pop();
+				memStack.pop();
 				break;
 			case SPECIALSUM:																//Addition of dirVir
 				if(generateDataType(operando2) == CTE_INT){
