@@ -148,10 +148,7 @@ stack<Memoria> pilaMemorias;
 string getConstantValue(int dirVir){
 	for(int i=0; i<tamanoConst; i++){
 		if(arrConstDirVir[i] == dirVir){
-			//cout << "(" << arrConst[i] << ", " << dirVir << ")\n";
 			return arrConst[i];
-		}else{
-			//cout << "no es: " << arrConstDirVir[i] << "\n";
 		}
 	}
 }
@@ -529,13 +526,14 @@ void run(){
 		operando2 = listOfQuads[main_index].operando2;
 		resultado = listOfQuads[main_index].resultado;
 		
-		
+		/*
 		cout << "Operador: " << operador << "\n";
 		cout << "Operando1: " << operando1 << "\n";
 		cout << "Operando2: " << operando2 << "\n";
 		cout << "Resultado: " << resultado << "\n";
 		cout << "***************************************\n";
-
+		*/
+		
 		switch(operador){
 			case 0:																			//+ PROBADA
 				tipo_dato1 = getDataType(operando1);
@@ -551,16 +549,15 @@ void run(){
 							offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorEnteros(offsetRes, res_int);	
-							/*
+							
 							cout << "Direccion 1: " << operando1 << "\n";
 							cout << "Operando 1: " << op1_int << "\n";
 							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_float << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_int << "\n";
 							cout << "Index: " << offsetRes << "\n";
 							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorFlotantes(offsetRes) << "\n";
-							*/
+							cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
 						}
 						//2 cte_int + cte_float
 						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_FLOAT){
@@ -1084,8 +1081,6 @@ void run(){
 				tipo_dato2 = getDataType(operando2);
 				tipo_resultado = getDataType(resultado);
 				switch(tipo_dato1){
-					cout << "Operando1: " << operando1 << "\n";
-					cout << "Operando2: " << operando2 << "\n";
 					case INTEGER:
 						//1 cte_int - cte_int
 						if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_INT){ 
@@ -1095,6 +1090,15 @@ void run(){
 							offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorEnteros(offsetRes, res_int);
+							
+							cout << "Direccion 1: " << operando1 << "\n";
+							cout << "Operando 1: " << op1_int << "\n";
+							cout << "Direccion 2: " << operando2 << "\n";
+							cout << "Operando 2: " << op2_int << "\n";
+							cout << "Resultado: " << res_int << "\n";
+							cout << "Index: " << offsetRes << "\n";
+							cout << "Direccion Final: " << resultado << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
 						}
 						//2 cte_int - cte_float
 						else if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_FLOAT){
@@ -1165,7 +1169,8 @@ void run(){
 							offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorEnteros(offsetRes, res_int);
-							
+
+							/*
 							cout << "Direccion 1: " << operando1 << "\n";
 							cout << "Operando 1: " << op1_int << "\n";
 							cout << "Direccion 2: " << operando2 << "\n";
@@ -1174,6 +1179,7 @@ void run(){
 							cout << "Index: " << offsetRes << "\n";
 							cout << "Direccion Final: " << resultado << "\n";
 							cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
+							*/
 							
 						}
 						//6 int - cte_float
@@ -2772,12 +2778,14 @@ void run(){
 							
 							memStack.top().setValorEnteros(offsetRes, res_int);
 							
+							/*							
 							cout << "Direccion: " << operando1 << "\n";
 							cout << "Operando 1: " << op1_int << "\n";
 							cout << "Resultado: " << res_int << "\n";
 							cout << "Index: " << offsetRes << "\n";
 							cout << "Direccion Final: " << resultado << "\n";
 							cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
+							*/
 							
 						}else{
 							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
