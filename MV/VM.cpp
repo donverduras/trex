@@ -205,10 +205,10 @@ int generateOffsetInt(int dirVir, int tipoDato){
 			offset = dirVir - BASE_GLOBAL_INT;
 			break;
 		case 5 :
-			offset = dirVir - (BASE_LOCAL_INT + proc[0].locals.integers + proc[(memStack.size() - 1)].temps.integers);
+			offset = dirVir - BASE_LOCAL_INT + proc[0].locals.integers + proc[(memStack.size() - 1)].temps.integers;
 			break;
 		case 10 :
-			offset = dirVir - (BASE_TEMP_INT + proc[0].locals.integers);
+			offset = dirVir - BASE_TEMP_INT + proc[0].locals.integers;
 			break;
 	}
 	return offset;
@@ -222,10 +222,10 @@ int generateOffsetFloat(int dirVir, int tipoDato){
 			offset = dirVir - BASE_GLOBAL_FLOAT;
 			break;
 		case 6 :
-			offset = dirVir - (BASE_LOCAL_FLOAT + proc[0].locals.flotantes + proc[(memStack.size() - 1)].temps.flotantes);
+			offset = dirVir - BASE_LOCAL_FLOAT + proc[0].locals.flotantes + proc[(memStack.size() - 1)].temps.flotantes;
 			break;
 		case 11 :
-			offset = dirVir - (BASE_TEMP_FLOAT + proc[0].locals.flotantes);
+			offset = dirVir - BASE_TEMP_FLOAT + proc[0].locals.flotantes;
 			break;
 	}
 	return offset;
@@ -239,10 +239,10 @@ int generateOffsetString(int dirVir, int tipoDato){
 			offset = dirVir - BASE_GLOBAL_STRING;
 			break;
 		case 7 :
-			offset = dirVir - (BASE_LOCAL_STRING + proc[0].locals.estrings + proc[(memStack.size() - 1)].temps.estrings);
+			offset = dirVir - BASE_LOCAL_STRING + proc[0].locals.estrings + proc[(memStack.size() - 1)].temps.estrings;
 			break;
 		case 12 :
-			offset = dirVir - (BASE_TEMP_STRING + proc[0].locals.estrings);
+			offset = dirVir - BASE_TEMP_STRING + proc[0].locals.estrings;
 			break;
 	}
 
@@ -257,10 +257,10 @@ int generateOffsetBoolean(int dirVir, int tipoDato){
 			offset = dirVir - BASE_GLOBAL_BOOLEAN;
 			break;
 		case 8 :
-			offset = dirVir - (BASE_LOCAL_BOOLEAN + proc[0].locals.booleans + proc[(memStack.size() - 1)].temps.booleans);
+			offset = dirVir - BASE_LOCAL_BOOLEAN + proc[0].locals.booleans + proc[(memStack.size() - 1)].temps.booleans;
 			break;
 		case 13 :
-			offset = dirVir - (BASE_TEMP_BOOLEAN + proc[0].locals.booleans);
+			offset = dirVir - BASE_TEMP_BOOLEAN + proc[0].locals.booleans;
 			break;
 	}
 	return offset;
@@ -274,18 +274,18 @@ int generateOffsetChar(int dirVir, int tipoDato){
 			offset = dirVir - BASE_GLOBAL_CHAR;
 			break;
 		case 9 :
-			offset = dirVir - (BASE_LOCAL_CHAR + proc[0].locals.chars + proc[(memStack.size() - 1)].temps.chars);
+			offset = dirVir - BASE_LOCAL_CHAR + proc[0].locals.chars + proc[(memStack.size() - 1)].temps.chars;
 			break;
 		case 14 :
-			offset = dirVir - (BASE_TEMP_CHAR + proc[0].locals.chars);
+			offset = dirVir - BASE_TEMP_CHAR + proc[0].locals.chars;
 			break;
 	}
 	return offset;
 }
 
 void readFile(){
-	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
-	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
+	ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
+	//ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
 	string line;
 	char *str, *pch;
 	int i = 0, contPorciento = 0, primerValor = 0, tamano = 0, numFuncion = 0, numConst = 0, numQuads = 0;
@@ -529,14 +529,13 @@ void run(){
 		operando2 = listOfQuads[main_index].operando2;
 		resultado = listOfQuads[main_index].resultado;
 		
-		/*
+		
 		cout << "Operador: " << operador << "\n";
 		cout << "Operando1: " << operando1 << "\n";
 		cout << "Operando2: " << operando2 << "\n";
 		cout << "Resultado: " << resultado << "\n";
 		cout << "***************************************\n";
-		*/
-		
+
 		switch(operador){
 			case 0:																			//+ PROBADA
 				tipo_dato1 = getDataType(operando1);
@@ -1085,6 +1084,8 @@ void run(){
 				tipo_dato2 = getDataType(operando2);
 				tipo_resultado = getDataType(resultado);
 				switch(tipo_dato1){
+					cout << "Operando1: " << operando1 << "\n";
+					cout << "Operando2: " << operando2 << "\n";
 					case INTEGER:
 						//1 cte_int - cte_int
 						if(generateDataType(operando1) == CTE_INT && generateDataType(operando2) == CTE_INT){ 
@@ -1164,7 +1165,7 @@ void run(){
 							offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorEnteros(offsetRes, res_int);
-							/*
+							
 							cout << "Direccion 1: " << operando1 << "\n";
 							cout << "Operando 1: " << op1_int << "\n";
 							cout << "Direccion 2: " << operando2 << "\n";
@@ -1173,7 +1174,7 @@ void run(){
 							cout << "Index: " << offsetRes << "\n";
 							cout << "Direccion Final: " << resultado << "\n";
 							cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
-							*/
+							
 						}
 						//6 int - cte_float
 						else if(generateDataType(operando1) == INTEGER && generateDataType(operando2) == CTE_FLOAT){
@@ -2770,14 +2771,14 @@ void run(){
 							offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorEnteros(offsetRes, res_int);
-							/*
+							
 							cout << "Direccion: " << operando1 << "\n";
 							cout << "Operando 1: " << op1_int << "\n";
 							cout << "Resultado: " << res_int << "\n";
 							cout << "Index: " << offsetRes << "\n";
 							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorStrings(offsetRes) << "\n";
-							*/
+							cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
+							
 						}else{
 							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
 							op1_int = memStack.top().getValorEnteros(offsetOp1);							
