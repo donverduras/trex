@@ -134,13 +134,8 @@ c:
 	;
 
 vars:
-	tipo CTE_ID vars2 PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,function_name); }
+	tipo CTE_ID PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,function_name); }
 	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA { name = $2;  size = $4; insert_arr_to_vars_table(name,var_type, size); }
-	;
-
-vars2:
-	IGUAL var_cte
-	|
 	;
 
 tipo:

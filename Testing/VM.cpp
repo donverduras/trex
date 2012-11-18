@@ -150,8 +150,6 @@ string getConstantValue(int dirVir){
 		if(arrConstDirVir[i] == dirVir){
 			//cout << "(" << arrConst[i] << ", " << dirVir << ")\n";
 			return arrConst[i];
-		}else{
-			//cout << "no es: " << arrConstDirVir[i] << "\n";
 		}
 	}
 }
@@ -208,7 +206,7 @@ int generateOffsetInt(int dirVir, int tipoDato){
 			offset = dirVir - (BASE_LOCAL_INT + proc[0].locals.integers + proc[(memStack.size() - 1)].temps.integers);
 			break;
 		case 10 :
-			offset = dirVir - (BASE_TEMP_INT + proc[0].locals.integers);
+			offset = dirVir - (BASE_LOCAL_INT + proc[0].locals.integers);
 			break;
 	}
 	return offset;
@@ -225,7 +223,7 @@ int generateOffsetFloat(int dirVir, int tipoDato){
 			offset = dirVir - (BASE_LOCAL_FLOAT + proc[0].locals.flotantes + proc[(memStack.size() - 1)].temps.flotantes);
 			break;
 		case 11 :
-			offset = dirVir - (BASE_TEMP_FLOAT + proc[0].locals.flotantes);
+			offset = dirVir - (BASE_LOCAL_FLOAT + proc[0].locals.flotantes);
 			break;
 	}
 	return offset;
@@ -242,7 +240,7 @@ int generateOffsetString(int dirVir, int tipoDato){
 			offset = dirVir - (BASE_LOCAL_STRING + proc[0].locals.estrings + proc[(memStack.size() - 1)].temps.estrings);
 			break;
 		case 12 :
-			offset = dirVir - (BASE_TEMP_STRING + proc[0].locals.estrings);
+			offset = dirVir - (BASE_LOCAL_STRING + proc[0].locals.estrings);
 			break;
 	}
 
@@ -260,7 +258,7 @@ int generateOffsetBoolean(int dirVir, int tipoDato){
 			offset = dirVir - (BASE_LOCAL_BOOLEAN + proc[0].locals.booleans + proc[(memStack.size() - 1)].temps.booleans);
 			break;
 		case 13 :
-			offset = dirVir - (BASE_TEMP_BOOLEAN + proc[0].locals.booleans);
+			offset = dirVir - (BASE_LOCAL_BOOLEAN + proc[0].locals.booleans);
 			break;
 	}
 	return offset;
@@ -277,7 +275,7 @@ int generateOffsetChar(int dirVir, int tipoDato){
 			offset = dirVir - (BASE_LOCAL_CHAR + proc[0].locals.chars + proc[(memStack.size() - 1)].temps.chars);
 			break;
 		case 14 :
-			offset = dirVir - (BASE_TEMP_CHAR + proc[0].locals.chars);
+			offset = dirVir - (BASE_LOCAL_CHAR + proc[0].locals.chars);
 			break;
 	}
 	return offset;
@@ -285,7 +283,8 @@ int generateOffsetChar(int dirVir, int tipoDato){
 
 void readFile(){
 	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
-	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
+	//ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
+	ifstream myfile ("/Users/ssalazars/Developer/trex/Testing/test.obj");
 	string line;
 	char *str, *pch;
 	int i = 0, contPorciento = 0, primerValor = 0, tamano = 0, numFuncion = 0, numConst = 0, numQuads = 0;
@@ -445,7 +444,7 @@ void readFile(){
 					arrConstDirVir = new int[tamano];
 				}
 				else{
-					pch = strtok (str,",-");
+					pch = strtok (str," ,-");
 					while (pch != NULL){
 						switch (i){
 						case 0 : //nombre Constante
@@ -457,7 +456,7 @@ void readFile(){
 							i++;
 							break;
 						}
-						pch = strtok(NULL, ",.-");
+						pch = strtok(NULL, " ,.-");
 					}
 					i = 0;
 					
@@ -2801,7 +2800,7 @@ void run(){
 						break;
 					case STRING:
 						if(generateDataType(operando1) == CTE_STRING){
-							op1_string = getConstantValue(operando1);						
+							op1_string = getConstantValue(operando1);							
 							res_string = op1_string;
 							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
 							
@@ -3784,10 +3783,6 @@ void run(){
 			case GOTO:																		//GOTO
 				break;
 			case GOTOF:																		//GOTOF
-				offsetOp1 = generateOffsetBoolean(operando1, generateDataType(operando1));
-				op1_boolean = memStack.top().getValorBooleans(offsetOp1);
-				if(op1_boolean == 0)
-					main_index = resultado;
 				break;
 			case PRINT:																		//PRINT PROBADA
 				tipo_resultado = getDataType(resultado);
@@ -3805,7 +3800,7 @@ void run(){
 							
 							cout << res_int;
 						}
-					break;
+						break;
 					case FLOAT:
 						if(generateDataType(resultado) == CTE_FLOAT){
 							op1_float = atof(getConstantValue(resultado).c_str());							
@@ -3819,10 +3814,10 @@ void run(){
 	
 							cout << res_float;
 						}
-					break;
+						break;
 					case STRING:
 						if(generateDataType(resultado) == CTE_STRING){
-							op1_string = getConstantValue(resultado);
+							op1_string = getConstantValue(resultado);							
 							res_string = op1_string;
 							
 							cout << res_string;
@@ -3833,7 +3828,7 @@ void run(){
 							
 							cout << res_string;
 						}
-					break;
+						break;
 					case BOOLEAN:
 						if(generateDataType(resultado) == CTE_BOOLEAN){
 							if(strcmp("true",getConstantValue(resultado).c_str()) == 0)
@@ -3879,9 +3874,10 @@ void run(){
 				break;
 			case VER:																		//VER
 				break;
-			case INIPROC: case RET:															//INIPROC RET
-				//Do nothing
+			case INIPROC:																	//INIPROC
 				break;
+			case RET:																		//RET
+ 				break;
 		}
 		main_index++;
 	}
@@ -3893,7 +3889,5 @@ int main(int argc, char *argv[]) {
 	readFile();
 	
 	run();
-	
-	cout << "\n";
 
 }

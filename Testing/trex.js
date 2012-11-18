@@ -261,8 +261,8 @@ function convertir(){
 				codigo = codigo + "if(" + $(elementos[i]).children().html() + "){";
 			}
 			else if($(elementos[i]).children().attr('class') == 'else'){
-				console.log("else{");
-				codigo = codigo + "else{";
+				console.log("else(" + $(elementos[i]).children().html() + "){");
+				codigo = codigo + "else(" + $(elementos[i]).children().html() + "){";
 			}
 			else if($(elementos[i]).children().attr('class') == 'funcion'){
 				console.log("function " + $(elementos[i]).children().html() + "){");
@@ -278,7 +278,7 @@ function convertir(){
 			}
 			else if($(elementos[i]).children().attr('class') == 'endfor' || $(elementos[i]).children().attr('class') == 'endwhile' || $(elementos[i]).children().attr('class') == 'endif' || $(elementos[i]).children().attr('class') == 'endfuncion' || $(elementos[i]).children().attr('class') == 'estatuto' && $(elementos[i]).children().html() == "fin"){
 				console.log("}");
-				codigo = codigo + "}";
+				codigo = codigo + " }";
 			}
 		}
 	}

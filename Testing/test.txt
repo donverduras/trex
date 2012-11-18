@@ -1,11 +1,13 @@
 program test{
 	
-	function uno(int x){
-		x = 2 * 3;
+	int a;
+	
+	function uno(int a){
+		int b;
+		
+		a = 3 * a;
 	}
 	
-	function dos(int a, float c){
-		char w;
-		string e;
-	}
+	a = 2;
+	uno();
 }

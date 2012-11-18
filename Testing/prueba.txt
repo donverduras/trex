@@ -1,1 +1,1 @@
-program main(){ int x = 3;}
+program main{ int x; x = 2; print(x); }

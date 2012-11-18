@@ -1,13 +1,10 @@
 program test{
 	
-	int a;
+	int x;
 	
-	function uno(int a){
-		int b;
-		
-		a = 3 * a;
+	x  = 2;
+	
+	if(x > 1){
+		print("si entre");
 	}
-	
-	a = 2;
-	uno();
 }
