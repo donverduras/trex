@@ -85,14 +85,14 @@ void yyerror(const char *s);
 %%
 
 programa:
-	programa_a  vars programa_b funcion programa_c { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
-	| programa_a funcion programa_c { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
-	| programa_a vars programa_b { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
-	| programa_a { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	programa_a  vars programa_b funcion programa_c { set_start_function(main_func); fillQuadruple_main(); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a funcion programa_c { set_start_function(main_func); fillQuadruple_main(); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a vars programa_b { set_start_function(main_func); fillQuadruple_main(); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a { set_start_function(main_func); fillQuadruple_main(); } programa_d { generate_obj(); cout << "EXITO" << endl; }
 	;
 
 programa_a:
-	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; main_func = function_name; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0", function_name);} LLAVEIZQ
+	PROGRAM { initialize(); generateQuadruple_main(); } CTE_ID { function_name = yylval.sval; main_func = function_name; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0", function_name);} LLAVEIZQ
 	;
 
 programa_b:

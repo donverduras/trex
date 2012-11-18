@@ -2922,6 +2922,7 @@ void run(){
 							memStack.top().setValorChars(offsetRes, res_char);
 						}
 						break;
+					//FALTA EL CASO DE ASIGNAR UN APUNTADOR A UN APUNTADOR
 				}
 				break;
 			case 7:																			//<>
@@ -3859,8 +3860,6 @@ void run(){
 						}
 					}
 				break;
-			case 20:																		//POINTER
- 				break;
 			case GOTO:																		//GOTO
 				main_index = resultado - 2;
 				break;

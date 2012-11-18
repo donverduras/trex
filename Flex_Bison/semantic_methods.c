@@ -300,6 +300,18 @@ void count_params(){
 	param_counter++;
 }
 
+void fillQuadruple_main(){
+	Quadruple *aux = (Quadruple *)g_queue_peek_nth(pilaPasos,0);
+	aux->resultado = quadruple_index;
+	
+	cout << "La siguiente instruccion es la numero: " << quadruple_index << "\n";
+	cout << "Cuadruplo actualizado: ";
+	cout << "( " << aux->operador << ", " << aux->operando1 << ", " << aux->operando2 << ", " << aux->resultado << " ) \n";
+	
+	g_queue_push_nth(pilaPasos, aux, 0);
+	g_queue_pop_nth(pilaPasos, 1);
+}
+
 void delete_vars_from_varTable(char *func_name){
 	GQueue *aux = g_queue_new();
 	const char* aux_func_name = func_name;
@@ -807,6 +819,23 @@ void generateQuadruple_if(){
 	//cout << ".........................Pila Saltos: ";
 	//g_queue_foreach(pilaSaltos, (GFunc)print_pilas, NULL);
 	//cout << "\n";
+}
+
+void generateQuadruple_main(){
+	int aux, resultado;
+	
+	Quadruple *new_quadruple = new Quadruple;
+	new_quadruple->operador = GOTO;
+	new_quadruple->operando1 = -1;
+	new_quadruple->operando2 = -1;
+	new_quadruple->resultado = -1;
+		
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	g_queue_push_tail(pilaSaltos, GINT_TO_POINTER(quadruple_index-1));
+		
+	quadruple_index++;
 }
 
 void generateQuadruple_print(){

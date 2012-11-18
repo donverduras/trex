@@ -1672,7 +1672,7 @@ yyreduce:
     {
         case 2:
 #line 88 "Trex.y"
-    { set_start_function(main_func); ;}
+    { set_start_function(main_func); fillQuadruple_main(); ;}
     break;
 
   case 3:
@@ -1682,7 +1682,7 @@ yyreduce:
 
   case 4:
 #line 89 "Trex.y"
-    { set_start_function(main_func); ;}
+    { set_start_function(main_func); fillQuadruple_main(); ;}
     break;
 
   case 5:
@@ -1692,7 +1692,7 @@ yyreduce:
 
   case 6:
 #line 90 "Trex.y"
-    { set_start_function(main_func); ;}
+    { set_start_function(main_func); fillQuadruple_main(); ;}
     break;
 
   case 7:
@@ -1702,7 +1702,7 @@ yyreduce:
 
   case 8:
 #line 91 "Trex.y"
-    { set_start_function(main_func); ;}
+    { set_start_function(main_func); fillQuadruple_main(); ;}
     break;
 
   case 9:
@@ -1712,7 +1712,7 @@ yyreduce:
 
   case 10:
 #line 95 "Trex.y"
-    { initialize(); ;}
+    { initialize(); generateQuadruple_main(); ;}
     break;
 
   case 11:
