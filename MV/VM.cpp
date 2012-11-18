@@ -2792,6 +2792,8 @@ void run(){
 							op1_int = memStack.top().getValorEnteros(offsetOp1);							
 							res_int = op1_int;
 							offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorEnteros(offsetRes, res_int);
 						}
 						break;
 					case FLOAT:
@@ -2806,6 +2808,8 @@ void run(){
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);							
 							res_float = op1_float;
 							offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						break;
 					case STRING:
@@ -2820,6 +2824,8 @@ void run(){
 							op1_string = memStack.top().getValorStrings(offsetOp1);							
 							res_string = op1_string;
 							offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						break;
 					case BOOLEAN:
@@ -2837,6 +2843,8 @@ void run(){
 							op1_boolean = memStack.top().getValorBooleans(offsetOp1);							
 							res_boolean = op1_boolean;
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
 						}
 						break;
 					case CHAR:
@@ -2850,6 +2858,8 @@ void run(){
 							op1_char = memStack.top().getValorChars(offsetOp1);							
 							res_char = op1_char;
 							offsetRes = generateOffsetChar(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorChars(offsetRes, res_char);
 						}
 						break;
 				}
