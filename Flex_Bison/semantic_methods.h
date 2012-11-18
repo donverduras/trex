@@ -38,7 +38,7 @@ int get_var_type(const char *var_cte);
 void initialize();
 void initialize_arrs();
 void initialize_stacks();
-void insert_arr_to_vars_table(string id, string type, string size);
+void insert_arr_to_vars_table(string id, string type, string size, char* func_name);
 void insert_param_type(char *func_name, char *var_type);
 void insert_to_procs_table(string id);
 void insert_to_vars_table(string id, string type, char* func_name);

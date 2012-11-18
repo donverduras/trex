@@ -135,7 +135,7 @@ c:
 
 vars:
 	tipo CTE_ID PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,function_name); }
-	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA { name = $2;  size = $4; insert_arr_to_vars_table(name,var_type, size); }
+	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA { name = $2;  size = $4; insert_arr_to_vars_table(name,var_type, size, function_name); }
 	;
 
 tipo:
@@ -222,6 +222,7 @@ e:
 sumaresta:
 	SUMA { push_to_pilaOperadores(yylval.sval); }
 	|RESTA { push_to_pilaOperadores(yylval.sval); }
+	|
 	;
 
 termino:
@@ -258,7 +259,7 @@ bloque_for:
 	;
 
 bloque_for_2:
-	CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } sumaresta CTE_INT { push_to_pilaOperandos($1, "0");  generateQuadruple_for3(); } 
+	CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } sumaresta CTE_INT { push_to_pilaOperandos(yylval.sval, "0");  generateQuadruple_for3(); } 
 	;
 
 loopwhile:

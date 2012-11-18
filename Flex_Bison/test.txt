@@ -1,10 +1,11 @@
 program test{
 	
+	int a[2];
+	int aa[2];
 	int x;
 	
-	x  = 2;
-	
-	if(x > 1){
-		print("si entre");
-	}
+	x = 3;
+	a[1] = 2;
+	aa[0] = x;
+		
 }

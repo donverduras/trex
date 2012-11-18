@@ -452,7 +452,12 @@ void generate_obj(){
 	objeto << g_queue_get_length(pilaPasos) << "\n";
 	g_queue_foreach(pilaPasos,print_quadruples,NULL);
 	
+	objeto << "%%" << "\n";
+	//Numero de apuntadores
+	objeto << pointers_cont;
+	
 	objeto.close();
+	
 }
 
 void generateQuadruple(){
@@ -544,10 +549,10 @@ void generateQuadruple_array(){
 	Quadruple *new_quadruple = new Quadruple;
 	operando2 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));					//Resultado
 	operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));					//dirBase
-	dirVir = POINTERS + pointers_cont;
+	dirVir = POINTERS + pointers_cont;												
 	pointers_cont++;
 	
-	new_quadruple->operador = 0;													//Suma
+	new_quadruple->operador = 800;													//Suma
 	new_quadruple->operando2 = operando2;
 	new_quadruple->operando1 = operando1;
 	new_quadruple->resultado = dirVir;
@@ -558,7 +563,7 @@ void generateQuadruple_array(){
 	quadruple_index++;
 	
 	g_queue_push_tail(pilaOperandos, GINT_TO_POINTER(dirVir));
-	g_queue_push_tail(pilaTipos, GINT_TO_POINTER(POINTER));
+	g_queue_push_tail(pilaTipos, GINT_TO_POINTER(0));
 	
 	/*
 	cout << "Pila Operandos: ";
@@ -587,7 +592,7 @@ void generateQuadruple_asignacion(){
 	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
 	resultadoCubo = cubo[operador][op1][op2] - 1;						//Para que int empiece de 0
 	
-	if(resultadoCubo != -1){
+	if( resultadoCubo >= 0 ){
 		g_queue_pop_tail(pilaTipos);
 		g_queue_pop_tail(pilaTipos);
 		
@@ -938,7 +943,6 @@ Variable *get_var(char *var_cte){
 	
 	ascii = get_hash_key(var_cte);
 	stack_position = variable_index[ascii]-1;
-	
 	if(stack_position >= 0){
 	
 		stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, stack_position);
@@ -989,7 +993,7 @@ int get_var_type(const char *var_cte){
 	}else if(strcmp(var_cte,"const_char") == 0){
 		return 14;
 	}else if(strcmp(var_cte,"pointer") == 0){
-		return 15;
+		return 0;
 	}
 }
 
@@ -1026,7 +1030,7 @@ void initialize_stacks(){
 	constants = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
-void insert_arr_to_vars_table(string id, string type, string size){
+void insert_arr_to_vars_table(string id, string type, string size, char* func_name){
 	int hash_key, value_inside_array, dirVirtual;
 	bool stack_exists;
 	const char *string_aux;
@@ -1050,7 +1054,7 @@ void insert_arr_to_vars_table(string id, string type, string size){
 	node->type = type;					//Se asigna el tipo de dato al nodo
 	node->dirVirtual = dirVirtual;		//Se asigna la direccion virtual al nodo
 	node->limite = limsup;				//Se asigna la dimension
-	
+	node->procName = func_name;			//Se asigna el nombre de la funcion a la que pertenece
 	
 	hash_key = get_hash_key(id);
 	stack_exists = check_if_stack_exists(hash_key, 1);
@@ -1075,8 +1079,24 @@ void insert_arr_to_vars_table(string id, string type, string size){
 			g_queue_push_nth(tableVar_stack, stack_aux, value_inside_array);		//Meto la lista actualizada en la posicion original de la lista
 			g_queue_pop_nth(tableVar_stack, value_inside_array+1);					//Elimino la lista "desactualizada" que se encuentra una posicion adelante de la recien agregada
 		}else{																	//Si ya existia la variable, truena el programa
-			cout << "Error: La variable ya ha sido declarada anteriormente. \n";
-			exit (EXIT_FAILURE);
+			const char* aux1, *aux2;
+			Variable *nova = new Variable;
+			
+			nova = get_var(&id[0]);
+			aux1 = nova->procName;
+			aux2 = func_name;
+			
+			//cout << aux1 << "\n";
+			//cout << aux2 << "\n";
+			
+			if(strcmp(aux1,aux2) == 0){
+				cout << "Error: La variable ya ha sido declarada anteriormente. \n";
+				exit (EXIT_FAILURE);
+			}else{
+				g_queue_push_tail(stack_aux, node);											//Agrego el nuevo id (nodo) a la lista
+				g_queue_push_nth(tableVar_stack, stack_aux, value_inside_array);			//Meto la lista actualizada en la posicion original de la lista
+				g_queue_pop_nth(tableVar_stack, value_inside_array+1);						//Elimino la lista "desactualizada" que se encuentra una posicion adelante de la recien agregada
+			}
 		}
 	}
 }
@@ -1316,11 +1336,11 @@ void push_to_pilaOperandos(char *var_cte, char *id_type){
 		}
 	}
 	
-	/*cout << "Push to pila operandos: " << var_cte << " o " << dirVirtual << "\n";
-	cout << "Pila Operandos: ";
-	g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
-	cout << "\n";
-	*/
+	//cout << "Push to pila operandos: " << var_cte << " o " << dirVirtual << "\n";
+	//cout << "Pila Operandos: ";
+	//g_queue_foreach(pilaOperandos, (GFunc)print_pilas, NULL);
+	//cout << "\n";
+	
 }
 
 void push_to_pilaTipos(char *var_cte){
@@ -1335,7 +1355,7 @@ void push_to_pilaTipos(char *var_cte){
 	g_queue_push_tail(pilaTipos, GINT_TO_POINTER(type));
 	
 	//cout << "Pila Tipos: ";
-	//g_queue_foreach(pilaTipos, (GFunc)print_pilas, NULL);
+	//g_queue_foreach(pilaTipos, (GFunc)printprint, NULL);
 	//cout << "\n";
 }
 
@@ -1490,7 +1510,7 @@ int search_for_dirVirtual(char *var_cte){
 		
 	ascii = get_hash_key(var_cte);
 	stack_position = variable_index[ascii]-1;
-	
+
 	if(stack_position >= 0){
 	
 		stack_aux = (GQueue *)g_queue_peek_nth(tableVar_stack, stack_position);
@@ -1513,16 +1533,12 @@ int search_for_dirVirtual(char *var_cte){
 				exit (EXIT_FAILURE);
 			}
 		}else{
-			for(int i=g_queue_get_length(stack_aux)-1; i>0; i--){
+			for(int i=g_queue_get_length(stack_aux)-1; i>=0; i--){
 				node_aux = (Variable *)g_queue_peek_nth(stack_aux,i);
 				string_aux = node_aux->name.c_str();
-			
 				if(strcmp(string_aux,var_cte) == 0){
 					dirVirtual = node_aux->dirVirtual;
 					return dirVirtual;
-				}else{
-					cout << "Error: Variable no declarada. \n";
-					exit (EXIT_FAILURE);
 				}
 			}
 		}
