@@ -529,13 +529,13 @@ void run(){
 		operando2 = listOfQuads[main_index].operando2;
 		resultado = listOfQuads[main_index].resultado;
 		
-		/*
+
 		cout << "Operador: " << operador << "\n";
 		cout << "Operando1: " << operando1 << "\n";
 		cout << "Operando2: " << operando2 << "\n";
 		cout << "Resultado: " << resultado << "\n";
 		cout << "***************************************\n";
-		*/
+
 		
 		switch(operador){
 			case 0:																			//+ PROBADA
@@ -2776,8 +2776,9 @@ void run(){
 							cout << "Resultado: " << res_int << "\n";
 							cout << "Index: " << offsetRes << "\n";
 							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorStrings(offsetRes) << "\n";
+							cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
 							*/
+							
 						}else{
 							offsetOp1 = generateOffsetInt(operando1, generateDataType(operando1));
 							op1_int = memStack.top().getValorEnteros(offsetOp1);							
@@ -2949,7 +2950,7 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
+							/*
 							cout << "Direccion 1: " << operando1 << "\n";
 							cout << "Operando 1: " << op1_int << "\n";
 							cout << "Direccion 2: " << operando2 << "\n";
@@ -2958,6 +2959,7 @@ void run(){
 							cout << "Index: " << offsetRes << "\n";
 							cout << "Direccion Final: " << resultado << "\n";
 							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							*/
 						}
 						//6 int <> cte_float
 						else if(generateDataType(operando1) == INTEGER && generateDataType(operando2) == CTE_FLOAT){
@@ -3782,12 +3784,13 @@ void run(){
 			case 20:																		//POINTER
  				break;
 			case GOTO:																		//GOTO
+				main_index = resultado - 2;
 				break;
 			case GOTOF:																		//GOTOF
 				offsetOp1 = generateOffsetBoolean(operando1, generateDataType(operando1));
 				op1_boolean = memStack.top().getValorBooleans(offsetOp1);
 				if(op1_boolean == 0)
-					main_index = resultado;
+					main_index = resultado - 2;
 				break;
 			case PRINT:																		//PRINT PROBADA
 				tipo_resultado = getDataType(resultado);
