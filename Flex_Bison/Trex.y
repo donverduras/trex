@@ -106,7 +106,7 @@ programa_c:
 	;
 
 programa_d:
-	bloque LLAVEDER
+	bloque LLAVEDER  { set_fin_main(); }
 	;
 
 bloque:
@@ -272,7 +272,7 @@ asignacion:
 
 asignacion_b:
 	expresion
-	| lectura
+	|lectura
 	;
 	
 asignacion_c:
@@ -285,7 +285,7 @@ asignacion_d:
 	;
 	
 lectura:
-	READ PARENTESISIZQ PARENTESISDER PUNTOYCOMA
+	READ { push_to_pilaOperadores("read"); } PARENTESISIZQ PARENTESISDER { generateQuadruple_read(); }
 	;
 	
 funcion:

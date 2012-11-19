@@ -21,7 +21,7 @@ enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, G
 
 //Simbolos
 enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=501,	VER=403, 	POINTER=15,
-				INIPROC=500,PARAM=402	 };
+				INIPROC=500,PARAM=402, 	READ=301	 };
 
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
@@ -875,6 +875,43 @@ void generateQuadruple_print(){
 	quadruple_index++;
 }
 
+void generateQuadruple_read(){
+	int dirVir, read;
+	
+	int tipo = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	read = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperadores));
+
+	if(tipo == 0){
+			dirVir = TEMP_INT + temp_int_cont;
+			temp_int_cont++;
+		}else if(tipo == 1){
+			dirVir = TEMP_FLOAT + temp_float_cont;
+			temp_float_cont++;
+		}else if(tipo == 2){
+			dirVir = TEMP_STRING + temp_string_cont;
+			temp_string_cont++;
+		}else if(tipo == 3){
+			dirVir = TEMP_BOOLEAN + temp_boolean_cont;
+			temp_boolean_cont++;
+		}else if(tipo == 4){
+			dirVir = TEMP_CHAR + temp_char_cont;
+			temp_char_cont++;
+		}
+	
+	Quadruple *new_quadruple = new Quadruple;
+	new_quadruple->operador = read;
+	new_quadruple->operando1 = -1;
+	new_quadruple->operando2 = -1;
+	new_quadruple->resultado = dirVir;
+	
+	cout << "#" << quadruple_index << " ";
+	cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	g_queue_push_tail(pilaOperandos, GINT_TO_POINTER(dirVir));
+	g_queue_push_tail(pilaTipos, GINT_TO_POINTER(tipo));
+	quadruple_index++;
+}
+
 void generateQuadruple_while(){
 	//cout << "#" << quadruple_index << " ";
 	int aux, resultado;
@@ -942,6 +979,8 @@ int get_operator_type(const char* op){
 		return -1;
 	}else if(strcmp(op,"print") == 0){
 		return PRINT;
+	}else if(strcmp(op,"read") == 0){
+		return READ;
 	}
 }
 
@@ -977,7 +1016,7 @@ Procedure *get_proc(char *var_cte){
 			}
 		}
 	}else{
-		cout << "Error: Variable no declarada. \n";
+		cout << "Error: Procedimiento no declarado. \n";
 		exit (EXIT_FAILURE);
 	}
 }
@@ -1013,7 +1052,7 @@ Variable *get_var(char *var_cte){
 			}
 		}
 	}else{
-		cout << "Error: Variable no declarada. \n";
+		cout << "1Error: Variable no declarada. \n";
 		exit (EXIT_FAILURE);
 	}
 }
@@ -1321,6 +1360,11 @@ void print_pilas(gpointer data, gpointer user_data){
 	VarCont *temporales = new VarCont;
 	
 	proc = (Procedure *)data;
+	
+	//cout << proc->name << ", " << proc->dirInitial << ", " << proc->numParams << ", " <<
+		//	  proc->locals.integers << ", " << proc->locals.flotantes  << ", " << proc->locals.estrings << ", " << proc->locals.booleans << ", " << proc->locals.chars << ", " <<
+			//  proc->temps.integers << ", " << proc->temps.flotantes  << ", " << proc->temps.estrings << ", " << proc->temps.booleans << ", " << proc->temps.chars << "\n";
+	
 
 	objeto << proc->name << ", " << proc->dirInitial << ", " << proc->numParams << ", " <<
 			  proc->locals.integers << ", " << proc->locals.flotantes  << ", " << proc->locals.estrings << ", " << proc->locals.booleans << ", " << proc->locals.chars << ", " <<
@@ -1573,7 +1617,7 @@ int search_for_dirVirtual(char *var_cte){
 		if(g_queue_get_length(stack_aux) == 1){
 			node_aux = (Variable *)g_queue_peek_head(stack_aux);
 			string_aux = node_aux->name.c_str();
-			
+
 			if(strcmp(string_aux,var_cte) == 0){
 				dirVirtual = node_aux->dirVirtual;
 				return dirVirtual;
@@ -1651,6 +1695,38 @@ void set_current_function(char *function, char* func_name){
 	
 	current_function = atoi(function);
 	current_function_name = func_name;
+}
+
+void set_fin_main(){
+	VarCont *locales = new VarCont;
+	VarCont *temporales = new VarCont;
+
+	Procedure *proc = new Procedure;
+	int curr_func = 0;
+	
+	proc = get_proc(main_function);
+
+	proc->numParams = g_queue_get_length(proc->pilaParams);
+	
+	
+	locales->integers = global_int_cont;
+	locales->flotantes = global_float_cont;
+	locales->estrings = global_string_cont;
+	locales->booleans = global_boolean_cont;
+	locales->chars = global_char_cont;
+	
+	proc->locals = *locales;
+		
+	temporales->integers = temp_int_cont_func;
+	temporales->flotantes = temp_float_cont_func;
+	temporales->estrings = temp_string_cont_func;
+	temporales->booleans = temp_boolean_cont_func;
+	temporales->chars = temp_char_cont_func;
+	
+	proc->temps = *temporales;
+		
+	reset_func_count();
+	delete_vars_from_varTable(main_function);
 }
 
 void set_fin_function(char *func, char *curr){
