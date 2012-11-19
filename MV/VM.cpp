@@ -227,20 +227,39 @@ void activation_record(int funcion){
 	int contEnteros, contFlotantes, contStrings, contBooleans, contChars;
 	int globalEnteros, globalFlotantes, globalStrings, globalBooleans, globalChars;
 	contFunciones++;
+	int cloneMem = memStack.top().getId();
 	
-	//Tamano para memoria global
-	globalEnteros = proc[0].locals.integers + proc[0].temps.integers;
-	globalFlotantes = proc[0].locals.flotantes + proc[0].temps.flotantes;
-	globalStrings = proc[0].locals.estrings + proc[0].temps.estrings;
-	globalBooleans = proc[0].locals.booleans + proc[0].temps.booleans;
-	globalChars = proc[0].locals.chars + proc[0].temps.chars;
+	//cout << "FUNCION A CREAR: " << funcion << "\n";
+	//cout << "FUNCION TOP: " << cloneMem << "\n";
 	
-	//Tamano para memoria local
-	contEnteros = globalEnteros + proc[funcion].locals.integers + proc[funcion].temps.integers;
-	contFlotantes = globalFlotantes + proc[funcion].locals.flotantes + proc[funcion].temps.flotantes;
-	contStrings = globalStrings + proc[funcion].locals.estrings + proc[funcion].temps.estrings;
-	contBooleans = globalBooleans + proc[funcion].locals.booleans + proc[funcion].temps.booleans;
-	contChars = globalChars + proc[funcion].locals.chars + proc[funcion].temps.chars;
+	if(funcion != cloneMem){
+		//Tamano para memoria global
+		globalEnteros = proc[0].locals.integers + proc[0].temps.integers;
+		globalFlotantes = proc[0].locals.flotantes + proc[0].temps.flotantes;
+		globalStrings = proc[0].locals.estrings + proc[0].temps.estrings;
+		globalBooleans = proc[0].locals.booleans + proc[0].temps.booleans;
+		globalChars = proc[0].locals.chars + proc[0].temps.chars;
+		
+		//Tamano para memoria local
+		contEnteros = globalEnteros + proc[funcion].locals.integers + proc[funcion].temps.integers;
+		contFlotantes = globalFlotantes + proc[funcion].locals.flotantes + proc[funcion].temps.flotantes;
+		contStrings = globalStrings + proc[funcion].locals.estrings + proc[funcion].temps.estrings;
+		contBooleans = globalBooleans + proc[funcion].locals.booleans + proc[funcion].temps.booleans;
+		contChars = globalChars + proc[funcion].locals.chars + proc[funcion].temps.chars;
+	}else{
+		globalEnteros = proc[cloneMem].locals.integers + proc[cloneMem].temps.integers;
+		globalFlotantes = proc[cloneMem].locals.flotantes + proc[cloneMem].temps.flotantes;
+		globalStrings = proc[cloneMem].locals.estrings + proc[cloneMem].temps.estrings;
+		globalBooleans = proc[cloneMem].locals.booleans + proc[cloneMem].temps.booleans;
+		globalChars = proc[cloneMem].locals.chars + proc[cloneMem].temps.chars;
+		
+		//Tamano para memoria local
+		contEnteros = globalEnteros;
+		contFlotantes = globalFlotantes;
+		contStrings = globalStrings;
+		contBooleans = globalBooleans;
+		contChars = globalChars;
+	}
 	
 	//Creacion de nuevos arreglos de memoria
 	nueva->setId(contFunciones);
@@ -249,6 +268,9 @@ void activation_record(int funcion){
 	nueva->setStrings(contStrings);
 	nueva->setBooleans(contBooleans);
 	nueva->setChars(contChars);
+	
+	//cout << globalEnteros << ", " << globalFlotantes << ", " <<	globalStrings << ", " << globalBooleans << ", " << globalChars << "\n";
+	//cout << contEnteros << ", " << contFlotantes << ", " <<	contStrings << ", " << contBooleans << ", " << contChars << "\n";
 	
 	//Clonacion de memoria global entera a local entera
 	for(int i=0; i<globalEnteros; i++){
@@ -273,9 +295,6 @@ void activation_record(int funcion){
 	
 	//Push to stack
 	memStack.push(*nueva);
-	
-	cout << globalEnteros << ", " << globalFlotantes << ", " <<	globalStrings << ", " << globalBooleans << ", " << globalChars << "\n";
-	cout << contEnteros << ", " << contFlotantes << ", " <<	contStrings << ", " << contBooleans << ", " << contChars << "\n";
 	
 	//print_memoria_local();
 }
@@ -416,186 +435,129 @@ int generateOffsetChar(int dirVir, int tipoDato){
 }
 
 void asignacion_parametros(int operando1, int resultado){
-	int tipo_dato1, offsetRes, offsetOp1, offsetOp2;
-	int genDT1;
+	int tipo_dato1, tipo_dato2, tipo_resultado, offsetRes, offsetOp1, offsetOp2;
+	int genDT1, genDT2;
 	
-	int op1_int, op2_int, res_int;
-	float op1_float, op2_float, res_float;
-	string op1_string, op2_string, res_string;
-	bool op1_boolean, op2_boolean, res_boolean;
-	char op1_char, op2_char, res_char;
+	int op1_int, op2_int, res_int, read_int;
+	float op1_float, op2_float, res_float, read_float;
+	string op1_string, op2_string, res_string, read_string;
+	bool op1_boolean, op2_boolean, res_boolean, read_boolean;
+	char op1_char, op2_char, res_char, read_char;
 	
-	/*	
-	cout << "------------------------------------ \n";
-	cout << "memstack: " << memStack.top().getId() << "\n";
-	cout << "operando 1: " << operando1 << "\n";
-	cout << "------------------------------------ \n";
-	*/
-		
 	tipo_dato1 = getDataType(operando1);
-	genDT1 = generateDataType(operando1);
+	tipo_resultado = getDataType(resultado);
 	
+	genDT1 = generateDataType(operando1);
+
 	switch(tipo_dato1){
 		case INTEGER:
-			resultado += BASE_LOCAL_INT;
-
+			resultado = resultado + BASE_LOCAL_INT;
 			if(genDT1 == CTE_INT){
-			op1_int = atoi(getConstantValue(operando1).c_str());							
-			res_int = op1_int;
-
-			if(generateDataType(resultado) != POINTER){
+				op1_int = atoi(getConstantValue(operando1).c_str());							
+				res_int = op1_int;
 				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
-			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
-			}
-							
-			memStack.top().setValorEnteros(offsetRes, res_int);
-			
-			/*
-			cout << "************************************** \n";
-			cout << "Direccion: " << operando1 << "\n";
-			cout << "Operando 1: " << op1_int << "\n";
-			cout << "Resultado: " << res_int << "\n";
-			cout << "Index: " << offsetRes << "\n";
-			cout << "Direccion Final: " << resultado << "\n";
-			cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
-			cout << "************************************** \n";
-			*/
-							
-		}else{
-			offsetOp1 = generateOffsetInt(operando1, genDT1);
-			op1_int = memStack.top().getValorEnteros(offsetOp1);							
-			res_int = op1_int;
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);
+									
+				/*cout << "Direccion: " << operando1 << "\n";
+				cout << "Operando 1: " << op1_int << "\n";
+				cout << "Resultado: " << res_int << "\n";
+				cout << "Index: " << offsetRes << "\n";
+				cout << "Direccion Final: " << resultado << "\n";
+				cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
+				*/
 
-			if(generateDataType(resultado) != POINTER){
+			}else{
+								
+				offsetOp1 = generateOffsetInt(operando1, genDT1);
+				op1_int = memStack.top().getValorEnteros(offsetOp1);							
+				res_int = op1_int;
 				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
-			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);
+				
+				/*
+				cout << "Direccion: " << operando1 << "\n";
+				cout << "Operando 1: " << op1_int << "\n";
+				cout << "Resultado: " << res_int << "\n";
+				cout << "Index: " << offsetRes << "\n";
+				cout << "Direccion Final: " << resultado << "\n";
+				cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
+				*/
 			}
-							
-			memStack.top().setValorEnteros(offsetRes, res_int);
-			
-			/*			
-			cout << "************************************** \n";
-			cout << "Direccion: " << operando1 << "\n";
-			cout << "Operando 1: " << op1_int << "\n";
-			cout << "Resultado: " << res_int << "\n";
-			cout << "Index: " << offsetRes << "\n";
-			cout << "Direccion Final: " << resultado << "\n";
-			cout << "Valor Guardado: " << memStack.top().getValorEnteros(offsetRes) << "\n";
-			cout << "************************************** \n";
-			*/
-		}
 		break;
-	case FLOAT:
-		if(genDT1 == CTE_FLOAT){
-			op1_float = atof(getConstantValue(operando1).c_str());							
-			res_float = op1_float;
-							
-			if(generateDataType(resultado) != POINTER){
+		case FLOAT:
+			resultado = resultado + BASE_LOCAL_FLOAT;
+			if(genDT1 == CTE_FLOAT){
+				op1_float = atof(getConstantValue(operando1).c_str());							
+				res_float = op1_float;
 				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+							
+				memStack.top().setValorFlotantes(offsetRes, res_float);
 			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
-			}
-							
-			memStack.top().setValorFlotantes(offsetRes, res_float);
-		}else{
-			offsetOp1 = generateOffsetFloat(operando1, genDT1);
-			op1_float = memStack.top().getValorFlotantes(offsetOp1);							
-			res_float = op1_float;
-							
-			if(generateDataType(resultado) != POINTER){
+				offsetOp1 = generateOffsetFloat(operando1, genDT1);
+				op1_float = memStack.top().getValorFlotantes(offsetOp1);							
+				res_float = op1_float;
 				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
-			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
+							
+				memStack.top().setValorFlotantes(offsetRes, res_float);
 			}
-							
-			memStack.top().setValorFlotantes(offsetRes, res_float);
-		}
 		break;
-	case STRING:
-		if(genDT1 == CTE_STRING){
-			op1_string = getConstantValue(operando1);						
-			res_string = op1_string;
-							
-			if(generateDataType(resultado) != POINTER){
+		case STRING:
+			resultado = resultado + BASE_LOCAL_STRING;
+			if(genDT1 == CTE_STRING){
+				op1_string = getConstantValue(operando1);						
+				res_string = op1_string;
 				offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+				memStack.top().setValorStrings(offsetRes, res_string);
 			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
+				offsetOp1 = generateOffsetString(operando1, genDT1);
+				op1_string = memStack.top().getValorStrings(offsetOp1);							
+				res_string = op1_string;
+				offsetRes = generateOffsetString(resultado, generateDataType(resultado));
+							
+				memStack.top().setValorStrings(offsetRes, res_string);
 			}
-							
-			memStack.top().setValorStrings(offsetRes, res_string);
-		}else{
-			offsetOp1 = generateOffsetString(operando1, genDT1);
-			op1_string = memStack.top().getValorStrings(offsetOp1);							
-			res_string = op1_string;
-							
-			if(generateDataType(resultado) != POINTER){
-				offsetRes = generateOffsetString(resultado, generateDataType(resultado));
-			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
-		}
-							
-			memStack.top().setValorStrings(offsetRes, res_string);
-		}
 		break;
-	case BOOLEAN:
-		if(genDT1 == CTE_BOOLEAN){
-			if(strcmp("true",getConstantValue(operando1).c_str()) == 0)
-				op1_boolean = true;
-			else
-				op1_boolean = false;
+		case BOOLEAN:
+			resultado = resultado + BASE_LOCAL_BOOLEAN;
+			if(genDT1 == CTE_BOOLEAN){
+				if(strcmp("true",getConstantValue(operando1).c_str()) == 0)
+					op1_boolean = true;
+				else
+					op1_boolean = false;
 						
-			res_boolean = op1_boolean;
-							
-			if(generateDataType(resultado) != POINTER){
+				res_boolean = op1_boolean;
 				offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+				memStack.top().setValorBooleans(offsetRes, res_boolean);
 			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
-			}
-							
-			memStack.top().setValorBooleans(offsetRes, res_boolean);
-		}else{
-			offsetOp1 = generateOffsetBoolean(operando1, genDT1);
-			op1_boolean = memStack.top().getValorBooleans(offsetOp1);							
-			res_boolean = op1_boolean;
-							
-			if(generateDataType(resultado) != POINTER){
+				offsetOp1 = generateOffsetBoolean(operando1, genDT1);
+				op1_boolean = memStack.top().getValorBooleans(offsetOp1);							
+				res_boolean = op1_boolean;
 				offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
-			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
-			}
 							
-			memStack.top().setValorBooleans(offsetRes, res_boolean);
-		}
+				memStack.top().setValorBooleans(offsetRes, res_boolean);
+			}
 		break;
-	case CHAR:
-		if(genDT1 == CTE_CHAR){
-			op1_char = getConstantValue(operando1)[1];	
-			res_char = op1_char;
-							
-			if(generateDataType(resultado) != POINTER){
+		case CHAR:
+			resultado = resultado + BASE_LOCAL_CHAR;
+			if(genDT1 == CTE_CHAR){
+				op1_char = getConstantValue(operando1)[1];	
+				res_char = op1_char;
 				offsetRes = generateOffsetChar(resultado, generateDataType(resultado));
+							
+				memStack.top().setValorChars(offsetRes, res_char);
 			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
-			}
-							
-			memStack.top().setValorChars(offsetRes, res_char);
-		}else{
-			offsetOp1 = generateOffsetChar(operando1, genDT1);
-			op1_char = memStack.top().getValorChars(offsetOp1);							
-			res_char = op1_char;
-							
-			if(generateDataType(resultado) != POINTER){
+				offsetOp1 = generateOffsetChar(operando1, genDT1);
+				op1_char = memStack.top().getValorChars(offsetOp1);							
+				res_char = op1_char;
 				offsetRes = generateOffsetChar(resultado, generateDataType(resultado));
-			}else{
-				offsetRes = apuntadores[resultado - BASE_POINTERS];
-			}
 							
-			memStack.top().setValorChars(offsetRes, res_char);
-		}
+				memStack.top().setValorChars(offsetRes, res_char);
+			}
 		break;
-		//FALTA EL CASO DE ASIGNAR UN APUNTADOR A UN APUNTADOR
 	}
 }
 
@@ -4309,7 +4271,9 @@ void run(){
 				//cout << "Suma special " << apuntadores[resultado - BASE_POINTERS] << "\n";
 				break;
 		}
-		cout << "\n";
+		//cout << "Offset: " << generateOffsetInt(26000, 5) << "\n";
+		//cout << "Valor: " << memStack.top().getValorEnteros(generateOffsetInt(26000, 5)) << "\n";
+		//cout << "\n";
 		main_index++;
 	}
 }
