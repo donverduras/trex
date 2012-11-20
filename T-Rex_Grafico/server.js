@@ -14,7 +14,7 @@ http.createServer(function (request, response) {
 	string = json.data;
 	
 	finalString = string.toString('ascii',0,string.length);
-	console.log(finalString);
+	//console.log(finalString);
 	
 	var fs = require('fs');
 		fs.writeFile('test.txt', finalString, 'utf8' ,function (err) {

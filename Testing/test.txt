@@ -1,13 +1,1 @@
-program test{
-	
-	int a;
-	
-	function uno(int a){
-		int b;
-		
-		a = 3 * a;
-	}
-	
-	a = 2;
-	uno();
-}
+program main{ int x; x = 2; print(x); }
