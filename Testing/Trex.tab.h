@@ -60,39 +60,37 @@
      CHAR = 276,
      MAX = 277,
      MIN = 278,
-     REMINDER = 279,
+     REMAINDER = 279,
      FLOOR = 280,
      CEILING = 281,
      SQRT = 282,
      POW = 283,
-     SUBSTRING = 284,
-     STRINGAPPEND = 285,
-     RANDOM = 286,
-     LLAVEIZQ = 287,
-     LLAVEDER = 288,
-     COMA = 289,
-     PUNTOYCOMA = 290,
-     IGUAL = 291,
-     MENORQUE = 292,
-     MAYORQUE = 293,
-     DIFERENTE = 294,
-     IGUALIGUAL = 295,
-     SUMA = 296,
-     RESTA = 297,
-     MULTIPLICACION = 298,
-     DIVISION = 299,
-     PARENTESISIZQ = 300,
-     PARENTESISDER = 301,
-     CORIZQ = 302,
-     CORDER = 303,
-     AND = 304,
-     OR = 305,
-     CTE_ID = 306,
-     CTE_INT = 307,
-     CTE_FLOAT = 308,
-     CTE_STRING = 309,
-     CTE_BOOLEAN = 310,
-     CTE_CHAR = 311
+     RANDOM = 284,
+     LLAVEIZQ = 285,
+     LLAVEDER = 286,
+     COMA = 287,
+     PUNTOYCOMA = 288,
+     IGUAL = 289,
+     MENORQUE = 290,
+     MAYORQUE = 291,
+     DIFERENTE = 292,
+     IGUALIGUAL = 293,
+     SUMA = 294,
+     RESTA = 295,
+     MULTIPLICACION = 296,
+     DIVISION = 297,
+     PARENTESISIZQ = 298,
+     PARENTESISDER = 299,
+     CORIZQ = 300,
+     CORDER = 301,
+     AND = 302,
+     OR = 303,
+     CTE_ID = 304,
+     CTE_INT = 305,
+     CTE_FLOAT = 306,
+     CTE_STRING = 307,
+     CTE_BOOLEAN = 308,
+     CTE_CHAR = 309
    };
 #endif
 /* Tokens.  */
@@ -117,39 +115,37 @@
 #define CHAR 276
 #define MAX 277
 #define MIN 278
-#define REMINDER 279
+#define REMAINDER 279
 #define FLOOR 280
 #define CEILING 281
 #define SQRT 282
 #define POW 283
-#define SUBSTRING 284
-#define STRINGAPPEND 285
-#define RANDOM 286
-#define LLAVEIZQ 287
-#define LLAVEDER 288
-#define COMA 289
-#define PUNTOYCOMA 290
-#define IGUAL 291
-#define MENORQUE 292
-#define MAYORQUE 293
-#define DIFERENTE 294
-#define IGUALIGUAL 295
-#define SUMA 296
-#define RESTA 297
-#define MULTIPLICACION 298
-#define DIVISION 299
-#define PARENTESISIZQ 300
-#define PARENTESISDER 301
-#define CORIZQ 302
-#define CORDER 303
-#define AND 304
-#define OR 305
-#define CTE_ID 306
-#define CTE_INT 307
-#define CTE_FLOAT 308
-#define CTE_STRING 309
-#define CTE_BOOLEAN 310
-#define CTE_CHAR 311
+#define RANDOM 284
+#define LLAVEIZQ 285
+#define LLAVEDER 286
+#define COMA 287
+#define PUNTOYCOMA 288
+#define IGUAL 289
+#define MENORQUE 290
+#define MAYORQUE 291
+#define DIFERENTE 292
+#define IGUALIGUAL 293
+#define SUMA 294
+#define RESTA 295
+#define MULTIPLICACION 296
+#define DIVISION 297
+#define PARENTESISIZQ 298
+#define PARENTESISDER 299
+#define CORIZQ 300
+#define CORDER 301
+#define AND 302
+#define OR 303
+#define CTE_ID 304
+#define CTE_INT 305
+#define CTE_FLOAT 306
+#define CTE_STRING 307
+#define CTE_BOOLEAN 308
+#define CTE_CHAR 309
 
 
 
@@ -161,7 +157,7 @@ typedef union YYSTYPE
 	char *sval;
 }
 /* Line 1529 of yacc.c.  */
-#line 165 "Trex.tab.h"
+#line 161 "Trex.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

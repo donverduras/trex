@@ -48,13 +48,11 @@ void yyerror(const char *s);
 %token <sval> CHAR
 %token <sval> MAX
 %token <sval> MIN
-%token <sval> REMINDER
+%token <sval> REMAINDER
 %token <sval> FLOOR
 %token <sval> CEILING
 %token <sval> SQRT
 %token <sval> POW
-%token <sval> SUBSTRING
-%token <sval> STRINGAPPEND
 %token <sval> RANDOM
 %token <sval> LLAVEIZQ 
 %token <sval> LLAVEDER 
@@ -85,14 +83,14 @@ void yyerror(const char *s);
 %%
 
 programa:
-	programa_a  vars programa_b funcion programa_c { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
-	| programa_a funcion programa_c { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
-	| programa_a vars programa_b { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
-	| programa_a { set_start_function(main_func); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	programa_a  vars programa_b funcion programa_c { set_start_function(main_func); fillQuadruple_main(); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a funcion programa_c { set_start_function(main_func); fillQuadruple_main(); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a vars programa_b { set_start_function(main_func); fillQuadruple_main(); } programa_d { generate_obj(); cout << "EXITO" << endl; }
+	| programa_a { set_start_function(main_func); fillQuadruple_main(); } programa_d { generate_obj(); cout << "EXITO" << endl; }
 	;
 
 programa_a:
-	PROGRAM { initialize(); } CTE_ID { function_name = yylval.sval; main_func = function_name; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0", function_name);} LLAVEIZQ
+	PROGRAM { initialize(); generateQuadruple_main(); } CTE_ID { function_name = yylval.sval; main_func = function_name; insert_to_procs_table(function_name); main_function_name(function_name); set_current_function("0", function_name);} LLAVEIZQ
 	;
 
 programa_b:
@@ -106,7 +104,7 @@ programa_c:
 	;
 
 programa_d:
-	bloque LLAVEDER { set_fin_function(main_func, "0"); }
+	bloque LLAVEDER  { set_fin_main(); }
 	;
 
 bloque:
@@ -134,13 +132,8 @@ c:
 	;
 
 vars:
-	tipo CTE_ID vars2 PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,function_name); }
-	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA { name = $2;  size = $4; insert_arr_to_vars_table(name,var_type, size); }
-	;
-
-vars2:
-	IGUAL var_cte
-	|
+	tipo CTE_ID PUNTOYCOMA { name = $2; insert_to_vars_table(name,var_type,function_name); }
+	|tipo CTE_ID CORIZQ CTE_INT CORDER PUNTOYCOMA { name = $2;  size = $4; insert_arr_to_vars_table(name,var_type, size, function_name); }
 	;
 
 tipo:
@@ -169,6 +162,7 @@ estatuto:
 	|vars
 	|lectura
 	|llamada
+	|especial
 	;
 
 escritura:
@@ -177,6 +171,7 @@ escritura:
 
 escritura_a:
 	exp { generateQuadruple_print(); }
+	|especial3 { generateQuadruple_print(); }
 	;
 
 d:
@@ -227,6 +222,7 @@ e:
 sumaresta:
 	SUMA { push_to_pilaOperadores(yylval.sval); }
 	|RESTA { push_to_pilaOperadores(yylval.sval); }
+	|
 	;
 
 termino:
@@ -263,7 +259,7 @@ bloque_for:
 	;
 
 bloque_for_2:
-	CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } sumaresta CTE_INT { push_to_pilaOperandos($1, "0");  generateQuadruple_for3(); } 
+	CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } IGUAL { push_to_pilaOperadores(yylval.sval); } CTE_ID { push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } sumaresta CTE_INT { push_to_pilaOperandos(yylval.sval, "0");  generateQuadruple_for3(); } 
 	;
 
 loopwhile:
@@ -276,7 +272,8 @@ asignacion:
 
 asignacion_b:
 	expresion
-	| lectura
+	|lectura
+	|especial3
 	;
 	
 asignacion_c:
@@ -289,7 +286,7 @@ asignacion_d:
 	;
 	
 lectura:
-	READ PARENTESISIZQ PARENTESISDER PUNTOYCOMA
+	READ { push_to_pilaOperadores("read"); } PARENTESISIZQ PARENTESISDER { generateQuadruple_read(); }
 	;
 	
 funcion:
@@ -345,6 +342,100 @@ h:
 arr:
 	CTE_ID { name = $1; push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } CORIZQ { push_to_pilaOperadores("#"); } exp { pop_of_pilaOperadores(); } CORDER { verify_arr_limit(name); generateQuadruple_array(); }
 	;
+
+especial:
+	min
+	|max
+	|floor
+	|ceiling
+	|pow
+	|random
+	|sqrt
+	|remainder
+	;
+	
+especial3:
+	min2
+	|max2
+	|floor2
+	|ceiling2
+	|pow2
+	|random2
+	|sqrt2
+	|remainder2
+	;
+
+min:
+	MIN especial2 { cout << ""; generateQuadruple_min(); }
+	;
+
+max:
+	MAX especial2 { cout << ""; generateQuadruple_max(); }
+	;
+
+pow:
+	POW especial2 { cout << ""; generateQuadruple_pow(); }
+	;
+
+remainder:
+	REMAINDER especial2 { cout << ""; generateQuadruple_remainder(); }
+	;
+
+floor:
+	FLOOR PARENTESISIZQ exp PARENTESISDER PUNTOYCOMA { cout << ""; generateQuadruple_floor(); }
+	;
+
+ceiling:
+	CEILING PARENTESISIZQ exp PARENTESISDER PUNTOYCOMA { cout << ""; generateQuadruple_ceiling(); }
+
+random:
+	RANDOM PARENTESISIZQ PARENTESISDER PUNTOYCOMA { cout << ""; generateQuadruple_random(); }
+	;
+	
+sqrt:
+	SQRT PARENTESISIZQ exp PARENTESISDER PUNTOYCOMA { cout << ""; generateQuadruple_sqrt(); }
+	;
+
+min2:
+	MIN especial4 { cout << ""; generateQuadruple_min(); }
+	;
+
+max2:
+	MAX especial4 { cout << ""; generateQuadruple_max(); }
+	;
+
+pow2:
+	POW especial4 { cout << ""; generateQuadruple_pow(); }
+	;
+	
+remainder2:
+	REMAINDER especial4 { cout << ""; generateQuadruple_remainder(); }
+	;
+	
+floor2:
+	FLOOR PARENTESISIZQ exp PARENTESISDER { cout << ""; generateQuadruple_floor(); }
+	;
+
+ceiling2:
+	CEILING PARENTESISIZQ exp PARENTESISDER { cout << ""; generateQuadruple_ceiling(); }
+
+random2:
+	RANDOM PARENTESISIZQ PARENTESISDER { cout << ""; generateQuadruple_random(); }
+	;
+	
+sqrt2:
+	SQRT PARENTESISIZQ exp PARENTESISDER { cout << ""; generateQuadruple_sqrt(); }
+	;
+	
+especial2:
+	PARENTESISIZQ exp COMA exp PARENTESISDER PUNTOYCOMA
+	;
+
+especial4:
+	PARENTESISIZQ exp COMA exp PARENTESISDER
+	;
+
+
 
 %%
 

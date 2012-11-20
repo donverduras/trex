@@ -1,5 +1,14 @@
 //g++ Trex.tab.c lex.yy.c `pkg-config --cflags --libs glib-2.0` semantic_methods.c semantic_methods.h -ll -o Trex
 
+/*
+#Salvador Salazar
+#Luis Verduzco
+
+#Semantic_Methods.h
+#Definicion de funciones que manejan la logica del compilador
+
+*/
+
 #include <iostream>
 #include <string>
 #include <stdlib.h>
@@ -7,13 +16,16 @@
 
 using namespace std;
 
+//Estructuras
 struct VarCont;
 struct Procedure;
 struct Variable;
 
+//Declaracion de funciones
 int asign_dirVirtual(char* var_type);
 bool check_if_stack_exists(int key, int arrType);
 void count_params();
+void fillQuadruple_main();
 void delete_vars_from_varTable(char *func_name);
 void generate_activation_record(char *func_name);
 void generate_fin_for();
@@ -24,11 +36,21 @@ void generate_obj();
 void generateQuadruple();
 void generateQuadruple_array();
 void generateQuadruple_asignacion();
+void generateQuadruple_ceiling();
 void generateQuadruple_else();
+void generateQuadruple_floor();
 void generateQuadruple_for2();
 void generateQuadruple_for3();
 void generateQuadruple_if();
+void generateQuadruple_max();
+void generateQuadruple_main();
+void generateQuadruple_min();
 void generateQuadruple_print();
+void generateQuadruple_pow();
+void generateQuadruple_random();
+void generateQuadruple_read();
+void generateQuadruple_remainder();
+void generateQuadruple_sqrt();
 void generateQuadruple_while();
 int get_hash_key(string key);
 int get_operator_type(const char* op);
@@ -38,7 +60,7 @@ int get_var_type(const char *var_cte);
 void initialize();
 void initialize_arrs();
 void initialize_stacks();
-void insert_arr_to_vars_table(string id, string type, string size);
+void insert_arr_to_vars_table(string id, string type, string size, char* func_name);
 void insert_param_type(char *func_name, char *var_type);
 void insert_to_procs_table(string id);
 void insert_to_vars_table(string id, string type, char* func_name);
@@ -63,7 +85,9 @@ int search_for_arrLimit(char *var_cte);
 int search_for_id(gconstpointer a, gconstpointer b);
 int search_for_dirVirtual(char *var_cte);
 char *search_for_variable_type(char *var_cte);
+void search_in_pilas(gpointer data, gpointer user_data);
 void set_current_function(char *function, char* func_name);
+void set_fin_main();
 void set_fin_function(char *func, char *curr);
 void set_start_function(char *func);
 void verify_arr_limit(char *var_cte);
