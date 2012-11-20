@@ -1,5 +1,14 @@
 //g++ Trex.tab.c lex.yy.c `pkg-config --cflags --libs glib-2.0` semantic_methods.c semantic_methods.h -ll -o Trex
 
+/*
+#Salvador Salazar
+#Luis Verduzco
+
+#Semantic_Methods.h
+#Definicion de funciones que manejan la logica del compilador
+
+*/
+
 #include <iostream>
 #include <string>
 #include <stdlib.h>
@@ -7,10 +16,12 @@
 
 using namespace std;
 
+//Estructuras
 struct VarCont;
 struct Procedure;
 struct Variable;
 
+//Declaracion de funciones
 int asign_dirVirtual(char* var_type);
 bool check_if_stack_exists(int key, int arrType);
 void count_params();
