@@ -11,7 +11,7 @@ body{
 }
 
 .elementos { 
-	width: 259px; 
+	width: 240px; 
 	height: 500px; 
 	border: 3px solid;
 	float: left;
@@ -19,13 +19,23 @@ body{
 }
 
 .flowchart {
-	width: 594px;
+	width: 240px;
 	min-height: 500px;
 	border: 3px solid;
 	float: left;
 	margin-left: 50px;
 	padding-left: 50px;
 }
+
+.codigo {
+	width: 240px;
+	min-height: 500px;
+	border: 3px solid;
+	float: left;
+	margin-left: 50px;
+	padding-left: 50px;
+}
+
 
 .variable { 
 	width: 100px; 

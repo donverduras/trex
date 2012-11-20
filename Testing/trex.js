@@ -64,7 +64,7 @@ function agregar_estatuto(elemento, tipo) {
 
 function agregar_variable(elemento, tipo) {
 	var x;
-	var var_text=prompt("Agrega tipo, nombre y valor de la variable","Ejem: int x = 3");
+	var var_text=prompt("Agrega tipo y nombre de variable","Ejem: int x");
 	x='<div class="elemento" onclick="agregar_elem(this)"><div class="variable"> ' + var_text + '</div><div class="conector"></div></div>';
 	
 	if (var_text!="" && tipo!="end"){
@@ -244,6 +244,7 @@ function agregar_elem(elemento, tipo){
 }
 
 function convertir(){
+	$('.code').empty();
 	var elementos = document.getElementsByClassName('elemento');
 	codigo = "";
 	for(var i=0; i<elementos.length; i++){ 
@@ -251,34 +252,42 @@ function convertir(){
 			if($(elementos[i]).children().attr('class') == 'for'){
 				console.log("for(" + $(elementos[i]).children().html() + "){");
 				codigo = codigo + "for(" + $(elementos[i]).children().html() + "){";
+				$('.code').append("<p>for(" + $(elementos[i]).children().html() + "){</p>");
 			}
 			else if($(elementos[i]).children().attr('class') == 'while'){
 				console.log("while(" + $(elementos[i]).children().html() + "){");
 				codigo = codigo + "while(" + $(elementos[i]).children().html() + "){";
+				$('.code').append("<p>while(" + $(elementos[i]).children().html() + "){</p>");
 			}
 			else if($(elementos[i]).children().attr('class') == 'if'){
 				console.log("if(" + $(elementos[i]).children().html() + "){");
 				codigo = codigo + "if(" + $(elementos[i]).children().html() + "){";
+				$('.code').append("<p>if(" + $(elementos[i]).children().html() + "){</p>");
 			}
 			else if($(elementos[i]).children().attr('class') == 'else'){
 				console.log("else(" + $(elementos[i]).children().html() + "){");
 				codigo = codigo + "else(" + $(elementos[i]).children().html() + "){";
+				$('.code').append("<p>else(" + $(elementos[i]).children().html() + "){</p>");
 			}
 			else if($(elementos[i]).children().attr('class') == 'funcion'){
-				console.log("function " + $(elementos[i]).children().html() + "){");
-				codigo = codigo + "function " + $(elementos[i]).children().html() + "){";
+				console.log("function " + $(elementos[i]).children().html() + "{");
+				codigo = codigo + "function " + $(elementos[i]).children().html() + "{";
+				$('.code').append("<p>function " + $(elementos[i]).children().html() + "{</p>");
 			}
 			else if($(elementos[i]).children().attr('class') == 'variable' || $(elementos[i]).children().attr('class') == 'operacion'){
 				console.log(($(elementos[i]).children().html()) + ";");
 				codigo = codigo + ($(elementos[i]).children().html()) + ";";
+				$('.code').append('<p>' + ($(elementos[i]).children().html()) + ";</p>");
 			}
 			else if($(elementos[i]).children().attr('class') == 'estatuto' && $(elementos[i]).children().html() == "inicio"){
 				console.log("program main{");
 				codigo = codigo + "program main{";
+				$('.code').append('<p>program main{</p>');
 			}
 			else if($(elementos[i]).children().attr('class') == 'endfor' || $(elementos[i]).children().attr('class') == 'endwhile' || $(elementos[i]).children().attr('class') == 'endif' || $(elementos[i]).children().attr('class') == 'endfuncion' || $(elementos[i]).children().attr('class') == 'estatuto' && $(elementos[i]).children().html() == "fin"){
 				console.log("}");
 				codigo = codigo + " }";
+				$('.code').append("<p>}</p>");
 			}
 		}
 	}
