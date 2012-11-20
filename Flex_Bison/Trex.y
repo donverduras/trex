@@ -48,13 +48,11 @@ void yyerror(const char *s);
 %token <sval> CHAR
 %token <sval> MAX
 %token <sval> MIN
-%token <sval> REMINDER
+%token <sval> REMAINDER
 %token <sval> FLOOR
 %token <sval> CEILING
 %token <sval> SQRT
 %token <sval> POW
-%token <sval> SUBSTRING
-%token <sval> STRINGAPPEND
 %token <sval> RANDOM
 %token <sval> LLAVEIZQ 
 %token <sval> LLAVEDER 
@@ -164,6 +162,7 @@ estatuto:
 	|vars
 	|lectura
 	|llamada
+	|especial
 	;
 
 escritura:
@@ -172,6 +171,7 @@ escritura:
 
 escritura_a:
 	exp { generateQuadruple_print(); }
+	|especial3 { generateQuadruple_print(); }
 	;
 
 d:
@@ -273,6 +273,7 @@ asignacion:
 asignacion_b:
 	expresion
 	|lectura
+	|especial3
 	;
 	
 asignacion_c:
@@ -341,6 +342,100 @@ h:
 arr:
 	CTE_ID { name = $1; push_to_pilaOperandos($1, "5"); push_to_pilaTipos($1); } CORIZQ { push_to_pilaOperadores("#"); } exp { pop_of_pilaOperadores(); } CORDER { verify_arr_limit(name); generateQuadruple_array(); }
 	;
+
+especial:
+	min
+	|max
+	|floor
+	|ceiling
+	|pow
+	|random
+	|sqrt
+	|remainder
+	;
+	
+especial3:
+	min2
+	|max2
+	|floor2
+	|ceiling2
+	|pow2
+	|random2
+	|sqrt2
+	|remainder2
+	;
+
+min:
+	MIN especial2 { cout << ""; generateQuadruple_min(); }
+	;
+
+max:
+	MAX especial2 { cout << ""; generateQuadruple_max(); }
+	;
+
+pow:
+	POW especial2 { cout << ""; generateQuadruple_pow(); }
+	;
+
+remainder:
+	REMAINDER especial2 { cout << ""; generateQuadruple_remainder(); }
+	;
+
+floor:
+	FLOOR PARENTESISIZQ exp PARENTESISDER PUNTOYCOMA { cout << ""; generateQuadruple_floor(); }
+	;
+
+ceiling:
+	CEILING PARENTESISIZQ exp PARENTESISDER PUNTOYCOMA { cout << ""; generateQuadruple_ceiling(); }
+
+random:
+	RANDOM PARENTESISIZQ PARENTESISDER PUNTOYCOMA { cout << ""; generateQuadruple_random(); }
+	;
+	
+sqrt:
+	SQRT PARENTESISIZQ exp PARENTESISDER PUNTOYCOMA { cout << ""; generateQuadruple_sqrt(); }
+	;
+
+min2:
+	MIN especial4 { cout << ""; generateQuadruple_min(); }
+	;
+
+max2:
+	MAX especial4 { cout << ""; generateQuadruple_max(); }
+	;
+
+pow2:
+	POW especial4 { cout << ""; generateQuadruple_pow(); }
+	;
+	
+remainder2:
+	REMAINDER especial4 { cout << ""; generateQuadruple_remainder(); }
+	;
+	
+floor2:
+	FLOOR PARENTESISIZQ exp PARENTESISDER { cout << ""; generateQuadruple_floor(); }
+	;
+
+ceiling2:
+	CEILING PARENTESISIZQ exp PARENTESISDER { cout << ""; generateQuadruple_ceiling(); }
+
+random2:
+	RANDOM PARENTESISIZQ PARENTESISDER { cout << ""; generateQuadruple_random(); }
+	;
+	
+sqrt2:
+	SQRT PARENTESISIZQ exp PARENTESISDER { cout << ""; generateQuadruple_sqrt(); }
+	;
+	
+especial2:
+	PARENTESISIZQ exp COMA exp PARENTESISDER PUNTOYCOMA
+	;
+
+especial4:
+	PARENTESISIZQ exp COMA exp PARENTESISDER
+	;
+
+
 
 %%
 

@@ -20,8 +20,9 @@ enum virtual_memory { GLOBAL_INT=1000, GLOBAL_FLOAT=6000, GLOBAL_STRING=11000, G
 					  POINTERS = 100000 };
 
 //Simbolos
-enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=501,	VER=403, 	POINTER=15,
-				INIPROC=500,PARAM=402, 	READ=301	 };
+enum symbols {	GOTO=200,	GOTOF=201,	PRINT=300,	ERA=400,	GOSUB=401,	RET=501,	VER=403, 		POINTER=15,
+				INIPROC=500,PARAM=402, 	READ=301, 	MIN=404,	MAX=405,	POW=406,	REMAINDER=407,	FLOOR=408,
+				CEILING=409,RANDOM=410,	SQRT=411 };
 
 //Contadores de direcciones virtuales
 int global_int_cont = 0,	global_float_cont = 0,	global_string_cont = 0,	global_boolean_cont = 0,	global_char_cont = 0,
@@ -63,7 +64,7 @@ static GQueue* pilaTipos;
 static GQueue* pilaAuxFor;
 //static GQueue* pilaParametros;
 
-static int cubo[9][5][5] =
+static int cubo[11][5][5] =
 {
 		{//"+"
 			{1, 2, 3, -1, -1},
@@ -126,6 +127,20 @@ static int cubo[9][5][5] =
 			{4, 4, -1, -1, -1},
 			{-1, -1, 4, -1, -1},
 			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1}
+		},
+		{//"&&"
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, 4, -1},
+			{-1, -1, -1, -1, -1}
+		},
+		{//"||"
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, 4, -1},
 			{-1, -1, -1, -1, -1}
 		}
 };
@@ -493,7 +508,6 @@ void generate_obj(){
 }
 
 void generateQuadruple(){
-	//cout << "#" << quadruple_index << " ";
 	int op, operando1, operando2, temp;
 	char *aux, *temp_aux;
 	int resultadoCubo, operador, op1, op2, dirVir;
@@ -545,7 +559,8 @@ void generateQuadruple(){
 		new_quadruple->operando1 = operando1;
 		new_quadruple->resultado = dirVir;
 		
-		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		cout << "#" << quadruple_index << " ";
+		cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 		g_queue_push_tail(pilaPasos, new_quadruple);
 		quadruple_index++;
 		
@@ -659,11 +674,51 @@ void generateQuadruple_asignacion(){
 	}
 }
 
+void generateQuadruple_ceiling(){
+	int op, operando1, temp;
+	char *aux, *temp_aux;
+	int resultadoCubo, operador, op1, dirVir;
+	
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	
+		
+	if(op1 == 1){
+		g_queue_pop_tail(pilaTipos);
+		
+		Quadruple *new_quadruple = new Quadruple;
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+			
+
+		dirVir = TEMP_FLOAT + temp_float_cont;
+		temp_float_cont++;
+		temp_float_cont_func++;
+
+		
+		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
+		
+		new_quadruple->operador = CEILING;
+		new_quadruple->operando2 = -1;
+		new_quadruple->operando1 = operando1;
+		new_quadruple->resultado = dirVir;
+		
+		//cout << "#" << quadruple_index << " ";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
+		
+		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
+		
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
 void generateQuadruple_else(){
 	//Sacar la instruccion a rellenar del IF
 	int quad_number = GPOINTER_TO_INT(g_queue_pop_tail(pilaSaltos));
 	
-	cout << "#" << quadruple_index << " ";
+	//cout << "#" << quadruple_index << " ";
 	//Generar GOTO
 	Quadruple *new_quadruple = new Quadruple;
 	new_quadruple->operador = GOTO;
@@ -692,6 +747,46 @@ void generateQuadruple_else(){
 	g_queue_push_nth(pilaPasos, aux, quad_number);
 	g_queue_pop_nth(pilaPasos, quad_number+1);
 	
+}
+
+void generateQuadruple_floor(){
+	int op, operando1, temp;
+	char *aux, *temp_aux;
+	int resultadoCubo, operador, op1, dirVir;
+	
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	
+		
+	if(op1 == 1){
+		g_queue_pop_tail(pilaTipos);
+		
+		Quadruple *new_quadruple = new Quadruple;
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+			
+
+		dirVir = TEMP_FLOAT + temp_float_cont;
+		temp_float_cont++;
+		temp_float_cont_func++;
+
+		
+		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
+		
+		new_quadruple->operador = FLOOR;
+		new_quadruple->operando2 = -1;
+		new_quadruple->operando1 = operando1;
+		new_quadruple->resultado = dirVir;
+		
+		//cout << "#" << quadruple_index << " ";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
+		
+		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
+		
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
 }
 
 void generateQuadruple_for2(){
@@ -841,6 +936,54 @@ void generateQuadruple_if(){
 	//cout << "\n";
 }
 
+void generateQuadruple_max(){
+	int op, operando1, operando2, temp;
+	char *aux, *temp_aux;
+	int resultadoCubo, operador, op1, op2, dirVir;
+	
+	op2 = GPOINTER_TO_INT(g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2)));
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	resultadoCubo = cubo[operador][op1][op2] - 1;
+	
+		
+	if(op1 == op2){
+		g_queue_pop_tail(pilaTipos);
+		g_queue_pop_tail(pilaTipos);
+		
+		Quadruple *new_quadruple = new Quadruple;
+		operando2 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+			
+		if(resultadoCubo == 0){
+			dirVir = TEMP_INT + temp_int_cont;
+			temp_int_cont++;
+			temp_int_cont_func++;
+		}else if(resultadoCubo == 1){
+			dirVir = TEMP_FLOAT + temp_float_cont;
+			temp_float_cont++;
+			temp_float_cont_func++;
+		}
+		
+		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
+		
+		new_quadruple->operador = MAX;
+		new_quadruple->operando2 = operando2;
+		new_quadruple->operando1 = operando1;
+		new_quadruple->resultado = dirVir;
+		
+		//cout << "#" << quadruple_index << " ";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
+		
+		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
+		
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
 void generateQuadruple_main(){
 	int aux, resultado;
 	
@@ -858,6 +1001,54 @@ void generateQuadruple_main(){
 	quadruple_index++;
 }
 
+void generateQuadruple_min(){
+	int op, operando1, operando2, temp;
+	char *aux, *temp_aux;
+	int resultadoCubo, operador, op1, op2, dirVir;
+	
+	op2 = GPOINTER_TO_INT(g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2)));
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	resultadoCubo = cubo[operador][op1][op2] - 1;
+	
+		
+	if(op1 == op2){
+		g_queue_pop_tail(pilaTipos);
+		g_queue_pop_tail(pilaTipos);
+		
+		Quadruple *new_quadruple = new Quadruple;
+		operando2 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+			
+		if(resultadoCubo == 0){
+			dirVir = TEMP_INT + temp_int_cont;
+			temp_int_cont++;
+			temp_int_cont_func++;
+		}else if(resultadoCubo == 1){
+			dirVir = TEMP_FLOAT + temp_float_cont;
+			temp_float_cont++;
+			temp_float_cont_func++;
+		}
+		
+		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
+		
+		new_quadruple->operador = MIN;
+		new_quadruple->operando2 = operando2;
+		new_quadruple->operando1 = operando1;
+		new_quadruple->resultado = dirVir;
+		
+		//cout << "#" << quadruple_index << " ";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
+		
+		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
+		
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
 void generateQuadruple_print(){
 	int print = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperadores));
 	int resultado = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
@@ -873,6 +1064,72 @@ void generateQuadruple_print(){
 	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
 	g_queue_push_tail(pilaPasos, new_quadruple);
 	quadruple_index++;
+}
+
+void generateQuadruple_pow(){
+	int op, operando1, operando2, temp;
+	char *aux, *temp_aux;
+	int resultadoCubo, operador, op1, op2, dirVir;
+	
+	op2 = GPOINTER_TO_INT(g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2)));
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	
+		
+	if(op1 == 1 && op2 == 1){
+		g_queue_pop_tail(pilaTipos);
+		g_queue_pop_tail(pilaTipos);
+		
+		Quadruple *new_quadruple = new Quadruple;
+		operando2 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+			
+		
+		dirVir = TEMP_FLOAT + temp_float_cont;
+		temp_float_cont++;
+		temp_float_cont_func++;
+
+		
+		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
+		
+		new_quadruple->operador = POW;
+		new_quadruple->operando2 = operando2;
+		new_quadruple->operando1 = operando1;
+		new_quadruple->resultado = dirVir;
+		
+		//cout << "#" << quadruple_index << " ";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
+		
+		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
+		
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
+void generateQuadruple_random(){
+	int dirVir;
+	
+	Quadruple *new_quadruple = new Quadruple;
+	dirVir = TEMP_INT + temp_int_cont;
+	temp_int_cont++;
+	temp_int_cont_func++;
+	
+	g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
+		
+	new_quadruple->operador = RANDOM;
+	new_quadruple->operando2 = -1;
+	new_quadruple->operando1 = -1;
+	new_quadruple->resultado = dirVir;
+		
+	//cout << "#" << quadruple_index << " ";
+	//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+	g_queue_push_tail(pilaPasos, new_quadruple);
+	quadruple_index++;
+		
+	g_queue_push_tail(pilaTipos, (gpointer) 0);
 }
 
 void generateQuadruple_read(){
@@ -910,6 +1167,87 @@ void generateQuadruple_read(){
 	g_queue_push_tail(pilaOperandos, GINT_TO_POINTER(dirVir));
 	g_queue_push_tail(pilaTipos, GINT_TO_POINTER(tipo));
 	quadruple_index++;
+}
+
+void generateQuadruple_remainder(){
+	int op, operando1, operando2, temp;
+	char *aux, *temp_aux;
+	int resultadoCubo, operador, op1, op2, dirVir;
+	
+	op2 = GPOINTER_TO_INT(g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2)));
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+	resultadoCubo = cubo[operador][op1][op2] - 1;
+	
+		
+	if(op1 == 0 && op2 == 0){
+		g_queue_pop_tail(pilaTipos);
+		g_queue_pop_tail(pilaTipos);
+		
+		Quadruple *new_quadruple = new Quadruple;
+		operando2 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+			
+		if(resultadoCubo == 0 || resultadoCubo == 1){
+			dirVir = TEMP_INT + temp_int_cont;
+			temp_int_cont++;
+			temp_int_cont_func++;
+		}
+		
+		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
+		
+		new_quadruple->operador = REMAINDER;
+		new_quadruple->operando2 = operando2;
+		new_quadruple->operando1 = operando1;
+		new_quadruple->resultado = dirVir;
+		
+		//cout << "#" << quadruple_index << " ";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
+		
+		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
+		
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
+}
+
+void generateQuadruple_sqrt(){
+	int op, operando1, temp;
+	char *aux, *temp_aux;
+	int resultadoCubo, operador, op1, dirVir;
+	
+	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
+		
+	if(op1 == 1){
+		g_queue_pop_tail(pilaTipos);
+		
+		Quadruple *new_quadruple = new Quadruple;
+		operando1 = GPOINTER_TO_INT(g_queue_pop_tail(pilaOperandos));
+			
+		dirVir = TEMP_FLOAT + temp_float_cont;
+		temp_float_cont++;
+		temp_float_cont_func++;
+		
+		g_queue_push_tail(pilaOperandos, (gpointer) dirVir);
+		
+		new_quadruple->operador = SQRT;
+		new_quadruple->operando2 = -1;
+		new_quadruple->operando1 = operando1;
+		new_quadruple->resultado = dirVir;
+		
+		//cout << "#" << quadruple_index << " ";
+		//cout << "( " << new_quadruple->operador << ", " << new_quadruple->operando1 << ", " << new_quadruple->operando2 << ", " << new_quadruple->resultado << " ) \n";
+		g_queue_push_tail(pilaPasos, new_quadruple);
+		quadruple_index++;
+		
+		g_queue_push_tail(pilaTipos, (gpointer) resultadoCubo);
+		
+	}else{
+		cout << "Error de semántica: tipos incompatibles. \n";
+		exit (EXIT_FAILURE);
+	}
 }
 
 void generateQuadruple_while(){
@@ -975,6 +1313,10 @@ int get_operator_type(const char* op){
 		return 7;
 	}else if(strcmp(op,"==") == 0){
 		return 8;
+	}else if(strcmp(op,"&&") == 0){
+		return 9;
+	}else if(strcmp(op,"||") == 0){
+		return 10;
 	}else if(strcmp(op,"#") == 0){
 		return -1;
 	}else if(strcmp(op,"print") == 0){
@@ -1494,7 +1836,7 @@ void quadruple_relational(){
 	//cout << "RELACIONAL \n";
 	//cout << "El operador es: " << operador << "\n";
 	
-	if(op == 4 || op == 5 || op == 7 || op == 8){
+	if(op == 4 || op == 5 || op == 7 || op == 8 || op == 9 || op == 10){
 		generateQuadruple();
 	}else if(op == 6){
 		generateQuadruple_asignacion();

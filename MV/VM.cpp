@@ -5,6 +5,7 @@
 #include <stack>
 #include <stdio.h>
 #include <sstream>
+#include <cmath>
 
 using namespace std;
 
@@ -124,7 +125,9 @@ enum symbols {	BASE_GLOBAL_INT = 1000,	BASE_GLOBAL_FLOAT = 6000,	BASE_GLOBAL_STR
 				TEMP_BOOLEAN = 13,		TEMP_CHAR = 14,				CTE_INT = 15, 				CTE_FLOAT = 16, 				CTE_STRING = 17,
 				CTE_BOOLEAN = 18, 		CTE_CHAR = 19, 				GOTO = 200,					GOTOF = 201,					PRINT = 300,
 				ERA = 400,				GOSUB = 401,				PARAM = 402,				VER = 403,						INIPROC = 500,
-				RET = 501,				SPECIALSUM = 800,			POINTER = 20, 				READ = 301 };
+				RET = 501,				SPECIALSUM = 800,			POINTER = 20, 				READ = 301,						MIN = 404,
+				MAX = 405,				POW = 406,					REMAINDER = 407,			FLOOR = 408,					CEILING = 409,
+				RANDOM = 410,			SQRT = 411 };
 
 //Arreglo de memorias
 Procedure *proc;
@@ -561,6 +564,414 @@ void asignacion_parametros(int operando1, int resultado){
 	}
 }
 
+void maxfunc(int operando1, int operando2, int resultado){
+	int tipo_dato1, tipo_dato2, tipo_resultado, genDT1, genDT2, offsetRes, offsetOp1, offsetOp2, offset;
+	
+	int op1_int, op2_int, res_int, read_int;
+	float op1_float, op2_float, res_float, read_float;
+	
+	tipo_dato1 = getDataType(operando1);
+	tipo_dato2 = getDataType(operando2);
+	tipo_resultado = getDataType(resultado);
+			
+	genDT1 = generateDataType(operando1);
+	genDT2 = generateDataType(operando2);
+	
+	switch(tipo_dato1){
+		case INTEGER:
+			//1 max(cte_int, cte_int)
+			if(genDT1 == CTE_INT && genDT2 == CTE_INT){ 
+			op1_int = atoi(getConstantValue(operando1).c_str());
+			op2_int = atoi(getConstantValue(operando2).c_str());						
+			res_int = max(op1_int, op2_int);
+			offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+			memStack.top().setValorEnteros(offsetRes, res_int);
+			
+			}
+			//3 max(cte_int, int)
+			else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
+				op1_int = atoi(getConstantValue(operando1).c_str());
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_int = memStack.top().getValorEnteros(offsetOp2);						
+				res_int = max(op1_int, op2_int);
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);	
+			}
+			//5 max(int, cte_int)
+			else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
+				offsetOp1 = generateOffsetInt(operando1, genDT1);
+				op1_int = memStack.top().getValorEnteros(offsetOp1);	
+				op2_int = atoi(getConstantValue(operando2).c_str());						
+				res_int = max(op1_int, op2_int);
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);
+			}
+			//7 max(int, int)
+			else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
+				offsetOp1 = generateOffsetInt(operando1, genDT1);
+				op1_int = memStack.top().getValorEnteros(offsetOp1);
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_int = memStack.top().getValorEnteros(offsetOp2);						
+				res_int = max(op1_int, op2_int);
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);
+			}
+		break;
+		case FLOAT:
+			//10 max(cte_float, cte_float)
+			if(genDT1 == CTE_FLOAT && genDT2 == CTE_FLOAT){
+				op1_float = atof(getConstantValue(operando1).c_str());
+				op2_float = atof(getConstantValue(operando2).c_str());						
+				res_float = max(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);	
+			}
+			//12 max(cte_float, float)
+			else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
+				op1_float = atof(getConstantValue(operando1).c_str());
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+				res_float = max(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+			//14 max(float, cte_float)
+			else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
+				offsetOp1 = generateOffsetFloat(operando1, genDT1);
+				op1_float = memStack.top().getValorFlotantes(offsetOp1);	
+				op2_float = atof(getConstantValue(operando2).c_str());						
+				res_float = max(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+			//16 max(float, float)
+			else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
+				offsetOp1 = generateOffsetFloat(operando1, genDT1);
+				op1_float = memStack.top().getValorFlotantes(offsetOp1);
+				offsetOp2 = generateOffsetFloat(operando2, genDT2);
+				op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+				res_float = max(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+		break;
+	}
+}
+
+void minfunc(int operando1, int operando2, int resultado){
+	int tipo_dato1, tipo_dato2, tipo_resultado, genDT1, genDT2, offsetRes, offsetOp1, offsetOp2, offset;
+	
+	int op1_int, op2_int, res_int, read_int;
+	float op1_float, op2_float, res_float, read_float;
+	
+	tipo_dato1 = getDataType(operando1);
+	tipo_dato2 = getDataType(operando2);
+	tipo_resultado = getDataType(resultado);
+			
+	genDT1 = generateDataType(operando1);
+	genDT2 = generateDataType(operando2);
+	
+	switch(tipo_dato1){
+		case INTEGER:
+			//1 min(cte_int, cte_int)
+			if(genDT1 == CTE_INT && genDT2 == CTE_INT){ 
+			op1_int = atoi(getConstantValue(operando1).c_str());
+			op2_int = atoi(getConstantValue(operando2).c_str());						
+			res_int = min(op1_int, op2_int);
+			offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+			memStack.top().setValorEnteros(offsetRes, res_int);
+			
+			}
+			//3 min(cte_int, int)
+			else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
+				op1_int = atoi(getConstantValue(operando1).c_str());
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_int = memStack.top().getValorEnteros(offsetOp2);						
+				res_int = min(op1_int, op2_int);
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);	
+			}
+			//5 min(int, cte_int)
+			else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
+				offsetOp1 = generateOffsetInt(operando1, genDT1);
+				op1_int = memStack.top().getValorEnteros(offsetOp1);	
+				op2_int = atoi(getConstantValue(operando2).c_str());						
+				res_int = min(op1_int, op2_int);
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);
+			}
+			//7 min(int, int)
+			else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
+				offsetOp1 = generateOffsetInt(operando1, genDT1);
+				op1_int = memStack.top().getValorEnteros(offsetOp1);
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_int = memStack.top().getValorEnteros(offsetOp2);						
+				res_int = min(op1_int, op2_int);
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);
+			}
+		break;
+		case FLOAT:
+			//10 min(cte_float, cte_float)
+			if(genDT1 == CTE_FLOAT && genDT2 == CTE_FLOAT){
+				op1_float = atof(getConstantValue(operando1).c_str());
+				op2_float = atof(getConstantValue(operando2).c_str());						
+				res_float = min(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);	
+			}
+			//12 min(cte_float, float)
+			else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
+				op1_float = atof(getConstantValue(operando1).c_str());
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+				res_float = min(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+			//14 min(float, cte_float)
+			else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
+				offsetOp1 = generateOffsetFloat(operando1, genDT1);
+				op1_float = memStack.top().getValorFlotantes(offsetOp1);	
+				op2_float = atof(getConstantValue(operando2).c_str());						
+				res_float = min(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+			//16 min(float, float)
+			else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
+				offsetOp1 = generateOffsetFloat(operando1, genDT1);
+				op1_float = memStack.top().getValorFlotantes(offsetOp1);
+				offsetOp2 = generateOffsetFloat(operando2, genDT2);
+				op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+				res_float = min(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+		break;
+	}
+}
+
+void powfunc(int operando1, int operando2, int resultado){
+	int tipo_dato1, tipo_dato2, tipo_resultado, genDT1, genDT2, offsetRes, offsetOp1, offsetOp2, offset;
+	
+	float op1_float, op2_float, res_float, read_float;
+	
+	tipo_dato1 = getDataType(operando1);
+	tipo_dato2 = getDataType(operando2);
+	tipo_resultado = getDataType(resultado);
+			
+	genDT1 = generateDataType(operando1);
+	genDT2 = generateDataType(operando2);
+	
+	switch(tipo_dato1){
+		case FLOAT:
+			//14 cte_float ^ cte_float
+			if(genDT1 == CTE_FLOAT && genDT2 == CTE_FLOAT){
+				op1_float = atof(getConstantValue(operando1).c_str());
+				op2_float = atof(getConstantValue(operando2).c_str());						
+				res_float = pow(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);	
+			}
+			//17 cte_float ^ float
+			else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
+				op1_float = atof(getConstantValue(operando1).c_str());
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+				res_float = pow(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+			//20 float ^ cte_float
+			else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
+				offsetOp1 = generateOffsetFloat(operando1, genDT1);
+				op1_float = memStack.top().getValorFlotantes(offsetOp1);	
+				op2_float = atof(getConstantValue(operando2).c_str());						
+				res_float = pow(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+			//23 float ^ float
+			else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
+				offsetOp1 = generateOffsetFloat(operando1, genDT1);
+				op1_float = memStack.top().getValorFlotantes(offsetOp1);
+				offsetOp2 = generateOffsetFloat(operando2, genDT2);
+				op2_float = memStack.top().getValorFlotantes(offsetOp2);						
+				res_float = pow(op1_float, op2_float);
+				offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorFlotantes(offsetRes, res_float);
+			}
+		break;
+	}
+}
+
+void remainderfunc(int operando1, int operando2, int resultado){
+	int tipo_dato1, tipo_dato2, tipo_resultado, genDT1, genDT2, offsetRes, offsetOp1, offsetOp2, offset;
+	int op1_int, op2_int, res_int, read_int;
+	
+	tipo_dato1 = getDataType(operando1);
+	tipo_dato2 = getDataType(operando2);
+	tipo_resultado = getDataType(resultado);
+		
+	genDT1 = generateDataType(operando1);
+	genDT2 = generateDataType(operando2);
+	
+	switch(tipo_dato1){
+		case INTEGER:
+			//1 cte_int % cte_int
+			if(genDT1 == CTE_INT && genDT2 == CTE_INT){ 
+				op1_int = atoi(getConstantValue(operando1).c_str());
+				op2_int = atoi(getConstantValue(operando2).c_str());						
+				res_int = op1_int % op2_int;
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);	
+
+			}
+			//4 cte_int % int
+			else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
+				op1_int = atoi(getConstantValue(operando1).c_str());
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_int = memStack.top().getValorEnteros(offsetOp2);						
+				res_int = op1_int % op2_int;
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);	
+			}
+			//7 int % cte_int
+			else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
+				offsetOp1 = generateOffsetInt(operando1, genDT1);
+				op1_int = memStack.top().getValorEnteros(offsetOp1);	
+				op2_int = atoi(getConstantValue(operando2).c_str());						
+				res_int = op1_int % op2_int;
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);
+			}
+			//10 int % int
+			else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
+				offsetOp1 = generateOffsetInt(operando1, genDT1);
+				op1_int = memStack.top().getValorEnteros(offsetOp1);
+				offsetOp2 = generateOffsetInt(operando2, genDT2);
+				op2_int = memStack.top().getValorEnteros(offsetOp2);						
+				res_int = op1_int % op2_int;
+				offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+				memStack.top().setValorEnteros(offsetRes, res_int);
+			}
+		break;
+	}
+}
+
+void floorfunc(int operando1, int resultado){
+	int genDT1;
+	float offsetRes, offsetOp1, offset;
+	
+	float op1_float, res_float, read_float;
+			
+	genDT1 = generateDataType(operando1);
+	
+	if(genDT1 == CTE_FLOAT){
+		op1_float = atof(getConstantValue(operando1).c_str());					
+		res_float = floor(op1_float);
+		offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+		
+		memStack.top().setValorFlotantes(offsetRes, res_float);	
+		
+	}else {
+		offsetOp1 = generateOffsetInt(operando1, genDT1);
+		op1_float = memStack.top().getValorFlotantes(offsetOp1);						
+		res_float = floor(op1_float);
+		offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+		
+		memStack.top().setValorFlotantes(offsetRes, res_float);
+	}
+}
+
+void ceilingfunc(int operando1, int resultado){
+	int genDT1;
+	float offsetRes, offsetOp1, offset;
+	
+	float op1_float, res_float, read_float;
+			
+	genDT1 = generateDataType(operando1);
+	
+	if(genDT1 == CTE_FLOAT){
+		op1_float = atof(getConstantValue(operando1).c_str());					
+		res_float = ceil(op1_float);
+		offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+		
+		memStack.top().setValorFlotantes(offsetRes, res_float);	
+		
+	}else {
+		offsetOp1 = generateOffsetInt(operando1, genDT1);
+		op1_float = memStack.top().getValorFlotantes(offsetOp1);						
+		res_float = ceil(op1_float);
+		offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+		
+		memStack.top().setValorFlotantes(offsetRes, res_float);
+	}
+}
+
+void randomfunc(int resultado){
+	int res_int, offsetRes, genDT1;
+	
+	resultado = listOfQuads[main_index].resultado;
+	
+	genDT1 = generateDataType(resultado);
+	
+	res_int = rand();
+	offsetRes = generateOffsetInt(resultado, generateDataType(resultado));
+				
+	memStack.top().setValorEnteros(offsetRes, res_int);	
+}
+
+void sqrtfunc(int operando1, int resultado){
+	int genDT1;
+	float offsetRes, offsetOp1, offset;
+	
+	float op1_float, res_float, read_float;
+			
+	genDT1 = generateDataType(operando1);
+	
+	if(genDT1 == CTE_FLOAT){
+		op1_float = atof(getConstantValue(operando1).c_str());					
+		res_float = sqrt(op1_float);
+		offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+		
+		memStack.top().setValorFlotantes(offsetRes, res_float);	
+		
+	}else {
+		offsetOp1 = generateOffsetInt(operando1, genDT1);
+		op1_float = memStack.top().getValorFlotantes(offsetOp1);						
+		res_float = sqrt(op1_float);
+		offsetRes = generateOffsetFloat(resultado, generateDataType(resultado));
+		
+		memStack.top().setValorFlotantes(offsetRes, res_float);
+	}
+}
+
 void readFile(){
 	//ifstream myfile ("/Users/Verduzco/Stuff/TEC/Semestre/Compiladores/trex/MV/test.obj");
 	ifstream myfile ("/Users/ssalazars/Developer/trex/MV/test.obj");
@@ -880,7 +1291,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//4 cte_int + int
-						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -890,7 +1301,7 @@ void run(){
 							memStack.top().setValorEnteros(offsetRes, res_int);	
 						}
 						//5 cte_int + float
-						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -900,7 +1311,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_int);
 						}
 						//6 cte_int + string
-						else if(genDT1 == CTE_INT && (genDT2 == STRING || genDT2 == LOCAL_STRING)){
+						else if(genDT1 == CTE_INT && (genDT2 == STRING || genDT2 == LOCAL_STRING || genDT2 == TEMP_STRING)){
 							op1_string = getConstantValue(operando1).c_str();
 							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
 							op2_string = memStack.top().getValorStrings(offsetOp2);					
@@ -910,7 +1321,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//7 int + cte_int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_INT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -920,7 +1331,7 @@ void run(){
 							memStack.top().setValorEnteros(offsetRes, res_int);
 						}
 						//8 int + cte_float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -930,7 +1341,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						//9 int + cte_string FALTA
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_STRING){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_STRING){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							//op1_int = memStack.top().getValorEnteros(offsetOp1);
 							ostr << memStack.top().getValorEnteros(offsetOp1);
@@ -943,7 +1354,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//10 int + int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -954,7 +1365,7 @@ void run(){
 							memStack.top().setValorEnteros(offsetRes, res_int);
 						}
 						//11 int + float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -965,7 +1376,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						//12 int + string 																				
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == STRING || genDT2 == LOCAL_STRING)){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == STRING || genDT2 == LOCAL_STRING || genDT2 == TEMP_STRING)){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							ostr << memStack.top().getValorEnteros(offsetOp1);
 							op1_string = ostr.str();
@@ -1016,7 +1427,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//16 cte_float + int
-						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -1026,7 +1437,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						//17 cte_float + float
-						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -1036,7 +1447,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						//18  cte_float + string
-						else if(genDT1 == CTE_FLOAT && (genDT2 == STRING || genDT2 == LOCAL_STRING)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == STRING || genDT2 == LOCAL_STRING || genDT2 == TEMP_STRING)){
 							op1_string = getConstantValue(operando1).c_str();
 							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
 							op2_string = memStack.top().getValorStrings(offsetOp2);					
@@ -1046,7 +1457,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//19 float + cte_int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_INT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -1056,7 +1467,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						//20 float + cte_float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -1066,7 +1477,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						//21 float + cte_string
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_STRING){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_STRING){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							//op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							ostr << memStack.top().getValorFlotantes(offsetOp1);
@@ -1079,7 +1490,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//22 float + int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -1090,7 +1501,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						//23 float + float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -1101,7 +1512,7 @@ void run(){
 							memStack.top().setValorFlotantes(offsetRes, res_float);
 						}
 						//24 float + string
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == STRING || genDT2 == LOCAL_STRING)){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == STRING || genDT2 == LOCAL_STRING || genDT2 == TEMP_STRING)){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							//op1_string = memStack.top().getValorFlotantes(offsetOp1);
 							ostr << memStack.top().getValorFlotantes(offsetOp1);
@@ -1153,7 +1564,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//28 cte_string + int
-						else if(genDT1 == CTE_STRING && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){
+						else if(genDT1 == CTE_STRING && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){
 							op1_string = getConstantValue(operando1).c_str();
 							offsetOp2 = generateOffsetInt(operando2, generateDataType(offsetOp2));
 							ostr << memStack.top().getValorEnteros(offsetOp2);	
@@ -1165,7 +1576,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//29 cte_string + float
-						else if(genDT1 == CTE_STRING && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_STRING && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_string = getConstantValue(operando1).c_str();
 							offsetOp2 = generateOffsetFloat(operando2, generateDataType(offsetOp2));
 							ostr << memStack.top().getValorFlotantes(offsetOp2);	
@@ -1177,7 +1588,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//30 cte_string + string
-						else if(genDT1 == CTE_STRING && (genDT2 == STRING || genDT2 == LOCAL_STRING)){
+						else if(genDT1 == CTE_STRING && (genDT2 == STRING || genDT2 == LOCAL_STRING || genDT2 == TEMP_STRING)){
 							op1_string = getConstantValue(operando1).c_str();
 							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
 							op2_string = memStack.top().getValorStrings(offsetOp2);							
@@ -1187,7 +1598,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//30.5 cte_string + char
-						else if(genDT1 == CTE_STRING && (genDT2 == CHAR || genDT2 == LOCAL_CHAR)){
+						else if(genDT1 == CTE_STRING && (genDT2 == CHAR || genDT2 == LOCAL_CHAR || genDT2 == TEMP_CHAR)){
 							op1_string = getConstantValue(operando1).c_str();
 							offsetOp2 = generateOffsetChar(operando2, generateDataType(offsetOp2));
 							op2_string = memStack.top().getValorChars(offsetOp2);								
@@ -1197,7 +1608,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//31 string + cte_int
-						else if((genDT1 == STRING || genDT1 == LOCAL_STRING) && genDT2 == CTE_INT){
+						else if((genDT1 == STRING || genDT1 == LOCAL_STRING || genDT1 == TEMP_STRING) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							op2_string = getConstantValue(operando2).c_str();					
@@ -1207,7 +1618,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//32 string + cte_float
-						else if((genDT1 == STRING || genDT1 == LOCAL_STRING) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == STRING || genDT1 == LOCAL_STRING || genDT1 == TEMP_STRING) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							op2_string = getConstantValue(operando2).c_str();					
@@ -1217,7 +1628,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//33 string + cte_string
-						else if((genDT1 == STRING || genDT1 == LOCAL_STRING) && genDT2 == CTE_STRING){
+						else if((genDT1 == STRING || genDT1 == LOCAL_STRING || genDT1 == TEMP_STRING) && genDT2 == CTE_STRING){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							op2_string = getConstantValue(operando2).c_str();					
@@ -1227,7 +1638,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//33.5 string + cte_string
-						else if((genDT1 == STRING || genDT1 == LOCAL_STRING) && genDT2 == CTE_CHAR){
+						else if((genDT1 == STRING || genDT1 == LOCAL_STRING || genDT1 == TEMP_STRING) && genDT2 == CTE_CHAR){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							op2_string = getConstantValue(operando2).c_str()[1];						
@@ -1237,7 +1648,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//34 string + int
-						else if((genDT1 == STRING || genDT1 == LOCAL_STRING) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){
+						else if((genDT1 == STRING || genDT1 == LOCAL_STRING || genDT1 == TEMP_STRING) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, generateDataType(offsetOp2));
@@ -1250,7 +1661,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//35 string + float
-						else if((genDT1 == STRING || genDT1 == LOCAL_STRING) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if((genDT1 == STRING || genDT1 == LOCAL_STRING || genDT1 == TEMP_STRING) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, generateDataType(offsetOp2));
@@ -1263,7 +1674,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//36 string + string
-						else if((genDT1 == STRING || genDT1 == LOCAL_STRING) && (genDT2 == STRING || genDT2 == LOCAL_STRING)){
+						else if((genDT1 == STRING || genDT1 == LOCAL_STRING || genDT1 == TEMP_STRING) && (genDT2 == STRING || genDT2 == LOCAL_STRING || genDT2 == TEMP_STRING)){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
@@ -1274,7 +1685,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//36.5 string + char
-						else if((genDT1 == STRING || genDT1 == LOCAL_STRING) && (genDT2 == CHAR || genDT2 == LOCAL_CHAR)){
+						else if((genDT1 == STRING || genDT1 == LOCAL_STRING || genDT1 == TEMP_STRING) && (genDT2 == CHAR || genDT2 == LOCAL_CHAR || genDT2 == TEMP_CHAR)){
 							offsetOp1 = generateOffsetString(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorStrings(offsetOp1);
 							offsetOp2 = generateOffsetChar(operando2, generateDataType(offsetOp2));
@@ -1305,7 +1716,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//39 cte_char + string
-						if(genDT1 == CTE_CHAR && (genDT2 == STRING || genDT2 == LOCAL_STRING)){
+						if(genDT1 == CTE_CHAR && (genDT2 == STRING || genDT2 == LOCAL_STRING || genDT2 == TEMP_STRING)){
 							op1_string = getConstantValue(operando1).c_str()[1];
 							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
 							op2_string = memStack.top().getValorStrings(offsetOp2);							
@@ -1315,7 +1726,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//40 cte_char + char
-						else if(genDT1 == CTE_CHAR && (genDT2 == CHAR || genDT2 == LOCAL_CHAR)){
+						else if(genDT1 == CTE_CHAR && (genDT2 == CHAR || genDT2 == LOCAL_CHAR || genDT2 == TEMP_CHAR)){
 							op1_string = getConstantValue(operando1).c_str()[1];
 							offsetOp2 = generateOffsetChar(operando2, generateDataType(offsetOp2));
 							op2_string = memStack.top().getValorChars(offsetOp2);						
@@ -1325,7 +1736,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//41 char + cte_string
-						if((genDT1 == CHAR || genDT1 == LOCAL_CHAR) && genDT2 == CTE_STRING){
+						if((genDT1 == CHAR || genDT1 == LOCAL_CHAR || genDT1 == TEMP_CHAR) && genDT2 == CTE_STRING){
 							offsetOp1 = generateOffsetChar(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorChars(offsetOp1);
 							op2_string = getConstantValue(operando2).c_str();						
@@ -1335,7 +1746,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//42 char + cte_char
-						else if((genDT1 == CHAR || genDT1 == LOCAL_CHAR) && genDT2 == CTE_CHAR){
+						else if((genDT1 == CHAR || genDT1 == LOCAL_CHAR || genDT1 == TEMP_CHAR) && genDT2 == CTE_CHAR){
 							offsetOp1 = generateOffsetChar(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorChars(offsetOp1);
 							op2_string = getConstantValue(operando2).c_str()[1];						
@@ -1345,7 +1756,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//43 char + string
-						if((genDT1 == CHAR || genDT1 == LOCAL_CHAR) && (genDT2 == STRING || genDT2 == LOCAL_STRING)){
+						if((genDT1 == CHAR || genDT1 == LOCAL_CHAR || genDT1 == TEMP_CHAR) && (genDT2 == STRING || genDT2 == LOCAL_STRING || genDT2 == TEMP_STRING)){
 							offsetOp1 = generateOffsetChar(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorChars(offsetOp1);
 							offsetOp2 = generateOffsetString(operando2, generateDataType(offsetOp2));
@@ -1356,7 +1767,7 @@ void run(){
 							memStack.top().setValorStrings(offsetRes, res_string);
 						}
 						//44 char + char
-						else if((genDT1 == CHAR || genDT1 == LOCAL_CHAR) && (genDT2 == CHAR || genDT2 == LOCAL_CHAR)){
+						else if((genDT1 == CHAR || genDT1 == LOCAL_CHAR || genDT1 == TEMP_CHAR) && (genDT2 == CHAR || genDT2 == LOCAL_CHAR || genDT2 == TEMP_CHAR)){
 							offsetOp1 = generateOffsetChar(operando1, generateDataType(offsetOp1));
 							op1_string = memStack.top().getValorChars(offsetOp1);
 							offsetOp2 = generateOffsetChar(operando2, generateDataType(offsetOp2));
@@ -1423,7 +1834,7 @@ void run(){
 							*/
 						}
 						//3 cte_int - int
-						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -1443,7 +1854,7 @@ void run(){
 							*/
 						}
 						//4 cte_int - float
-						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -1463,7 +1874,7 @@ void run(){
 							*/
 						}
 						//5 int - cte_int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_INT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -1485,7 +1896,7 @@ void run(){
 							
 						}
 						//6 int - cte_float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -1505,7 +1916,7 @@ void run(){
 							*/
 						}
 						//7 int - int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -1526,7 +1937,7 @@ void run(){
 							*/
 						}
 						//8 int - float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -1588,7 +1999,7 @@ void run(){
 							*/
 						}
 						//11 cte_float - int
-						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -1608,7 +2019,7 @@ void run(){
 							*/
 						}
 						//12 cte_float - float
-						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -1628,7 +2039,7 @@ void run(){
 							*/
 						}
 						//13 float - cte_int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_INT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -1648,7 +2059,7 @@ void run(){
 							*/
 						}
 						//14 float - cte_float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -1668,7 +2079,7 @@ void run(){
 							*/
 						}
 						//15 float - int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -1689,7 +2100,7 @@ void run(){
 							*/
 						}
 						//16 float - float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -1769,7 +2180,7 @@ void run(){
 							*/
 						}
 						//3 cte_int / int
-						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_float = memStack.top().getValorEnteros(offsetOp2);					
@@ -1795,7 +2206,7 @@ void run(){
 							*/
 						}
 						//4 cte_int / float
-						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);
@@ -1811,7 +2222,7 @@ void run(){
 							}
 						}
 						//5 int / cte_int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_INT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_float = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());
@@ -1827,7 +2238,7 @@ void run(){
 							}
 						}
 						//6 int / cte_float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_float = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -1843,7 +2254,7 @@ void run(){
 							}
 						}
 						//7 int / int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_float = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -1860,7 +2271,7 @@ void run(){
 							}
 						}
 						//8 int / float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_float = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -1909,7 +2320,7 @@ void run(){
 							}
 						}
 						//11 cte_float / int
-						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_float = memStack.top().getValorEnteros(offsetOp2);						
@@ -1925,7 +2336,7 @@ void run(){
 							}
 						}
 						//12 cte_float / float
-						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -1941,7 +2352,7 @@ void run(){
 							}
 						}
 						//13 float / cte_int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_INT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -1957,7 +2368,7 @@ void run(){
 							}
 						}
 						//14 float / cte_float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -1973,7 +2384,7 @@ void run(){
 							}
 						}
 						//15 float / int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -1990,7 +2401,7 @@ void run(){
 							}
 						}
 						//16 float / float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -2055,7 +2466,7 @@ void run(){
 							*/	
 						}
 						//3 cte_int * int
-						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -2075,7 +2486,7 @@ void run(){
 							*/
 						}
 						//4 cte_int * float
-						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -2096,7 +2507,7 @@ void run(){
 							*/
 						}
 						//5 int * cte_int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_INT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -2116,7 +2527,7 @@ void run(){
 							*/
 						}
 						//6 int * cte_float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -2136,7 +2547,7 @@ void run(){
 							*/
 						}
 						//7 int * int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -2157,7 +2568,7 @@ void run(){
 							*/
 						}
 						//8 int * float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -2218,7 +2629,7 @@ void run(){
 							*/
 						}
 						//11 cte_float * int
-						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -2238,7 +2649,7 @@ void run(){
 							*/
 						}
 						//12 cte_float * float
-						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -2258,7 +2669,7 @@ void run(){
 							*/
 						}
 						//13 float * cte_int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_INT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -2278,7 +2689,7 @@ void run(){
 							*/
 						}
 						//14 float * cte_float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -2298,7 +2709,7 @@ void run(){
 							*/
 						}
 						//15 float * int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -2319,7 +2730,7 @@ void run(){
 							*/
 						}
 						//16 float * float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -2360,14 +2771,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//2 cte_int < cte_float
 						else if(genDT1 == CTE_INT && genDT2 == CTE_FLOAT){
@@ -2380,18 +2784,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+					
 						}
 						//3 cte_int < int
-						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -2403,17 +2799,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//4 cte_int < float
-						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -2425,17 +2814,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//5 int < cte_int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_INT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -2447,17 +2829,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//6 int < cte_float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -2469,17 +2844,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//7 int < int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -2492,17 +2860,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+					
 						}
 						//8 int < float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -2514,15 +2875,7 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);	
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						break;
 					case FLOAT:
@@ -2538,14 +2891,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//10 cte_float < cte_float
 						else if(genDT1 == CTE_FLOAT && genDT2 == CTE_FLOAT){
@@ -2559,17 +2905,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//11 cte_float < int
-						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -2580,18 +2919,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+						
 						}
 						//12 cte_float < float
-						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -2603,17 +2934,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//13 float < cte_int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_INT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -2625,17 +2949,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+					
 						}
 						//14 float < cte_float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -2647,17 +2964,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//15 float < int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -2670,17 +2980,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+					
 						}
 						//16 float < float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -2693,14 +2996,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);	
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+					
 						}
 						break;
 				}
@@ -2723,14 +3019,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//2 cte_int > cte_float
 						else if(genDT1 == CTE_INT && genDT2 == CTE_FLOAT){
@@ -2744,17 +3033,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+							
 						}
 						//3 cte_int > int
-						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -2765,18 +3047,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//4 cte_int > float
-						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -2788,17 +3062,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//5 int > cte_int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_INT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -2822,7 +3089,7 @@ void run(){
 							*/
 						}
 						//6 int > cte_float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -2834,17 +3101,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//7 int > int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -2857,17 +3117,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//8 int > float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -2880,14 +3133,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);	
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						break;
 					case FLOAT:
@@ -2903,14 +3149,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//10 cte_float > cte_float
 						else if(genDT1 == CTE_FLOAT && genDT2 == CTE_FLOAT){
@@ -2924,17 +3163,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//11 cte_float > int
-						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -2946,17 +3178,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+						
 						}
 						//12 cte_float > float
-						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -2968,17 +3193,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//13 float > cte_int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_INT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -2990,17 +3208,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//14 float > cte_float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -3012,17 +3223,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//15 float > int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -3035,17 +3239,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//16 float > float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -3058,14 +3255,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);	
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						break;
 				}
@@ -3192,14 +3382,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//2 cte_int <> cte_float
 						else if(genDT1 == CTE_INT && genDT2 == CTE_FLOAT){
@@ -3212,18 +3395,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+
 						}
 						//3 cte_int <> int
-						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -3235,17 +3410,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//4 cte_int <> float
-						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -3256,18 +3424,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//5 int <> cte_int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_INT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -3290,7 +3450,7 @@ void run(){
 							*/
 						}
 						//6 int <> cte_float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -3302,17 +3462,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//7 int <> int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -3325,17 +3478,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//8 int <> float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -3348,14 +3494,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);	
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						break;
 					case FLOAT:
@@ -3371,14 +3510,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//10 cte_float <> cte_float
 						else if(genDT1 == CTE_FLOAT && genDT2 == CTE_FLOAT){
@@ -3392,17 +3524,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//11 cte_float <> int
-						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -3413,18 +3538,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+						
 						}
 						//12 cte_float <> float
-						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -3436,17 +3553,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//13 float <> cte_int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_INT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -3458,17 +3568,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//14 float <> cte_float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -3480,17 +3583,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//15 float <> int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -3503,17 +3599,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//16 float <> float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -3526,14 +3615,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);	
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						break;
 					case BOOLEAN:
@@ -3549,18 +3631,11 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << getConstantValue(operando1) << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << getConstantValue(operando2) << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 							
 						}
 						//18 cte_bool <> bool
-						else if(genDT1 == CTE_BOOLEAN && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN)){
+						else if(genDT1 == CTE_BOOLEAN && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN || genDT2 == TEMP_BOOLEAN)){
 							op1_string = getConstantValue(operando1);
 							if(strcmp("true", op1_string.c_str()) == 0)	
 								op1_boolean = true;
@@ -3577,18 +3652,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_boolean << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_boolean << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
 							
 						}
 						//19 bool <> cte_bool
-						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN) && genDT2 == CTE_BOOLEAN){
+						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN || genDT1 == TEMP_BOOLEAN) && genDT2 == CTE_BOOLEAN){
 							offsetOp1 = generateOffsetBoolean(operando1, genDT1);
 							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
 							op2_string = getConstantValue(operando2);
@@ -3605,18 +3672,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_boolean << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_boolean << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
-							
+						
 						}
 						//20 bool <> bool
-						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN) && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN)){
+						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN || genDT1 == TEMP_BOOLEAN) && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN || genDT2 == TEMP_BOOLEAN)){
 							offsetOp1 = generateOffsetBoolean(operando1, genDT1);
 							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
 							offsetOp2 = generateOffsetBoolean(operando2, genDT2);
@@ -3630,14 +3689,6 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_boolean << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_boolean << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
 							
 						}
 				}
@@ -3659,15 +3710,7 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+
 						}
 						//2 cte_int == cte_float
 						else if(genDT1 == CTE_INT && genDT2 == CTE_FLOAT){
@@ -3680,18 +3723,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+
 						}
 						//3 cte_int == int
-						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_INT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -3703,17 +3738,9 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
 						}
 						//4 cte_int == float
-						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_INT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_int = atoi(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -3724,18 +3751,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//5 int == cte_int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_INT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -3747,17 +3766,9 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
 						}
 						//6 int == cte_float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -3769,17 +3780,9 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
 						}
 						//7 int == int
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -3792,17 +3795,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//8 int == float
-						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == INTEGER || genDT1 == LOCAL_INT || genDT1 == TEMP_INT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetInt(operando1, genDT1);
 							op1_int = memStack.top().getValorEnteros(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -3814,15 +3810,7 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);	
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_int << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						break;
 					case FLOAT:
@@ -3838,14 +3826,6 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
 						}
 						//10 cte_float == cte_float
 						else if(genDT1 == CTE_FLOAT && genDT2 == CTE_FLOAT){
@@ -3859,17 +3839,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//11 cte_float == int
-						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if(genDT1 == CTE_FLOAT && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
 							op2_int = memStack.top().getValorEnteros(offsetOp2);						
@@ -3881,17 +3854,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";	
+							
 						}
 						//12 cte_float == float
-						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){
+						else if(genDT1 == CTE_FLOAT && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){
 							op1_float = atof(getConstantValue(operando1).c_str());
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
 							op2_float = memStack.top().getValorFlotantes(offsetOp2);						
@@ -3903,17 +3869,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//13 float == cte_int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_INT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_INT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_int = atoi(getConstantValue(operando2).c_str());						
@@ -3925,17 +3884,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//14 float == cte_float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && genDT2 == CTE_FLOAT){
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && genDT2 == CTE_FLOAT){
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);	
 							op2_float = atof(getConstantValue(operando2).c_str());						
@@ -3947,17 +3899,10 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						//15 float == int
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == INTEGER || genDT2 == LOCAL_INT || genDT2 == TEMP_INT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetInt(operando2, genDT2);
@@ -3969,18 +3914,10 @@ void run(){
 							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
-							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_int << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 						}
 						//16 float == float
-						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT)){ 
+						else if((genDT1 == FLOAT || genDT1 == LOCAL_FLOAT || genDT1 == TEMP_FLOAT) && (genDT2 == FLOAT || genDT2 == LOCAL_FLOAT || genDT2 == TEMP_FLOAT)){ 
 							offsetOp1 = generateOffsetFloat(operando1, genDT1);
 							op1_float = memStack.top().getValorFlotantes(offsetOp1);
 							offsetOp2 = generateOffsetFloat(operando2, genDT2);
@@ -3993,14 +3930,7 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);	
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_float << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_float << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+							
 						}
 						break;
 					case BOOLEAN:
@@ -4016,18 +3946,11 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << getConstantValue(operando1) << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << getConstantValue(operando2) << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+
 							
 						}
 						//18 cte_bool == bool
-						else if(genDT1 == CTE_BOOLEAN && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN)){
+						else if(genDT1 == CTE_BOOLEAN && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN || genDT2 == TEMP_BOOLEAN)){
 							op1_string = getConstantValue(operando1);
 							if(strcmp("true", op1_string.c_str()) == 0)	
 								op1_boolean = true;
@@ -4044,18 +3967,11 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_boolean << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_boolean << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 							
 						}
 						//19 bool == cte_bool
-						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN) && genDT2 == CTE_BOOLEAN){
+						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN || genDT1 == TEMP_BOOLEAN) && genDT2 == CTE_BOOLEAN){
 							offsetOp1 = generateOffsetBoolean(operando1, genDT1);
 							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
 							op2_string = getConstantValue(operando2);
@@ -4072,18 +3988,11 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_boolean << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_boolean << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
 							
 						}
 						//20 bool == bool
-						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN) && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN)){
+						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN || genDT1 == TEMP_BOOLEAN) && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN || genDT2 == TEMP_BOOLEAN)){
 							offsetOp1 = generateOffsetBoolean(operando1, genDT1);
 							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
 							offsetOp2 = generateOffsetBoolean(operando2, genDT2);
@@ -4097,15 +4006,166 @@ void run(){
 							
 							memStack.top().setValorBooleans(offsetRes, res_boolean);
 							
-							cout << "Direccion 1: " << operando1 << "\n";
-							cout << "Operando 1: " << op1_boolean << "\n";
-							cout << "Direccion 2: " << operando2 << "\n";
-							cout << "Operando 2: " << op2_boolean << "\n";
-							cout << "Resultado: " << res_boolean << "\n";
-							cout << "Index: " << offsetRes << "\n";
-							cout << "Direccion Final: " << resultado << "\n";
-							cout << "Valor Guardado: " << memStack.top().getValorBooleans(offsetRes) << "\n";
+						
+						}
+					}
+				break;
+			case 9:																			//&&
+				tipo_dato1 = getDataType(operando1);
+				tipo_dato2 = getDataType(operando2);
+				tipo_resultado = getDataType(resultado);
+				switch(tipo_dato1){
+					case BOOLEAN:
+						//17 cte_bool && cte_bool
+						if(genDT1 == CTE_BOOLEAN && genDT2 == CTE_BOOLEAN){
+							op1_string = getConstantValue(operando1);
+							op2_string = getConstantValue(operando2);
+							if(strcmp(op1_string.c_str(), op2_string.c_str()) == 0){
+								if(strcmp(op1_string.c_str(), "true") == 0)
+									res_boolean = true;
+							}
+							else
+								res_boolean = false;
+								
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
 							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+						}
+						//18 cte_bool && bool
+						else if(genDT1 == CTE_BOOLEAN && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN || genDT2 == TEMP_BOOLEAN)){
+							op1_string = getConstantValue(operando1);
+							if(strcmp("true", op1_string.c_str()) == 0)	
+								op1_boolean = true;
+							else
+								op1_boolean = false;
+							offsetOp2 = generateOffsetBoolean(operando2, genDT2);
+							op2_boolean = memStack.top().getValorBooleans(offsetOp2);
+							
+							if(op1_boolean && op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+														
+						}
+						//19 bool == cte_bool
+						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN || genDT1 == TEMP_BOOLEAN) && genDT2 == CTE_BOOLEAN){
+							offsetOp1 = generateOffsetBoolean(operando1, genDT1);
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							op2_string = getConstantValue(operando2);
+							if(strcmp("true",op2_string.c_str()) == 0)
+								op2_boolean = true;
+							else
+								op2_boolean = false;
+							
+							if(op1_boolean && op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+														
+						}
+						//20 bool == bool
+						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN || genDT1 == TEMP_BOOLEAN) && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN || genDT2 == TEMP_BOOLEAN)){
+							offsetOp1 = generateOffsetBoolean(operando1, genDT1);
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							offsetOp2 = generateOffsetBoolean(operando2, genDT2);
+							op2_boolean = memStack.top().getValorBooleans(offsetOp2);
+							
+							
+							
+							if(op1_boolean && op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+													
+						}
+					}
+				break;
+			case 10:																		//||
+				tipo_dato1 = getDataType(operando1);
+				tipo_dato2 = getDataType(operando2);
+				tipo_resultado = getDataType(resultado);
+				switch(tipo_dato1){
+					case BOOLEAN:
+						//17 cte_bool && cte_bool
+						if(genDT1 == CTE_BOOLEAN && genDT2 == CTE_BOOLEAN){
+							op1_string = getConstantValue(operando1);
+							op2_string = getConstantValue(operando2);
+							if((strcmp(op1_string.c_str(), "true") == 0) || (strcmp(op2_string.c_str(), "true") == 0)){
+								res_boolean = true;
+							}else{
+								res_boolean = false;
+							}
+								
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+							
+						}
+						//18 cte_bool && bool
+						else if(genDT1 == CTE_BOOLEAN && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN || genDT2 == TEMP_BOOLEAN)){
+							op1_string = getConstantValue(operando1);
+							if(strcmp("true", op1_string.c_str()) == 0)	
+								op1_boolean = true;
+							else
+								op1_boolean = false;
+							offsetOp2 = generateOffsetBoolean(operando2, genDT2);
+							op2_boolean = memStack.top().getValorBooleans(offsetOp2);
+							
+							if(op1_boolean || op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+														
+						}
+						//19 bool == cte_bool
+						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN || genDT1 == TEMP_BOOLEAN) && genDT2 == CTE_BOOLEAN){
+							offsetOp1 = generateOffsetBoolean(operando1, genDT1);
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							op2_string = getConstantValue(operando2);
+							if(strcmp("true",op2_string.c_str()) == 0)
+								op2_boolean = true;
+							else
+								op2_boolean = false;
+							
+							if(op1_boolean || op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+														
+						}
+						//20 bool == bool
+						else if((genDT1 == BOOLEAN || genDT1 == LOCAL_BOOLEAN || genDT1 == TEMP_BOOLEAN) && (genDT2 == BOOLEAN || genDT2 == LOCAL_BOOLEAN || genDT2 == TEMP_BOOLEAN)){
+							offsetOp1 = generateOffsetBoolean(operando1, genDT1);
+							op1_boolean = memStack.top().getValorBooleans(offsetOp1);
+							offsetOp2 = generateOffsetBoolean(operando2, genDT2);
+							op2_boolean = memStack.top().getValorBooleans(offsetOp2);
+							
+							
+							
+							if(op1_boolean || op2_boolean)						
+								res_boolean = true;
+							else
+								res_boolean = false;
+							offsetRes = generateOffsetBoolean(resultado, generateDataType(resultado));
+							
+							memStack.top().setValorBooleans(offsetRes, res_boolean);
+													
 						}
 					}
 				break;
@@ -4270,6 +4330,30 @@ void run(){
 				apuntadores[resultado - BASE_POINTERS] = operando1 + op2_int;
 				//cout << "Suma special " << apuntadores[resultado - BASE_POINTERS] << "\n";
 				break;
+			case MIN:
+				minfunc(operando1, operando2, resultado);
+			break;
+			case MAX:
+				maxfunc(operando1, operando2, resultado);
+			break;
+			case POW:
+				powfunc(operando1, operando2, resultado);
+			break;
+			case REMAINDER:
+				remainderfunc(operando1, operando2, resultado);
+			break;
+			case FLOOR:
+				floorfunc(operando1, resultado);
+			break;
+			case CEILING:
+				ceilingfunc(operando1, resultado);
+			break;
+			case RANDOM:
+				randomfunc(resultado);
+			break;
+			case SQRT:
+				sqrtfunc(operando1, resultado);
+			break;
 		}
 		//cout << "Offset: " << generateOffsetInt(26000, 5) << "\n";
 		//cout << "Valor: " << memStack.top().getValorEnteros(generateOffsetInt(26000, 5)) << "\n";
