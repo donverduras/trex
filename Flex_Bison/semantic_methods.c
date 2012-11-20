@@ -118,15 +118,15 @@ static int cubo[11][5][5] =
 		{//"<>"
 			{4, 4, -1, -1, -1},
 			{4, 4, -1, -1, -1},
-			{-1, -1, 4, -1, -1},
-			{-1, -1, -1,-1, -1},
+			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, 4, -1},
 			{-1, -1, -1, -1,-1}
 		},
 		{//"=="
 			{4, 4, -1, -1, -1},
 			{4, 4, -1, -1, -1},
-			{-1, -1, 4, -1, -1},
 			{-1, -1, -1, -1, -1},
+			{-1, -1, -1, 4, -1},
 			{-1, -1, -1, -1, -1}
 		},
 		{//"&&"
@@ -512,14 +512,14 @@ void generateQuadruple(){
 	char *aux, *temp_aux;
 	int resultadoCubo, operador, op1, op2, dirVir;
 	
-	operador = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperadores));
-	//operador = atoi(aux);		
+	operador = GPOINTER_TO_INT(g_queue_peek_tail(pilaOperadores));	
 	op2 = GPOINTER_TO_INT(g_queue_peek_nth(pilaTipos,(g_queue_get_length(pilaTipos)-2)));
-	//op2 = atoi(aux);
 	op1 = GPOINTER_TO_INT(g_queue_peek_tail(pilaTipos));
-	//op1 = atoi(aux);
+
 	resultadoCubo = cubo[operador][op1][op2] - 1;						//Para que int empiece de 0
-		
+	
+
+	
 	if(resultadoCubo != -1){
 		g_queue_pop_tail(pilaTipos);
 		g_queue_pop_tail(pilaTipos);
